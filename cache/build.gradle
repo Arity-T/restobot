@@ -16,6 +16,7 @@ shadowJar {
 }
 
 dependencies {
+    implementation project(":integration")
 }
 
 application {
