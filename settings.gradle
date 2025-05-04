@@ -12,3 +12,4 @@ plugins {
 
 rootProject.name = 'restobot'
 include('telegram')
+include('logic')
