@@ -1,4 +1,5 @@
 package dev.tishenko.restobot.telegram.config;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,30 @@ public class RestaurantCard {
     private double longitude;
     private String city;
 
+    public RestaurantCard() {
+    }
+
+    public RestaurantCard(int restaurantId,
+                          int tripadvisorId,
+                          String name,
+                          String addressString,
+                          double rating,
+                          URL website,
+                          String description,
+                          double latitude,
+                          double longitude,
+                          String city) {
+        this.restaurantId = restaurantId;
+        this.tripadvisorId = tripadvisorId;
+        this.name = name;
+        this.addressString = addressString;
+        this.rating = rating;
+        this.website = website;
+        this.description = description;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.city = city;
+    }
 
     public int getRestaurantId() {
         return restaurantId;
