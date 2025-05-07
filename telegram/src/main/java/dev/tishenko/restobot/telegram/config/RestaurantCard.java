@@ -19,6 +19,7 @@ public class RestaurantCard {
     private double latitude;
     private double longitude;
     private String city;
+    private boolean isVisited;
 
     public RestaurantCard() {
     }
@@ -123,5 +124,13 @@ public class RestaurantCard {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public boolean isVisited() {
+        return isVisited;
+    }
+
+    public void setVisited(boolean visited) {
+        isVisited = visited;
     }
 }
