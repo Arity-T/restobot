@@ -1,7 +1,5 @@
 package dev.tishenko.restobot.telegram.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +17,9 @@ public class UserData {
     private List<String> kitchenTypes;
     private List<String> priceCategories;
     private List<String> keyWords;
+
+    public UserData() {
+    }
 
     public UserData(int chatID, String nickName, List<RestaurantCard> favoriteList) {
         setChatID(chatID);
@@ -71,14 +72,14 @@ public class UserData {
         keyWords = Arrays.stream(newkeyWords.split(" ")).toList();
     }
 
-    public void addRestaurantToFavouriteList(RestaurantCard restaurantCard){
-        if (!favoriteList.contains(restaurantCard)){
+    public void addRestaurantToFavouriteList(RestaurantCard restaurantCard) {
+        if (!favoriteList.contains(restaurantCard)) {
             favoriteList.add(restaurantCard);
         }
     }
 
-    public void removeRestaurantFromFavouriteList(RestaurantCard restaurantCard){
-        if (favoriteList.contains(restaurantCard)){
+    public void removeRestaurantFromFavouriteList(RestaurantCard restaurantCard) {
+        if (favoriteList.contains(restaurantCard)) {
             favoriteList.remove(restaurantCard);
         }
     }
