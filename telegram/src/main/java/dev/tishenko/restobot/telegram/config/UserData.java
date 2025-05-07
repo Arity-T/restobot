@@ -63,4 +63,17 @@ public class UserData {
     public void setKeyWords(List<String> keyWords) {
         this.keyWords = keyWords;
     }
+
+    public void addRestaurantToFavouriteList(RestaurantCard restaurantCard){
+        if (!favoriteList.contains(restaurantCard)){
+            favoriteList.add(restaurantCard);
+        }
+    }
+
+    public void removeRestaurantFromFavouriteList(RestaurantCard restaurantCard){
+        if (favoriteList.contains(restaurantCard)){
+            favoriteList.remove(restaurantCard);
+        }
+    }
+
 }
