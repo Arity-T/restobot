@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -62,6 +63,10 @@ public class UserData {
 
     public void setKeyWords(List<String> keyWords) {
         this.keyWords = keyWords;
+    }
+
+    public void parseKeyWords(String newkeyWords) {
+        keyWords = Arrays.stream(newkeyWords.split(" ")).toList();
     }
 
     public void addRestaurantToFavouriteList(RestaurantCard restaurantCard){
