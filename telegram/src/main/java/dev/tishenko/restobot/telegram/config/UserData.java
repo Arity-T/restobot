@@ -16,6 +16,8 @@ public class UserData {
     private String nickName;
     private List<RestaurantCard> favoriteList;
     private String city;
+    private List<String> kitchenTypes;
+    private List<String> priceCategories;
     private List<String> keyWords;
 
     public UserData(int chatID, String nickName, List<RestaurantCard> favoriteList) {
@@ -81,4 +83,19 @@ public class UserData {
         }
     }
 
+    public List<String> getKitchenTypes() {
+        return kitchenTypes;
+    }
+
+    public void setKitchenTypes(List<String> kitchenTypes) {
+        this.kitchenTypes = kitchenTypes;
+    }
+
+    public List<String> getPriceCategories() {
+        return priceCategories;
+    }
+
+    public void setPriceCategories(List<String> priceCategories) {
+        this.priceCategories = priceCategories;
+    }
 }
