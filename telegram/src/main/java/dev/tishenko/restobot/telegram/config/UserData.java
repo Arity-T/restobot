@@ -91,11 +91,19 @@ public class UserData {
         this.kitchenTypes = kitchenTypes;
     }
 
+    public void parseKitchenTypes(String newKitchenTypes) {
+        kitchenTypes = Arrays.stream(newKitchenTypes.split(" ")).toList();
+    }
+
     public List<String> getPriceCategories() {
         return priceCategories;
     }
 
     public void setPriceCategories(List<String> priceCategories) {
         this.priceCategories = priceCategories;
+    }
+
+    public void parsePriceCategories(String newPriceCategories) {
+        priceCategories = Arrays.stream(newPriceCategories.split(" ")).toList();
     }
 }
