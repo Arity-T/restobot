@@ -79,9 +79,7 @@ public class UserData {
     }
 
     public void removeRestaurantFromFavouriteList(RestaurantCard restaurantCard) {
-        if (favoriteList.contains(restaurantCard)) {
-            favoriteList.remove(restaurantCard);
-        }
+        favoriteList.remove(restaurantCard);
     }
 
     public List<String> getKitchenTypes() {
