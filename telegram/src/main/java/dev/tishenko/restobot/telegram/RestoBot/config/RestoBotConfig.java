@@ -1,6 +1,5 @@
 package dev.tishenko.restobot.telegram.RestoBot.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -129,5 +128,5 @@ public class RestoBotConfig {
             .build()
     );
 
-
+    public RestoBotConfig() {}
 }
