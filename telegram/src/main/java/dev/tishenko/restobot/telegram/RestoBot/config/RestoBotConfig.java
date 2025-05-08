@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram.RestoBot.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
@@ -9,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 @Configuration
 @Scope("singleton")
 public class RestoBotConfig {
+
     public InlineKeyboardRow setCityButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Задать город")
@@ -128,5 +128,6 @@ public class RestoBotConfig {
             .build()
     );
 
-    public RestoBotConfig() {}
+    public RestoBotConfig() {
+    }
 }
