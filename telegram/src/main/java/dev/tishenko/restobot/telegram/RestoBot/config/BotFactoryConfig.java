@@ -23,7 +23,7 @@ public class BotFactoryConfig {
     @Bean
     public MyAmazingBot myAmazingBot(
             @Value("${telegram.bot.token}") String botToken,
-            @Value("${telegram.bot.name}") String botUsername,
+            @Value("${telegram.bot.username}") String botUsername,
             RestoBotConfig restoBotConfig
     ) {
         return new MyAmazingBot(botToken, botUsername, restoBotConfig);
