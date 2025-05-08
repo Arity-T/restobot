@@ -21,14 +21,16 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     private final String botToken;
     private final String botUsername;
-
     private RestoBotConfig botConfig;
     private final TelegramClient telegramClient;
 
+    public String getUsername() {
+        return botUsername;
+    }
 
     public RestoBot(@Value("${telegram.bot.token}") String botToken,
-                        @Value("${telegram.bot.username}") String botUsername,
-                        RestoBotConfig botConfig) {
+                    @Value("${telegram.bot.username}") String botUsername,
+                    RestoBotConfig botConfig) {
         this.botToken = botToken;
         this.botUsername = botUsername;
         this.botConfig = botConfig;
@@ -46,7 +48,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
         updates.forEach(update -> updatesProcessorExecutor.execute(() -> consume(update)));
     }
 
-    public void consume(Update update){
+    public void consume(Update update) {
 
     }
 }
