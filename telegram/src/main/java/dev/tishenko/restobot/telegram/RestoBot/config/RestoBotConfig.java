@@ -35,6 +35,11 @@ public class RestoBotConfig {
         states.put(15, List.of(10, 15)); // Rest card (Search crit)
     }
 
+    public RestoBotConfig() {
+        initStates();
+    }
+
+
     public InlineKeyboardRow setCityButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Задать город")
@@ -153,9 +158,5 @@ public class RestoBotConfig {
             .callbackData("searchButton")
             .build()
     );
-
-    public RestoBotConfig() {
-    }
-
 
 }
