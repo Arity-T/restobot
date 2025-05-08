@@ -4,10 +4,36 @@ import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
+import java.util.List;
+import java.util.Map;
+
 
 @Configuration
 @Scope("singleton")
 public class RestoBotConfig {
+
+    private int actualState;
+
+    private Map<Integer, List<Integer>> states;
+
+    private void initStates() {
+        states.put(0, List.of(1)); // Greeting
+        states.put(1, List.of(2, 3, 4, 5)); // User params
+        states.put(2, List.of(1, 2)); // Set city (user params)
+        states.put(3, List.of(1, 3)); // Set kitchen type (user params)
+        states.put(4, List.of(1, 4)); // Set price category (user params)
+        states.put(5, List.of(1)); // Set keywords (user params)
+        states.put(6, List.of(1, 7)); // Menu
+        states.put(7, List.of(6, 7)); // Fav list
+        states.put(8, List.of(6, 8, 9)); // Random rest
+        states.put(9, List.of(8, 9)); // Rest card (Random rest)
+        states.put(10, List.of(6, 10, 11, 12, 13, 14, 15)); // Search crit 
+        states.put(11, List.of(10, 11)); // Set city (Search crit)
+        states.put(12, List.of(10, 12)); // Set kitchen type (Search crit)
+        states.put(13, List.of(10, 13)); // Set price category (Search crit)
+        states.put(14, List.of(10)); // Set keywords (Search crit)
+        states.put(15, List.of(10, 15)); // Rest card (Search crit)
+    }
 
     public InlineKeyboardRow setCityButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
@@ -130,4 +156,6 @@ public class RestoBotConfig {
 
     public RestoBotConfig() {
     }
+
+
 }
