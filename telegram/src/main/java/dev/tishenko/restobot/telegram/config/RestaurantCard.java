@@ -125,12 +125,4 @@ public class RestaurantCard {
     public void setCity(String city) {
         this.city = city;
     }
-
-    public boolean isVisited() {
-        return isVisited;
-    }
-
-    public void setVisited(boolean visited) {
-        isVisited = visited;
-    }
 }
