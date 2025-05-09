@@ -23,6 +23,11 @@ public class UserData {
     private List<String> priceCategoriesForSearch;
     private List<String> keyWordsForSearch;
 
+    private List<String> correctCities;
+    private List<String> correctKitchenTypes;
+    private List<String> correctPriceCategoriesForSearch;
+
+
     public UserData() {
     }
 
@@ -39,6 +44,17 @@ public class UserData {
         priceCategoriesForSearch = priceCategories;
         keyWordsForSearch = keyWords;
         index = 0;
+
+        correctCities = List.of("Москва", "Санкт-Петербург", "Новосибирск",
+                "Екатеринбург", "Казань", "Красноярск", "Нижний Новгород",
+                "Челябинск", "Уфа", "Самара", "Ростов-на-Дону",
+                "Краснодар", "Омск", "Воронеж", "Пермь", "Волгоград");
+        correctKitchenTypes = List.of("африканская", "азиатская", "американская",
+                "барбекю", "ближневосточная", "британская", "вьетнамская",
+                "восточно-европейская", "европейская", "ирландская", "испанская", "итальянская",
+                "индийская", "каджунская", "карибская", "китайская", "мексиканская", "немецкая",
+                "средиземноморская", "тайская", "французская", "фьюжн", "греческая", "японская", "южноамериканская");
+        correctPriceCategoriesForSearch = List.of("Дешевое питание", "Средний ценовой сегмент", "Высокая кухня");
     }
 
 
@@ -50,24 +66,92 @@ public class UserData {
     }
 
     public String userParamsToSearchRestaurantsToString() {
-        return "Город: " + cityForSearch+ ".\n" +
+        return "Город: " + cityForSearch + ".\n" +
                 "Типы кухни: " + listToStringStream(kitchenTypesForSearch) + ".\n" +
                 "Ценовые категории: " + listToStringStream(priceCategoriesForSearch) + ".\n" +
                 "Ключевые слова: " + listToStringStream(keyWordsForSearch) + ".\n";
     }
 
+
     public static String listToStringStream(List<String> list) {
         if (list == null || list.isEmpty()) {
             return "";
         }
-        // Если больше одного элемента — join
         if (list.size() > 1) {
             return String.join(",", list);
         }
         return list.getFirst();
     }
 
-    public RestaurantCard nextRestaurantFromFavoriteList(){
+    public boolean checkAndSetCity(String city){
+        if (correctCities.contains(city)){
+            setCity(city);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkAndSetCityForSearch(String city){
+        if (correctCities.contains(city)){
+            setCityForSearch(city);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkAndSetKitchenTypes(String kitchenTypes){
+        if (Arrays.stream(kitchenTypes.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .allMatch(correctKitchenTypes::contains)){
+            setKitchenTypes(List.of(kitchenTypes.split(",")));
+            return true;
+        }
+        return false;
+    }
+    public boolean checkAndSetKitchenTypesForSearch(String kitchenTypes){
+        if (Arrays.stream(kitchenTypes.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .allMatch(correctKitchenTypes::contains)){
+            setKitchenTypesForSearch(List.of(kitchenTypes.split(",")));
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkAndSetPriceCategories(String priceCategories){
+        if (Arrays.stream(priceCategories.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .allMatch(correctPriceCategoriesForSearch::contains)){
+            setPriceCategories(List.of(priceCategories.split(",")));
+            return true;
+        }
+        return false;
+    }
+    public boolean checkAndSetPriceCategoriesForSearch(String priceCategories){
+        if (Arrays.stream(priceCategories.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .allMatch(correctPriceCategoriesForSearch::contains)){
+            setPriceCategoriesForSearch(List.of(priceCategories.split(",")));
+            return true;
+        }
+        return false;
+    }
+
+    public boolean setKeyWords(String keyWords) {
+        this.keyWords = List.of(keyWords.split(","));
+        return true;
+    }
+
+    public boolean setKeyWordsForSearch(String keyWords) {
+        this.keyWordsForSearch = List.of(keyWords.split(","));
+        return true;
+    }
+
+    public RestaurantCard nextRestaurantFromFavoriteList() {
         index = index >= favoriteList.size() ? 0 : index + 1;
         return favoriteList.get(index);
     }
@@ -116,15 +200,15 @@ public class UserData {
         keyWords = Arrays.stream(newKeyWords.split(" ")).toList();
     }
 
-    public boolean isRestaurantInFavouriteList(RestaurantCard restaurantCard){
+    public boolean isRestaurantInFavouriteList(RestaurantCard restaurantCard) {
         return favoriteList.contains(restaurantCard);
     }
 
-    public void removeRestaurantFromFavouriteListByIndex(){
+    public void removeRestaurantFromFavouriteListByIndex() {
         favoriteList.remove(index);
     }
 
-    public RestaurantCard getRestaurantFromFavouriteListByIndex(){
+    public RestaurantCard getRestaurantFromFavouriteListByIndex() {
         return favoriteList.get(index);
     }
 
