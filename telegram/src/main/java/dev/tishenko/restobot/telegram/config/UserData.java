@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -30,6 +31,28 @@ public class UserData {
         keyWords = List.of("Любые");
     }
 
+
+    public String userParamsToString() {
+        return "Город: " + city + ".\n" +
+                "Типы кухни: " + listToStringStream(kitchenTypes) + ".\n" +
+                "Ценовые категории: " + listToStringStream(priceCategories) + ".\n" +
+                "Ключевые слова: " + listToStringStream(keyWords) + ".\n";
+    }
+
+
+    public static String listToStringStream(List<String> list) {
+        if (list == null || list.isEmpty()) {
+            return "";
+        }
+        // Если больше одного элемента — join
+        if (list.size() > 1) {
+            return String.join(",", list);
+        }
+        return list.stream()
+                .findFirst()
+                .map(s -> s.isEmpty() ? "" : s.substring(0, 1))
+                .orElse("");
+    }
 
     public long getChatID() {
         return chatID;
