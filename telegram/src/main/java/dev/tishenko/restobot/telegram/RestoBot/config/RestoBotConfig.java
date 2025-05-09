@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class RestoBotConfig {
 
     
     private void initStates() {
+        states = new HashMap<>();
         states.put("/start", List.of("goToUserParamsButton")); // Greeting
         states.put("goToUserParamsButton", List.of(
                 "setCityInUserParamsButton",
