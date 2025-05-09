@@ -22,7 +22,7 @@ public class UserData {
     public UserData() {
     }
 
-    public UserData(int chatID, String nickName) {
+    public UserData(long chatID, String nickName) {
         setChatID(chatID);
         setNickName(nickName);
         city = "Любой";
@@ -58,7 +58,7 @@ public class UserData {
         return chatID;
     }
 
-    void setChatID(int chatID) {
+    void setChatID(long chatID) {
         this.chatID = chatID;
     }
 
