@@ -10,7 +10,7 @@ import java.util.List;
 @Component
 @Scope("prototype")
 public class UserData {
-    private int chatID;
+    private long chatID;
     private String nickName;
     private List<RestaurantCard> favoriteList;
     private String city;
@@ -28,7 +28,7 @@ public class UserData {
     }
 
 
-    public int getChatID() {
+    public long getChatID() {
         return chatID;
     }
 
