@@ -419,7 +419,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "setDefaultButton" -> {
-                setDefaultParams();
+                setDefaultParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -437,7 +437,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "setDisabledButton" -> {
-                setDisableParams();
+                setDisableParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -513,12 +513,38 @@ public class RestoBotConfig {
         }
     }
 
-    private static void setDisableParams() {
-
+    private static void setDisableParams(UserData userData) {
+        switch (lastParams){
+            case "cityForSearch" -> {
+                userData.setCityForSearch("Отключено");
+            }
+            case "kitchenTypesForSearch" -> {
+                userData.setKitchenTypesForSearch(List.of("Отключено"));
+            }
+            case "priceCategoriesForSearch" -> {
+                userData.setPriceCategoriesForSearch(List.of("Отключено"));
+            }
+            case "keyWordsForSearch" -> {
+                userData.setKeyWordsForSearch(List.of("Отключено"));
+            }
+        }
     }
 
-    private static void setDefaultParams() {
-
+    private static void setDefaultParams(UserData userData) {
+        switch (lastParams){
+            case "cityForSearch" -> {
+                userData.setCityForSearch(userData.getCity());
+            }
+            case "kitchenTypesForSearch" -> {
+                userData.setKitchenTypesForSearch(userData.getKitchenTypes());
+            }
+            case "priceCategoriesForSearch" -> {
+                userData.setPriceCategoriesForSearch(userData.getPriceCategories());
+            }
+            case "keyWordsForSearch" -> {
+                userData.setKeyWordsForSearch(userData.getKeyWords());
+            }
+        }
     }
 
 
