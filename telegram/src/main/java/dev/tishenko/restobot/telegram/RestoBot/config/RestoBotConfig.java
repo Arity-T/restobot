@@ -114,10 +114,15 @@ public class RestoBotConfig {
                  .text("Здравствуйте!" + "\n" +
                          "Я Ваш личный помощник в подборе ресторана. Вы можете задать параметры поиска ресторана или же пропустить этот шаг." + "\n" +
                          "Ваши настройки: \n" + userData.userParamsToString())
-                 .replyMarkup(setCityInUserParamsButton)
-                 .replyMarkup(setKitchenTypesInUserParamsButton)
-                 .replyMarkup(setPriceCategoriesInUserParamsButton)
-                 .replyMarkup(setKeyWordsInUserParamsButton)
+                 .replyMarkup(InlineKeyboardMarkup
+                         .builder()
+                         .keyboardRow(
+                                 new InlineKeyboardRow(
+                                         setCityInUserParamsButton,
+                                         setKitchenTypesInUserParamsButton,
+                                         setPriceCategoriesInUserParamsButton,
+                                         setKeyWordsInUserParamsButton))
+                         .build())
                  .build();
     }
     
@@ -144,10 +149,15 @@ public class RestoBotConfig {
                         .messageId(toIntExact(messageId))
                         .text("Выберите настройки, которые хотите изменить. \n" +
                                 "Ваши настройки: \n" + userData.userParamsToString())
-                        .replyMarkup(setCityInUserParamsButton)
-                        .replyMarkup(setKitchenTypesInUserParamsButton)
-                        .replyMarkup(setPriceCategoriesInUserParamsButton)
-                        .replyMarkup(setKeyWordsInUserParamsButton)
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(
+                                        new InlineKeyboardRow(
+                                                setCityInUserParamsButton,
+                                                setKitchenTypesInUserParamsButton,
+                                                setPriceCategoriesInUserParamsButton,
+                                                setKeyWordsInUserParamsButton))
+                                .build())
                         .build();
             }
             default -> throw new IllegalStateException("Unexpected value: " + message);
@@ -155,293 +165,178 @@ public class RestoBotConfig {
     }
 
 
-    public static InlineKeyboardMarkup setCityInUserParamsButton = InlineKeyboardMarkup
+    public static InlineKeyboardButton setCityInUserParamsButton = InlineKeyboardButton
             .builder()
-            .keyboardRow(new InlineKeyboardRow(
-                    InlineKeyboardButton.builder()
-                        .text("Задать город")
-                        .callbackData("setCityInUserParamsButton")
-                        .build()))
+            .text("Задать город")
+            .callbackData("setCityInUserParamsButton")
             .build();
 
-    public static InlineKeyboardMarkup setKitchenTypesInUserParamsButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Задать типы кухни")
-                                    .callbackData("setKitchenTypesInUserParamsButton")
-                                    .build()
-                    ))
-                    .build();
+    public static InlineKeyboardButton setKitchenTypesInUserParamsButton = InlineKeyboardButton
+            .builder()
+            .text("Задать типы кухни")
+            .callbackData("setKitchenTypesInUserParamsButton")
+            .build();
 
-    public static InlineKeyboardMarkup setPriceCategoriesInUserParamsButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Задать ценовые категории")
-                                    .callbackData("setPriceCategoriesInUserParamsButton")
-                                    .build()
-                    ))
-                    .build();
+    public static InlineKeyboardButton setPriceCategoriesInUserParamsButton = InlineKeyboardButton
+            .builder()
+            .text("Задать ценовые категории")
+            .callbackData("setPriceCategoriesInUserParamsButton")
+            .build();
 
-    public static InlineKeyboardMarkup setKeyWordsInUserParamsButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Задать Ключевые слова")
-                                    .callbackData("setKeyWordsInUserParamsButton")
-                                    .build()
-                    ))
-                    .build();
+    public static InlineKeyboardButton setKeyWordsInUserParamsButton = InlineKeyboardButton
+            .builder()
+            .text("Задать Ключевые слова")
+            .callbackData("setKeyWordsInUserParamsButton")
+            .build();
 
-    public InlineKeyboardMarkup cancelUserParamsButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Отмена")
-                                    .callbackData("goToUserParamsButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton cancelUserParamsButton = InlineKeyboardButton
+            .builder()
+            .text("Отмена")
+            .callbackData("goToUserParamsButton")
+            .build();
 
-    public InlineKeyboardMarkup goToMenuButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Перейти в меню")
-                                    .callbackData("goToMenuButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton goToMenuButton = InlineKeyboardButton
+            .builder()
+            .text("Перейти в меню")
+            .callbackData("goToMenuButton")
+            .build();
 
-    public InlineKeyboardMarkup goToUserParamsButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Перейти к пользовательским настройкам")
-                                    .callbackData("goToUserParamsButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton goToUserParamsButton = InlineKeyboardButton
+            .builder()
+            .text("Перейти к пользовательским настройкам")
+            .callbackData("goToUserParamsButton")
+            .build();
 
-    public InlineKeyboardMarkup goToFavouriteListButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Избранные рестораны")
-                                    .callbackData("goToFavouriteListButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton goToFavouriteListButton = InlineKeyboardButton
+            .builder()
+            .text("Избранные рестораны")
+            .callbackData("goToFavouriteListButton")
+            .build();
 
-    public InlineKeyboardMarkup removeFromFavouriteListButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Удалить из избранного")
-                                    .callbackData("removeFromFavouriteListButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton removeFromFavouriteListButton = InlineKeyboardButton
+            .builder()
+            .text("Удалить из избранного")
+            .callbackData("removeFromFavouriteListButton")
+            .build();
 
-    public InlineKeyboardMarkup setAsVisitedButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Отметить как посещенный")
-                                    .callbackData("setAsVisitedButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setAsVisitedButton = InlineKeyboardButton
+            .builder()
+            .text("Отметить как посещенный")
+            .callbackData("setAsVisitedButton")
+            .build();
 
-    public InlineKeyboardMarkup setAsNonVisitedButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Удалить отметку о посещении")
-                                    .callbackData("setAsNonVisitedButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setAsNonVisitedButton = InlineKeyboardButton
+            .builder()
+            .text("Удалить отметку о посещении")
+            .callbackData("setAsVisitedButton")
+            .build();
 
-    public InlineKeyboardMarkup nextRestaurantFavouriteListButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Следующий ресторан")
-                                    .callbackData("nextRestaurantFavouriteListButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton nextRestaurantFavouriteListButton = InlineKeyboardButton
+            .builder()
+            .text("Следующий ресторан")
+            .callbackData("nextRestaurantFavouriteListButton")
+            .build();
 
-    public InlineKeyboardMarkup randomRestaurantButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Случайный Ресторан")
-                                    .callbackData("randomRestaurantButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton randomRestaurantButton = InlineKeyboardButton
+            .builder()
+            .text("Случайный Ресторан")
+            .callbackData("randomRestaurantButton")
+            .build();
+    public InlineKeyboardButton backToRandomRestaurantButton = InlineKeyboardButton
+            .builder()
+            .text("Назад")
+            .callbackData("randomRestaurantButton")
+            .build();
 
-    public InlineKeyboardMarkup backToRandomRestaurantButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Назад")
-                                    .callbackData("randomRestaurantButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton nextRandomRestaurantButton = InlineKeyboardButton
+            .builder()
+            .text("Следующий ресторан")
+            .callbackData("nextRandomRestaurantButton")
+            .build();
 
-    public InlineKeyboardMarkup nextRandomRestaurantButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Следующий ресторан")
-                                    .callbackData("nextRandomRestaurantButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton addRandomRestaurantToFavouriteListButton = InlineKeyboardButton
+            .builder()
+            .text("Добавить в избранное")
+            .callbackData("addRandomRestaurantToFavouriteListButton")
+            .build();
 
-    public InlineKeyboardMarkup addRandomRestaurantToFavouriteListButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Добавить в избранное")
-                                    .callbackData("addRandomRestaurantToFavouriteListButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton removeRandomRestaurantFromFavouriteListButton = InlineKeyboardButton
+            .builder()
+            .text("Убрать из избранного")
+            .callbackData("addRandomRestaurantToFavouriteListButton")
+            .build();
 
-    public InlineKeyboardMarkup removeRandomRestaurantFromFavouriteListButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Убрать из избранного")
-                                    .callbackData("removeRandomRestaurantFromFavouriteListButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton restaurantSearchButton = InlineKeyboardButton
+            .builder()
+            .text("Поиск ресторанов")
+            .callbackData("restaurantSearchButton")
+            .build();
 
-    public InlineKeyboardMarkup restaurantSearchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Поиск ресторанов")
-                                    .callbackData("restaurantSearchButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setCityRestaurantSearchButton = InlineKeyboardButton
+            .builder()
+            .text("Задать город")
+            .callbackData("setCityRestaurantSearchButton")
+            .build();
 
-    public InlineKeyboardMarkup setCityRestaurantSearchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Задать город")
-                                    .callbackData("setCityRestaurantSearchButton")
-                                    .build()
-                    ))
-                    .build();
 
-    public InlineKeyboardMarkup setKitchenTypesRestaurantSearchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Задать типы кухни")
-                                    .callbackData("setKitchenTypesRestaurantSearchButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setKitchenTypesRestaurantSearchButton = InlineKeyboardButton
+            .builder()
+            .text("Задать типы кухни")
+            .callbackData("setKitchenTypesRestaurantSearchButton")
+            .build();
 
-    public InlineKeyboardMarkup setPriceCategoriesRestaurantSearchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Задать ценовые категории")
-                                    .callbackData("setPriceCategoriesRestaurantSearchButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setPriceCategoriesRestaurantSearchButton = InlineKeyboardButton
+            .builder()
+            .text("Задать ценовые категории")
+            .callbackData("setPriceCategoriesRestaurantSearchButton")
+            .build();
 
-    public InlineKeyboardMarkup setKeyWordsRestaurantSearchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Задать Ключевые слова")
-                                    .callbackData("setKeyWordsRestaurantSearchButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setKeyWordsRestaurantSearchButton = InlineKeyboardButton
+            .builder()
+            .text("Задать Ключевые слова")
+            .callbackData("setKeyWordsRestaurantSearchButton")
+            .build();
 
-    public InlineKeyboardMarkup setDefaultButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("По умолчанию")
-                                    .callbackData("setDefaultButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setDefaultButton = InlineKeyboardButton
+            .builder()
+            .text("По умолчанию")
+            .callbackData("setDefaultButton")
+            .build();
 
-    public InlineKeyboardMarkup setDisabledButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Отключить")
-                                    .callbackData("setDisabledButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton setDisabledButton = InlineKeyboardButton
+            .builder()
+            .text("Отключить")
+            .callbackData("setDisabledButton")
+            .build();
 
-    public InlineKeyboardMarkup backToRestaurantSearchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Назад")
-                                    .callbackData("restaurantSearchButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton backToRestaurantSearchButton = InlineKeyboardButton
+            .builder()
+            .text("Назад")
+            .callbackData("restaurantSearchButton")
+            .build();
 
-    public InlineKeyboardMarkup searchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Поиск")
-                                    .callbackData("searchButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton searchButton = InlineKeyboardButton
+            .builder()
+            .text("Поиск")
+            .callbackData("searchButton")
+            .build();
 
-    public InlineKeyboardMarkup nextRestaurantSearchButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Следующий ресторан")
-                                    .callbackData("nextRestaurantSearchButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton nextRestaurantSearchButton = InlineKeyboardButton
+            .builder()
+            .text("Следующий ресторан")
+            .callbackData("nextRestaurantSearchButton")
+            .build();
 
-    public InlineKeyboardMarkup addRestaurantSearchToFavouriteListButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Добавить в избранное")
-                                    .callbackData("addRestaurantSearchToFavouriteListButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton addRestaurantSearchToFavouriteListButton = InlineKeyboardButton
+            .builder()
+            .text("Добавить в избранное")
+            .callbackData("addRestaurantSearchToFavouriteListButton")
+            .build();
 
-    public InlineKeyboardMarkup removeRestaurantSearchFromFavouriteListButton =
-            InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(
-                            InlineKeyboardButton.builder()
-                                    .text("Убрать из избранного")
-                                    .callbackData("removeRestaurantSearchFromFavouriteListButton")
-                                    .build()
-                    ))
-                    .build();
+    public InlineKeyboardButton removeRestaurantSearchFromFavouriteListButton = InlineKeyboardButton
+            .builder()
+            .text("Убрать из избранного")
+            .callbackData("addRandomRestaurantToFavouriteListButton")
+            .build();
 
 }
