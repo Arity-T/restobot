@@ -1,5 +1,6 @@
 package dev.tishenko.restobot.telegram.RestoBot.config;
 
+import dev.tishenko.restobot.telegram.config.RestaurantCard;
 import dev.tishenko.restobot.telegram.config.UserData;
 import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,7 +21,7 @@ import static java.lang.Math.toIntExact;
 public class RestoBotConfig {
 
     private static String actualState;
-    private String lastParams;
+    private static String lastParams;
     private static Map<String, List<String>> states;
 
 
@@ -31,7 +32,8 @@ public class RestoBotConfig {
                 "setCityInUserParamsButton",
                 "setKitchenTypesInUserParamsButton",
                 "setPriceCategoriesInUserParamsButton",
-                "setKeyWordsInUserParamsButton")); // User params
+                "setKeyWordsInUserParamsButton",
+                "goToMenuButton")); // User params
         states.put("setCityInUserParamsButton", List.of(
                 "goToUserParamsButton",
                 "setCityInUserParamsButton")); // Set city (userData params)
@@ -52,7 +54,7 @@ public class RestoBotConfig {
                 "goToMenuButton",
                 "removeFromFavouriteListButton")); // Fav list
         states.put("removeFromFavouriteListButton", List.of(
-                "nextRestaurantButton")); // Remove from Fav list
+                "nextRestaurantFavouriteListButton")); // Remove from Fav list
         states.put("nextRestaurantFavouriteListButton", List.of(
                 "goToFavouriteListButton"));
         states.put("setAsVisitedButton", List.of(
@@ -118,6 +120,7 @@ public class RestoBotConfig {
                         .keyboardRow(new InlineKeyboardRow(setKitchenTypesInUserParamsButton))
                         .keyboardRow(new InlineKeyboardRow(setCityInUserParamsButton))
                         .keyboardRow(new InlineKeyboardRow(setCityInUserParamsButton))
+                        .keyboardRow(new InlineKeyboardRow(goToMenuButton))
                         .build())
                 .build();
     }
@@ -151,10 +154,12 @@ public class RestoBotConfig {
                                 .keyboardRow(new InlineKeyboardRow(setKitchenTypesInUserParamsButton))
                                 .keyboardRow(new InlineKeyboardRow(setPriceCategoriesInUserParamsButton))
                                 .keyboardRow(new InlineKeyboardRow(setKeyWordsInUserParamsButton))
+                                .keyboardRow(new InlineKeyboardRow(goToMenuButton))
                                 .build())
                         .build();
             }
             case "setCityInUserParamsButton" -> {
+                lastParams = "City";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -166,6 +171,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "setKitchenTypesInUserParamsButton" -> {
+                lastParams = "KitchenTypes";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -177,6 +183,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "setPriceCategoriesInUserParamsButton" -> {
+                lastParams = "PriceCategories";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -188,13 +195,93 @@ public class RestoBotConfig {
                         .build();
             }
             case "setKeyWordsInUserParamsButton" -> {
+                lastParams = "KeyWords";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
                         .text("Введите ключевые слова.")
                         .build();
             }
-            default -> throw new IllegalStateException("Unexpected value: " + message);
+            case "goToMenuButton" -> {
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Выберите действие:")
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(goToUserParamsButton))
+                                .keyboardRow(new InlineKeyboardRow(goToFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(randomRestaurantButton))
+                                .keyboardRow(new InlineKeyboardRow(restaurantSearchButton))
+                                .build())
+                        .build();
+            }
+            case "goToFavouriteListButton" -> {
+                if (userData.getFavoriteList() == null || userData.getFavoriteList().isEmpty()){
+                    return EditMessageText.builder()
+                            .chatId(chatId)
+                            .messageId(toIntExact(messageId))
+                            .text("Список пуст")
+                            .replyMarkup(InlineKeyboardMarkup
+                                    .builder()
+                                    .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                    .build())
+                            .build();
+                }
+                RestaurantCard restaurantCard= userData.nextRestaurantFromFavoriteList();
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text(restaurantCard.restaurantCardToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(nextRestaurantFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(restaurantCard.isVisited() ? setAsNonVisitedButton : setAsVisitedButton))
+                                .keyboardRow(new InlineKeyboardRow(removeFromFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                .build())
+                        .build();
+            }
+            case "removeFromFavouriteListButton" -> {
+                userData.removeRestaurantFromFavouriteListByIndex();
+                RestaurantCard restaurantCard= userData.nextRestaurantFromFavoriteList();
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text(restaurantCard.restaurantCardToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(nextRestaurantFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(restaurantCard.isVisited() ? setAsNonVisitedButton : setAsVisitedButton))
+                                .keyboardRow(new InlineKeyboardRow(removeFromFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                .build())
+                        .build();
+            }
+            case "setAsVisitedButton" -> {
+                userData.getRestaurantFromFavouriteListByIndex().changeIsVisited();
+                RestaurantCard restaurantCard = userData.getRestaurantFromFavouriteListByIndex();
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text(restaurantCard.restaurantCardToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(nextRestaurantFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(restaurantCard.isVisited() ? setAsNonVisitedButton : setAsVisitedButton))
+                                .keyboardRow(new InlineKeyboardRow(removeFromFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                .build())
+                        .build();
+            }
+
+            default -> {
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Incorrect state")
+                        .build();
+            }
         }
     }
 
@@ -268,7 +355,7 @@ public class RestoBotConfig {
     public static InlineKeyboardButton nextRestaurantFavouriteListButton = InlineKeyboardButton
             .builder()
             .text("Следующий ресторан")
-            .callbackData("nextRestaurantFavouriteListButton")
+            .callbackData("goToFavouriteListButton")
             .build();
 
     public static InlineKeyboardButton randomRestaurantButton = InlineKeyboardButton
