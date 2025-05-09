@@ -3,10 +3,8 @@ package dev.tishenko.restobot.telegram.RestoBot;
 import dev.tishenko.restobot.telegram.RestoBot.config.RestoBotConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
-import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -62,19 +60,12 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 }
             }
         } else if (update.hasCallbackQuery()) {
-            String call_data = update.getCallbackQuery().getData();
-            long message_id = update.getCallbackQuery().getMessage().getMessageId();
-            long chat_id = update.getCallbackQuery().getMessage().getChatId();
-
-            if (call_data.equals("backButton")) {
-                String answer = "Updated message text";
-                EditMessageText new_message = EditMessageText.builder()
-                        .chatId(chat_id)
-                        .messageId(toIntExact(message_id))
-                        .text(answer)
-                        .build();
+            String callData = update.getCallbackQuery().getData();
+            long messageId = update.getCallbackQuery().getMessage().getMessageId();
+            EditMessageText editMessageText = RestoBotConfig.nextState(callData, messageId, false, userData);
+            if (!editMessageText.getText().equals("Ошибка ввода")){
                 try {
-                    telegramClient.execute(new_message);
+                    telegramClient.execute(editMessageText);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
