@@ -25,7 +25,7 @@ public class UserData {
 
     private List<String> correctCities;
     private List<String> correctKitchenTypes;
-    private List<String> correctPriceCategoriesForSearch;
+    private List<String> correctPriceCategories;
 
 
     public UserData() {
@@ -54,7 +54,7 @@ public class UserData {
                 "восточно-европейская", "европейская", "ирландская", "испанская", "итальянская",
                 "индийская", "каджунская", "карибская", "китайская", "мексиканская", "немецкая",
                 "средиземноморская", "тайская", "французская", "фьюжн", "греческая", "японская", "южноамериканская");
-        correctPriceCategoriesForSearch = List.of("Дешевое питание", "Средний ценовой сегмент", "Высокая кухня");
+        correctPriceCategories = List.of("Дешевое питание", "Средний ценовой сегмент", "Высокая кухня");
     }
 
 
@@ -71,6 +71,7 @@ public class UserData {
                 "Ценовые категории: " + listToStringStream(priceCategoriesForSearch) + ".\n" +
                 "Ключевые слова: " + listToStringStream(keyWordsForSearch) + ".\n";
     }
+
 
 
     public static String listToStringStream(List<String> list) {
@@ -124,7 +125,7 @@ public class UserData {
         if (Arrays.stream(priceCategories.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .allMatch(correctPriceCategoriesForSearch::contains)){
+                .allMatch(correctPriceCategories::contains)){
             setPriceCategories(List.of(priceCategories.split(",")));
             return true;
         }
@@ -134,11 +135,23 @@ public class UserData {
         if (Arrays.stream(priceCategories.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .allMatch(correctPriceCategoriesForSearch::contains)){
+                .allMatch(correctPriceCategories::contains)){
             setPriceCategoriesForSearch(List.of(priceCategories.split(",")));
             return true;
         }
         return false;
+    }
+
+    public List<String> getCorrectCities(){
+        return correctCities;
+    }
+
+    public List<String> getCorrectKitchenTypes(){
+        return correctKitchenTypes;
+    }
+
+    public List<String> getCorrectPriceCategories(){
+        return correctPriceCategories;
     }
 
     public boolean setKeyWords(String keyWords) {
