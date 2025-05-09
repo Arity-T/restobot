@@ -49,6 +49,12 @@ public class UserData {
                 "Ключевые слова: " + listToStringStream(keyWords) + ".\n";
     }
 
+    public String userParamsToSearchRestaurantsToString() {
+        return "Город: " + cityForSearch+ ".\n" +
+                "Типы кухни: " + listToStringStream(kitchenTypesForSearch) + ".\n" +
+                "Ценовые категории: " + listToStringStream(priceCategoriesForSearch) + ".\n" +
+                "Ключевые слова: " + listToStringStream(keyWordsForSearch) + ".\n";
+    }
 
     public static String listToStringStream(List<String> list) {
         if (list == null || list.isEmpty()) {
