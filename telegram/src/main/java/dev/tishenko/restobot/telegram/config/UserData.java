@@ -104,6 +104,10 @@ public class UserData {
         favoriteList.remove(index);
     }
 
+    public RestaurantCard getRestaurantFromFavouriteListByIndex(){
+        return favoriteList.get(index);
+    }
+
     public void addRestaurantToFavouriteList(RestaurantCard restaurantCard) {
         if (!favoriteList.contains(restaurantCard)) {
             favoriteList.add(restaurantCard);
