@@ -24,7 +24,7 @@ public class RestoBotConfig {
 //    private static Map<String, List<String>> states;
     private static List<RestaurantCard> restaurantSelection;
     private static int actualIndex;
-
+    private static boolean isSettingUserParams;
 
 //    private void initStates() {
 //        states = new HashMap<>();
@@ -105,6 +105,7 @@ public class RestoBotConfig {
     public RestoBotConfig() {
 //        initStates();
         restaurantSelection = new ArrayList<>();
+        isSettingUserParams = false;
         actualState = "/start";
     }
 
@@ -142,11 +143,18 @@ public class RestoBotConfig {
                         .text("Location")
                         .build();
             }
-            return EditMessageText.builder()
-                    .chatId(chatId)
-                    .messageId(toIntExact(messageId))
-                    .text("Incorrect state")
-                    .build();
+            if (isSettingUserParams){
+                if(setParams(userData, message.getMessage().getText())){
+                    return actionChose(actualState, messageId, chatId, userData);
+                }
+                else {
+                    return EditMessageText.builder()
+                            .chatId(chatId)
+                            .messageId(toIntExact(messageId))
+                            .text("Ошибка ввода. Повторите ввод.")
+                            .build();
+                }
+            }
         }
         actualState = message.getCallbackQuery().getData();
         return actionChose(actualState, messageId, chatId, userData);
@@ -171,11 +179,13 @@ public class RestoBotConfig {
                         .build();
             }
             case "setCityInUserParamsButton" -> {
-                lastParams = "City";
+                lastParams = "city";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Ведите город.")
+                        .text("Ведите город."+ "\n" + "Доступные города: " + "\n" +
+                                userData.getCorrectCities())
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -183,11 +193,13 @@ public class RestoBotConfig {
                         .build();
             }
             case "setKitchenTypesInUserParamsButton" -> {
-                lastParams = "KitchenTypes";
+                lastParams = "kitchenTypes";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Введите типы кухни.")
+                        .text("Введите типы кухни." + "\n" + "Доступные типы кухни: " + "\n" +
+                                userData.getCorrectKitchenTypes())
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -195,11 +207,13 @@ public class RestoBotConfig {
                         .build();
             }
             case "setPriceCategoriesInUserParamsButton" -> {
-                lastParams = "PriceCategories";
+                lastParams = "priceCategories";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Введите ценовые категории.")
+                        .text("Введите ценовые категории." + "\n" + "Доступные ценовые категории: " + "\n" +
+                                userData.getCorrectPriceCategories())
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -207,7 +221,8 @@ public class RestoBotConfig {
                         .build();
             }
             case "setKeyWordsInUserParamsButton" -> {
-                lastParams = "KeyWords";
+                lastParams = "keyWords";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -364,6 +379,7 @@ public class RestoBotConfig {
             }
             case "setCityRestaurantSearchButton" -> {
                 lastParams = "cityForSearch";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -378,6 +394,7 @@ public class RestoBotConfig {
             }
             case "setKitchenTypesRestaurantSearchButton" -> {
                 lastParams = "kitchenTypesForSearch";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -392,6 +409,7 @@ public class RestoBotConfig {
             }
             case "setPriceCategoriesRestaurantSearchButton" -> {
                 lastParams = "priceCategoriesForSearch";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -406,6 +424,7 @@ public class RestoBotConfig {
             }
             case "setKeyWordsRestaurantSearchButton" -> {
                 lastParams = "keyWordsForSearch";
+                isSettingUserParams = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -511,6 +530,36 @@ public class RestoBotConfig {
                         .build();
             }
         }
+    }
+
+    private static boolean setParams(UserData userData, String params) {
+        switch (lastParams){
+            case "city" -> {
+                return userData.checkAndSetCity(params);
+            }
+            case "kitchenTypes" -> {
+                return userData.checkAndSetKitchenTypes(params);
+            }
+            case "priceCategories" -> {
+                return userData.checkAndSetPriceCategories(params);
+            }
+            case "keyWords" -> {
+                return userData.setKeyWords(params);
+            }
+            case "cityForSearch" -> {
+                return userData.checkAndSetCityForSearch(params);
+            }
+            case "kitchenTypesForSearch" -> {
+                return userData.checkAndSetKitchenTypesForSearch(params);
+            }
+            case "priceCategoriesForSearch" -> {
+                return userData.checkAndSetPriceCategoriesForSearch(params);
+            }
+            case "keyWordsForSearch" -> {
+                return userData.setKeyWordsForSearch(params);
+            }
+        }
+        return false;
     }
 
     private static void setDisableParams(UserData userData) {
