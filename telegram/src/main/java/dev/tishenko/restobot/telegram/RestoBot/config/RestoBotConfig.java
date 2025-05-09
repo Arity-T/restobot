@@ -12,66 +12,125 @@ import java.util.Map;
 @Scope("singleton")
 public class RestoBotConfig {
 
-    private int actualState;
-
-    private Map<Integer, List<Integer>> states;
+    private String actualState;
+    private String lastParams;
+    private Map<String, List<String>> states;
 
     private void initStates() {
-        states.put(0, List.of(1)); // Greeting
-        states.put(1, List.of(2, 3, 4, 5)); // User params
-        states.put(2, List.of(1, 2)); // Set city (user params)
-        states.put(3, List.of(1, 3)); // Set kitchen type (user params)
-        states.put(4, List.of(1, 4)); // Set price category (user params)
-        states.put(5, List.of(1)); // Set keywords (user params)
-        states.put(6, List.of(1, 7)); // Menu
-        states.put(7, List.of(6, 7)); // Fav list
-        states.put(8, List.of(6, 8, 9)); // Random rest
-        states.put(9, List.of(8, 9)); // Rest card (Random rest)
-        states.put(10, List.of(6, 10, 11, 12, 13, 14, 15)); // Search crit 
-        states.put(11, List.of(10, 11)); // Set city (Search crit)
-        states.put(12, List.of(10, 12)); // Set kitchen type (Search crit)
-        states.put(13, List.of(10, 13)); // Set price category (Search crit)
-        states.put(14, List.of(10)); // Set keywords (Search crit)
-        states.put(15, List.of(10, 15)); // Rest card (Search crit)
+        states.put("/start", List.of("goToUserParamsButton")); // Greeting
+        states.put("goToUserParamsButton", List.of(
+                "setCityInUserParamsButton",
+                "setKitchenTypesInUserParamsButton",
+                "setPriceCategoriesInUserParamsButton",
+                "setKeyWordsInUserParamsButton")); // User params
+        states.put("setCityInUserParamsButton", List.of(
+                "goToUserParamsButton",
+                "setCityButton")); // Set city (user params)
+        states.put("setKitchenTypesInUserParamsButton", List.of(
+                "goToUserParamsButton",
+                "setKitchenTypesInUserParamsButton")); // Set kitchen type (user params)
+        states.put("setPriceCategoriesInUserParamsButton", List.of(
+                "goToUserParamsButton",
+                "setPriceCategoriesInUserParamsButton")); // Set price category (user params)
+        states.put("setKeyWordsInUserParamsButton", List.of(
+                "goToUserParamsButton")); // Set keywords (user params)
+        states.put("goToMenuButton", List.of(
+                "goToUserParamsButton",
+                "goToFavouriteListButton",
+                "randomRestaurantButton",
+                "restaurantSearchButton")); // Menu
+        states.put("goToFavouriteListButton", List.of(
+                "goToMenuButton",
+                "removeFromFavouriteListButton")); // Fav list
+        states.put("removeFromFavouriteListButton", List.of(
+                "nextRestaurantButton")); // Remove from Fav list
+        states.put("nextRestaurantFavouriteListButton", List.of(
+                "goToFavouriteListButton"));
+        states.put("setAsVisitedButton", List.of(
+                "goToFavouriteListButton")); // Set as visited/non-visited
+        states.put("randomRestaurantButton", List.of(
+                "goToUserParamsButton")); // Random rest
+        states.put("randomRestaurantSearch", List.of(
+                "randomRestaurantButton",
+                "nextRandomRestaurantButton",
+                "addRandomRestaurantToFavouriteListButton"));// Rest card (Random rest)
+        states.put("nextRandomRestaurantButton", List.of(
+                "randomRestaurantSearch")); // Next rest card (Random rest)
+        states.put("restaurantSearchButton", List.of(
+                "goToMenuButton",
+                "setCityRestaurantSearchButton",
+                "setKitchenTypesRestaurantSearchButton",
+                "setPriceCategoriesRestaurantSearchButton",
+                "setKeyWordsRestaurantSearchButton",
+                "searchButton")); // Search crit
+        states.put("setCityRestaurantSearchButton", List.of(
+                "restaurantSearchButton",
+                "setCityRestaurantSearchButton",
+                "setDefaultButton",
+                "setDisabledButton")); // Set city (Search crit)
+        states.put("setKitchenTypesRestaurantSearchButton", List.of(
+                "restaurantSearchButton",
+                "setKitchenTypesRestaurantSearchButton",
+                "setDefaultButton",
+                "setDisabledButton"));// Set kitchen type (Search crit),
+        states.put("setPriceCategoriesRestaurantSearchButton", List.of(
+                "restaurantSearchButton",
+                "setPriceCategoriesRestaurantSearchButton",
+                "setDefaultButton",
+                "setDisabledButton")); // Set price category (Search crit)
+        states.put("setKeyWordsRestaurantSearchButton", List.of(
+                "restaurantSearchButton",
+                "setDefaultButton",
+                "setDisabledButton")); // Set keywords (Search crit)
+        states.put("searchButton", List.of(
+                "restaurantSearchButton",
+                "nextRestaurantSearchButton",
+                "addRestaurantSearchToFavouriteListButton")); // Rest card (Search crit)
+        states.put("nextRestaurantSearchButton", List.of(
+                "restaurantSearchButton")); // Next rest card (Search crit)
     }
 
     public RestoBotConfig() {
         initStates();
+        actualState = "/start";
     }
 
+    public void nextState(String state){
 
-    public InlineKeyboardRow setCityButton = new InlineKeyboardRow(InlineKeyboardButton
+    }
+
+    public InlineKeyboardRow setCityInUserParamsButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Задать город")
-            .callbackData("setCityButton")
+            .callbackData("setCityInUserParamsButton")
             .build()
     );
 
-    public InlineKeyboardRow setKitchenTypesButton = new InlineKeyboardRow(InlineKeyboardButton
+    public InlineKeyboardRow setKitchenTypesInUserParamsButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Задать типы кухни")
-            .callbackData("setKitchenTypesButton")
+            .callbackData("setKitchenTypesInUserParamsButton")
             .build()
     );
 
-    public InlineKeyboardRow setPriceCategoriesButton = new InlineKeyboardRow(InlineKeyboardButton
+    public InlineKeyboardRow setPriceCategoriesInUserParamsButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Задать ценовые категории")
-            .callbackData("setPriceCategoriesButton")
+            .callbackData("setPriceCategoriesInUserParamsButton")
             .build()
     );
 
-    public InlineKeyboardRow setKeyWordsButton = new InlineKeyboardRow(InlineKeyboardButton
+    public InlineKeyboardRow setKeyWordsInUserParamsButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Задать Ключевые слова")
-            .callbackData("setKeyWordsButton")
+            .callbackData("setKeyWordsInUserParamsButton")
             .build()
     );
 
-    public InlineKeyboardRow cancelButton = new InlineKeyboardRow(InlineKeyboardButton
+    public InlineKeyboardRow cancelUserParamsButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Отмена")
-            .callbackData("cancelButton")
+            .callbackData("goToUserParamsButton")
             .build()
     );
 
@@ -113,14 +172,14 @@ public class RestoBotConfig {
     public InlineKeyboardRow setAsNonVisitedButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Удалить отметку о посещении")
-            .callbackData("setAsNonVisitedButton")
+            .callbackData("setAsVisitedButton")
             .build()
     );
 
-    public InlineKeyboardRow nextRestaurantButton = new InlineKeyboardRow(InlineKeyboardButton
+    public InlineKeyboardRow nextRestaurantFavouriteListButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Следующий ресторан")
-            .callbackData("nextRestaurantButton")
+            .callbackData("nextRestaurantFavouriteListButton")
             .build()
     );
 
@@ -131,17 +190,31 @@ public class RestoBotConfig {
             .build()
     );
 
-    public InlineKeyboardRow backButton = new InlineKeyboardRow(InlineKeyboardButton
+    public InlineKeyboardRow backToRandomRestaurantButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Назад")
-            .callbackData("backButton")
+            .callbackData("randomRestaurantButton")
             .build()
     );
 
-    public InlineKeyboardRow addToFavouriteListButton = new InlineKeyboardRow(InlineKeyboardButton
+    public InlineKeyboardRow nextRandomRestaurantButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Следующий ресторан")
+            .callbackData("nextRandomRestaurantButton")
+            .build()
+    );
+
+    public InlineKeyboardRow addRandomRestaurantToFavouriteListButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Добавить в избранное")
-            .callbackData("addToFavouriteListButton")
+            .callbackData("addRandomRestaurantToFavouriteListButton")
+            .build()
+    );
+
+    public InlineKeyboardRow removeRandomRestaurantFromFavouriteListButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Убрать из избранного")
+            .callbackData("addRandomRestaurantToFavouriteListButton")
             .build()
     );
 
@@ -152,10 +225,81 @@ public class RestoBotConfig {
             .build()
     );
 
+    public InlineKeyboardRow setCityRestaurantSearchButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Задать город")
+            .callbackData("setCityRestaurantSearchButton")
+            .build()
+    );
+
+
+    public InlineKeyboardRow setKitchenTypesRestaurantSearchButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Задать типы кухни")
+            .callbackData("setKitchenTypesRestaurantSearchButton")
+            .build()
+    );
+
+    public InlineKeyboardRow setPriceCategoriesRestaurantSearchButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Задать ценовые категории")
+            .callbackData("setPriceCategoriesRestaurantSearchButton")
+            .build()
+    );
+
+    public InlineKeyboardRow setKeyWordsRestaurantSearchButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Задать Ключевые слова")
+            .callbackData("setKeyWordsRestaurantSearchButton")
+            .build()
+    );
+
+    public InlineKeyboardRow setDefaultButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("По умолчанию")
+            .callbackData("setDefaultButton")
+            .build()
+    );
+
+    public InlineKeyboardRow setDisabledButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Отключить")
+            .callbackData("setDisabledButton")
+            .build()
+    );
+
+    public InlineKeyboardRow backToRestaurantSearchButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Назад")
+            .callbackData("restaurantSearchButton")
+            .build()
+    );
+
     public InlineKeyboardRow searchButton = new InlineKeyboardRow(InlineKeyboardButton
             .builder()
             .text("Поиск")
             .callbackData("searchButton")
+            .build()
+    );
+
+    public InlineKeyboardRow nextRestaurantSearchButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Следующий ресторан")
+            .callbackData("nextRestaurantSearchButton")
+            .build()
+    );
+
+    public InlineKeyboardRow addRestaurantSearchToFavouriteListButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Добавить в избранное")
+            .callbackData("addRestaurantSearchToFavouriteListButton")
+            .build()
+    );
+
+    public InlineKeyboardRow removeRestaurantSearchFromFavouriteListButton = new InlineKeyboardRow(InlineKeyboardButton
+            .builder()
+            .text("Убрать из избранного")
+            .callbackData("addRandomRestaurantToFavouriteListButton")
             .build()
     );
 
