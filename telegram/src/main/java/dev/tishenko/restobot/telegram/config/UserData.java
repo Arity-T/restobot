@@ -112,8 +112,12 @@ public class UserData {
         this.keyWords = keyWords;
     }
 
-    public void parseKeyWords(String newkeyWords) {
-        keyWords = Arrays.stream(newkeyWords.split(" ")).toList();
+    public void parseKeyWords(String newKeyWords) {
+        keyWords = Arrays.stream(newKeyWords.split(" ")).toList();
+    }
+
+    public boolean isRestaurantInFavouriteList(RestaurantCard restaurantCard){
+        return favoriteList.contains(restaurantCard);
     }
 
     public void removeRestaurantFromFavouriteListByIndex(){
