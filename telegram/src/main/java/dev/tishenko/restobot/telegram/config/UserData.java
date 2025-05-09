@@ -21,10 +21,13 @@ public class UserData {
     public UserData() {
     }
 
-    public UserData(int chatID, String nickName, List<RestaurantCard> favoriteList) {
+    public UserData(int chatID, String nickName) {
         setChatID(chatID);
         setNickName(nickName);
-        setFavoriteList(favoriteList);
+        city = "Любой";
+        kitchenTypes = List.of("Любые");
+        priceCategories = List.of("Любые");
+        keyWords = List.of("Любые");
     }
 
 
