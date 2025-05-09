@@ -44,6 +44,13 @@ public class RestaurantCard {
         this.latitude = latitude;
         this.longitude = longitude;
         this.city = city;
+        this.isVisited = false;
+    }
+
+    public String restaurantCardToString() {
+        return name + "\n" + "Находится по адресу: " + addressString + '\n'
+                + "Имеет рейтинг: " + rating + "\n" + "Официальный сайт: " + website + '\n' +
+                description + "Посещен: " + (isVisited ? "Да" : "Нет");
     }
 
     public int getRestaurantId() {
