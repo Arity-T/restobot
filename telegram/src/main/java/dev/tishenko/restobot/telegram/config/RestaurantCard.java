@@ -53,6 +53,14 @@ public class RestaurantCard {
                 description + "Посещен: " + (isVisited ? "Да" : "Нет");
     }
 
+    public boolean isVisited() {
+        return isVisited;
+    }
+
+    public void changeIsVisited(){
+        isVisited = !isVisited;
+    }
+
     public int getRestaurantId() {
         return restaurantId;
     }
