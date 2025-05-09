@@ -1,6 +1,7 @@
 package dev.tishenko.restobot.telegram.RestoBot;
 
 import dev.tishenko.restobot.telegram.RestoBot.config.RestoBotConfig;
+import dev.tishenko.restobot.telegram.config.UserData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
     private final String botUsername;
     private RestoBotConfig botConfig;
     private final TelegramClient telegramClient;
+    private UserData userData;
 
     public String getUsername() {
         return botUsername;
@@ -40,12 +42,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
         this.botUsername = botUsername;
         this.botConfig = botConfig;
         telegramClient = new OkHttpTelegramClient(botToken);
-        try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
-            botsApplication.registerBot(botToken, this);
-            System.out.println(botUsername + " successfully started!");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -56,16 +52,11 @@ public class RestoBot implements LongPollingUpdateConsumer {
     public void consume(Update update) {
         System.out.println("update");
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String message_text = update.getMessage().getText();
-            long chat_id = update.getMessage().getChatId();
             if (update.getMessage().getText().equals("/start")) {
-                SendMessage message = SendMessage // Create a message object
-                        .builder()
-                        .chatId(chat_id)
-                        .text(message_text).build();
-
+                userData = new UserData(update.getMessage().getChatId(), update.getMessage().getChat().getUserName());
+                SendMessage greetingString = RestoBotConfig.greetingMessage(userData);
                 try {
-                    telegramClient.execute(message);
+                    telegramClient.execute(greetingString);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
