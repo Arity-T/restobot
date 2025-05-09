@@ -18,6 +18,11 @@ public class UserData {
     private List<String> keyWords;
     private int index;
 
+    private String cityForSearch;
+    private List<String> kitchenTypesForSearch;
+    private List<String> priceCategoriesForSearch;
+    private List<String> keyWordsForSearch;
+
     public UserData() {
     }
 
@@ -28,6 +33,11 @@ public class UserData {
         kitchenTypes = List.of("Любые");
         priceCategories = List.of("Любые");
         keyWords = List.of("Любые");
+
+        cityForSearch = "По умолчанию";
+        kitchenTypesForSearch = List.of("По умолчанию");
+        priceCategoriesForSearch = List.of("По умолчанию");
+        keyWordsForSearch = List.of("По умолчанию");
         index = 0;
     }
 
@@ -140,5 +150,37 @@ public class UserData {
 
     public void parsePriceCategories(String newPriceCategories) {
         priceCategories = Arrays.stream(newPriceCategories.split(" ")).toList();
+    }
+
+    public String getCityForSearch() {
+        return cityForSearch;
+    }
+
+    public void setCityForSearch(String cityForSearch) {
+        this.cityForSearch = cityForSearch;
+    }
+
+    public List<String> getKitchenTypesForSearch() {
+        return kitchenTypesForSearch;
+    }
+
+    public void setKitchenTypesForSearch(List<String> kitchenTypesForSearch) {
+        this.kitchenTypesForSearch = kitchenTypesForSearch;
+    }
+
+    public List<String> getPriceCategoriesForSearch() {
+        return priceCategoriesForSearch;
+    }
+
+    public void setPriceCategoriesForSearch(List<String> priceCategoriesForSearch) {
+        this.priceCategoriesForSearch = priceCategoriesForSearch;
+    }
+
+    public List<String> getKeyWordsForSearch() {
+        return keyWordsForSearch;
+    }
+
+    public void setKeyWordsForSearch(List<String> keyWordsForSearch) {
+        this.keyWordsForSearch = keyWordsForSearch;
     }
 }
