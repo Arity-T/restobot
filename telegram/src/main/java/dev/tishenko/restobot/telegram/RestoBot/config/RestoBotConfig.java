@@ -6,7 +6,6 @@ import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -22,89 +21,89 @@ public class RestoBotConfig {
 
     private static String actualState;
     private static String lastParams;
-    private static Map<String, List<String>> states;
+//    private static Map<String, List<String>> states;
     private static List<RestaurantCard> restaurantSelection;
     private static int actualIndex;
 
 
-    private void initStates() {
-        states = new HashMap<>();
-        states.put("/start", List.of("goToUserParamsButton")); // Greeting
-        states.put("goToUserParamsButton", List.of(
-                "setCityInUserParamsButton",
-                "setKitchenTypesInUserParamsButton",
-                "setPriceCategoriesInUserParamsButton",
-                "setKeyWordsInUserParamsButton",
-                "goToMenuButton")); // User params
-        states.put("setCityInUserParamsButton", List.of(
-                "goToUserParamsButton",
-                "setCityInUserParamsButton")); // Set city (userData params)
-        states.put("setKitchenTypesInUserParamsButton", List.of(
-                "goToUserParamsButton",
-                "setKitchenTypesInUserParamsButton")); // Set kitchen type (userData params)
-        states.put("setPriceCategoriesInUserParamsButton", List.of(
-                "goToUserParamsButton",
-                "setPriceCategoriesInUserParamsButton")); // Set price category (userData params)
-        states.put("setKeyWordsInUserParamsButton", List.of(
-                "goToUserParamsButton")); // Set keywords (userData params)
-        states.put("goToMenuButton", List.of(
-                "goToUserParamsButton",
-                "goToFavouriteListButton",
-                "randomRestaurantButton",
-                "restaurantSearchButton")); // Menu
-        states.put("goToFavouriteListButton", List.of(
-                "goToMenuButton",
-                "removeFromFavouriteListButton")); // Fav list
-        states.put("removeFromFavouriteListButton", List.of(
-                "nextRestaurantFavouriteListButton")); // Remove from Fav list
-        states.put("nextRestaurantFavouriteListButton", List.of(
-                "goToFavouriteListButton"));
-        states.put("setAsVisitedButton", List.of(
-                "goToFavouriteListButton")); // Set as visited/non-visited
-        states.put("randomRestaurantButton", List.of(
-                "goToUserParamsButton")); // Random rest
-        states.put("randomRestaurantSearch", List.of(
-                "randomRestaurantButton",
-                "nextRandomRestaurantButton",
-                "addRandomRestaurantToFavouriteListButton"));// Rest card (Random rest)
-        states.put("nextRandomRestaurantButton", List.of(
-                "randomRestaurantSearch")); // Next rest card (Random rest)
-        states.put("restaurantSearchButton", List.of(
-                "goToMenuButton",
-                "setCityRestaurantSearchButton",
-                "setKitchenTypesRestaurantSearchButton",
-                "setPriceCategoriesRestaurantSearchButton",
-                "setKeyWordsRestaurantSearchButton",
-                "searchButton")); // Search crit
-        states.put("setCityRestaurantSearchButton", List.of(
-                "restaurantSearchButton",
-                "setCityRestaurantSearchButton",
-                "setDefaultButton",
-                "setDisabledButton")); // Set city (Search crit)
-        states.put("setKitchenTypesRestaurantSearchButton", List.of(
-                "restaurantSearchButton",
-                "setKitchenTypesRestaurantSearchButton",
-                "setDefaultButton",
-                "setDisabledButton"));// Set kitchen type (Search crit),
-        states.put("setPriceCategoriesRestaurantSearchButton", List.of(
-                "restaurantSearchButton",
-                "setPriceCategoriesRestaurantSearchButton",
-                "setDefaultButton",
-                "setDisabledButton")); // Set price category (Search crit)
-        states.put("setKeyWordsRestaurantSearchButton", List.of(
-                "restaurantSearchButton",
-                "setDefaultButton",
-                "setDisabledButton")); // Set keywords (Search crit)
-        states.put("searchButton", List.of(
-                "restaurantSearchButton",
-                "nextRestaurantSearchButton",
-                "addRestaurantSearchToFavouriteListButton")); // Rest card (Search crit)
-        states.put("nextRestaurantSearchButton", List.of(
-                "restaurantSearchButton")); // Next rest card (Search crit)
-    }
+//    private void initStates() {
+//        states = new HashMap<>();
+//        states.put("/start", List.of("goToUserParamsButton")); // Greeting
+//        states.put("goToUserParamsButton", List.of(
+//                "setCityInUserParamsButton",
+//                "setKitchenTypesInUserParamsButton",
+//                "setPriceCategoriesInUserParamsButton",
+//                "setKeyWordsInUserParamsButton",
+//                "goToMenuButton")); // User params
+//        states.put("setCityInUserParamsButton", List.of(
+//                "goToUserParamsButton",
+//                "setCityInUserParamsButton")); // Set city (userData params)
+//        states.put("setKitchenTypesInUserParamsButton", List.of(
+//                "goToUserParamsButton",
+//                "setKitchenTypesInUserParamsButton")); // Set kitchen type (userData params)
+//        states.put("setPriceCategoriesInUserParamsButton", List.of(
+//                "goToUserParamsButton",
+//                "setPriceCategoriesInUserParamsButton")); // Set price category (userData params)
+//        states.put("setKeyWordsInUserParamsButton", List.of(
+//                "goToUserParamsButton")); // Set keywords (userData params)
+//        states.put("goToMenuButton", List.of(
+//                "goToUserParamsButton",
+//                "goToFavouriteListButton",
+//                "randomRestaurantButton",
+//                "restaurantSearchButton")); // Menu
+//        states.put("goToFavouriteListButton", List.of(
+//                "goToMenuButton",
+//                "removeFromFavouriteListButton")); // Fav list
+//        states.put("removeFromFavouriteListButton", List.of(
+//                "nextRestaurantFavouriteListButton")); // Remove from Fav list
+//        states.put("nextRestaurantFavouriteListButton", List.of(
+//                "goToFavouriteListButton"));
+//        states.put("setAsVisitedButton", List.of(
+//                "goToFavouriteListButton")); // Set as visited/non-visited
+//        states.put("randomRestaurantButton", List.of(
+//                "goToUserParamsButton")); // Random rest
+//        states.put("randomRestaurantSearch", List.of(
+//                "randomRestaurantButton",
+//                "nextRandomRestaurantButton",
+//                "addRandomRestaurantToFavouriteListButton"));// Rest card (Random rest)
+//        states.put("nextRandomRestaurantButton", List.of(
+//                "randomRestaurantSearch")); // Next rest card (Random rest)
+//        states.put("restaurantSearchButton", List.of(
+//                "goToMenuButton",
+//                "setCityRestaurantSearchButton",
+//                "setKitchenTypesRestaurantSearchButton",
+//                "setPriceCategoriesRestaurantSearchButton",
+//                "setKeyWordsRestaurantSearchButton",
+//                "searchButton")); // Search crit
+//        states.put("setCityRestaurantSearchButton", List.of(
+//                "restaurantSearchButton",
+//                "setCityRestaurantSearchButton",
+//                "setDefaultButton",
+//                "setDisabledButton")); // Set city (Search crit)
+//        states.put("setKitchenTypesRestaurantSearchButton", List.of(
+//                "restaurantSearchButton",
+//                "setKitchenTypesRestaurantSearchButton",
+//                "setDefaultButton",
+//                "setDisabledButton"));// Set kitchen type (Search crit),
+//        states.put("setPriceCategoriesRestaurantSearchButton", List.of(
+//                "restaurantSearchButton",
+//                "setPriceCategoriesRestaurantSearchButton",
+//                "setDefaultButton",
+//                "setDisabledButton")); // Set price category (Search crit)
+//        states.put("setKeyWordsRestaurantSearchButton", List.of(
+//                "restaurantSearchButton",
+//                "setDefaultButton",
+//                "setDisabledButton")); // Set keywords (Search crit)
+//        states.put("searchButton", List.of(
+//                "restaurantSearchButton",
+//                "nextRestaurantSearchButton",
+//                "addRestaurantSearchToFavouriteListButton")); // Rest card (Search crit)
+//        states.put("nextRestaurantSearchButton", List.of(
+//                "restaurantSearchButton")); // Next rest card (Search crit)
+//    }
 
     public RestoBotConfig() {
-        initStates();
+//        initStates();
         restaurantSelection = new ArrayList<>();
         actualState = "/start";
     }
@@ -299,6 +298,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "randomRestaurantSearch" -> {
+                // updateRestaurantSelectionByLocation();
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
                             .chatId(chatId)
@@ -318,14 +318,18 @@ public class RestoBotConfig {
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(nextRandomRestaurantButton))
-                                .keyboardRow(new InlineKeyboardRow(addRandomRestaurantToFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(
+                                        (!userData.isRestaurantInFavouriteList(restaurantCard))
+                                                ? addRandomRestaurantToFavouriteListButton
+                                                : removeRandomRestaurantFromFavouriteListButton))
                                 .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
                                 .build())
                         .build();
             }
             case "addRandomRestaurantToFavouriteListButton" -> {
                 RestaurantCard restaurantCard = restaurantSelection.get(actualIndex);
-                userData.addRestaurantToFavouriteList(restaurantCard);
+                if(!userData.isRestaurantInFavouriteList(restaurantCard)) userData.addRestaurantToFavouriteList(restaurantCard);
+                else userData.removeRestaurantFromFavouriteList(restaurantCard);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -333,12 +337,171 @@ public class RestoBotConfig {
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(nextRandomRestaurantButton))
-                                .keyboardRow(new InlineKeyboardRow(addRandomRestaurantToFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(
+                                        (!userData.isRestaurantInFavouriteList(restaurantCard))
+                                                ? addRandomRestaurantToFavouriteListButton
+                                                : removeRandomRestaurantFromFavouriteListButton))
                                 .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
                                 .build())
                         .build();
             }
-
+            case "restaurantSearchButton" -> {
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Вы можете изменить настройки поиска. Сейчас настройки поиска выглядят так:" + "\n"
+                        + userData.userParamsToSearchRestaurantsToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(setCityRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setKitchenTypesRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setPriceCategoriesRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setKeyWordsRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(searchButton))
+                                .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                .build())
+                        .build();
+            }
+            case "setCityRestaurantSearchButton" -> {
+                lastParams = "cityForSearch";
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Укажите город или выберите опцию:")
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(setDefaultButton))
+                                .keyboardRow(new InlineKeyboardRow(setDisabledButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRestaurantSearchButton))
+                                .build())
+                        .build();
+            }
+            case "setKitchenTypesRestaurantSearchButton" -> {
+                lastParams = "kitchenTypesForSearch";
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Укажите типы кухни или выберите опцию:")
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(setDefaultButton))
+                                .keyboardRow(new InlineKeyboardRow(setDisabledButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRestaurantSearchButton))
+                                .build())
+                        .build();
+            }
+            case "setPriceCategoriesRestaurantSearchButton" -> {
+                lastParams = "priceCategoriesForSearch";
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Укажите ценовые категории или выберите опцию:")
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(setDefaultButton))
+                                .keyboardRow(new InlineKeyboardRow(setDisabledButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRestaurantSearchButton))
+                                .build())
+                        .build();
+            }
+            case "setKeyWordsRestaurantSearchButton" -> {
+                lastParams = "keyWordsForSearch";
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Укажите ключевые слова или выберите опцию:")
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(setDefaultButton))
+                                .keyboardRow(new InlineKeyboardRow(setDisabledButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRestaurantSearchButton))
+                                .build())
+                        .build();
+            }
+            case "setDefaultButton" -> {
+                setDefaultParams();
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Вы можете изменить настройки поиска. Сейчас настройки поиска выглядят так:" + "\n"
+                                + userData.userParamsToSearchRestaurantsToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(setCityRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setKitchenTypesRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setPriceCategoriesRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setKeyWordsRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(searchButton))
+                                .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                .build())
+                        .build();
+            }
+            case "setDisabledButton" -> {
+                setDisableParams();
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text("Вы можете изменить настройки поиска. Сейчас настройки поиска выглядят так:" + "\n"
+                                + userData.userParamsToSearchRestaurantsToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(setCityRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setKitchenTypesRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setPriceCategoriesRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(setKeyWordsRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(searchButton))
+                                .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                .build())
+                        .build();
+            }
+            case "searchButton" -> {
+                // updateRestaurantSelectionByUserParams();
+                if (restaurantSelection.isEmpty()) {
+                    return EditMessageText.builder()
+                            .chatId(chatId)
+                            .messageId(toIntExact(messageId))
+                            .text("Мне не удалось подобрать рестораны.")
+                            .replyMarkup(InlineKeyboardMarkup
+                                    .builder()
+                                    .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
+                                    .build())
+                            .build();
+                }
+                RestaurantCard restaurantCard = nextRestaurantFromSelection();
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text(restaurantCard.restaurantCardToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(nextRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(
+                                        (!userData.isRestaurantInFavouriteList(restaurantCard))
+                                                ? addRestaurantSearchToFavouriteListButton
+                                                : removeRestaurantSearchFromFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
+                                .build())
+                        .build();
+            }
+            case "addRestaurantSearchToFavouriteListButton" -> {
+                RestaurantCard restaurantCard = restaurantSelection.get(actualIndex);
+                if(!userData.isRestaurantInFavouriteList(restaurantCard)) userData.addRestaurantToFavouriteList(restaurantCard);
+                else userData.removeRestaurantFromFavouriteList(restaurantCard);
+                return EditMessageText.builder()
+                        .chatId(chatId)
+                        .messageId(toIntExact(messageId))
+                        .text(restaurantCard.restaurantCardToString())
+                        .replyMarkup(InlineKeyboardMarkup
+                                .builder()
+                                .keyboardRow(new InlineKeyboardRow(nextRestaurantSearchButton))
+                                .keyboardRow(new InlineKeyboardRow(
+                                        (!userData.isRestaurantInFavouriteList(restaurantCard))
+                                                ? addRestaurantSearchToFavouriteListButton
+                                                : removeRestaurantSearchFromFavouriteListButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
+                                .build())
+                        .build();
+            }
 
             default -> {
                 return EditMessageText.builder()
@@ -348,6 +511,14 @@ public class RestoBotConfig {
                         .build();
             }
         }
+    }
+
+    private static void setDisableParams() {
+
+    }
+
+    private static void setDefaultParams() {
+
     }
 
 
@@ -463,7 +634,6 @@ public class RestoBotConfig {
             .text("Задать город")
             .callbackData("setCityRestaurantSearchButton")
             .build();
-
 
     public static InlineKeyboardButton setKitchenTypesRestaurantSearchButton = InlineKeyboardButton
             .builder()
