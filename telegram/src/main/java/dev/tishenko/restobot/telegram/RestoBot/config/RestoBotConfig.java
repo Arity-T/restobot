@@ -25,6 +25,7 @@ public class RestoBotConfig {
     private static List<RestaurantCard> restaurantSelection;
     private static int actualIndex;
     private static boolean isSettingUserParams;
+    private static final String ZWSP = "\u200B";
 
 //    private void initStates() {
 //        states = new HashMap<>();
@@ -109,6 +110,11 @@ public class RestoBotConfig {
         actualState = "/start";
     }
 
+    public static boolean isSettingUserParams(){
+        return isSettingUserParams;
+    }
+
+
     private static RestaurantCard nextRestaurantFromSelection(){
         actualIndex = actualIndex >= restaurantSelection.size() ? actualIndex + 1 : 0;
         return restaurantSelection.get(actualIndex);
@@ -133,6 +139,16 @@ public class RestoBotConfig {
                 .build();
     }
 
+    public static String safeForceEdit(String text) {
+        // добавляем или убираем ZWSP, чтобы текст изменился
+        if (text.endsWith(ZWSP)) {
+            text = text.substring(0, text.length() - 1);
+        } else {
+            text = text + ZWSP;
+        }
+        return text;
+    }
+
     public static EditMessageText nextState(Update message, long messageId, boolean isText, UserData userData) {
         long chatId = userData.getChatID();
         if (isText) {
@@ -145,13 +161,14 @@ public class RestoBotConfig {
             }
             if (isSettingUserParams){
                 if(setParams(userData, message.getMessage().getText())){
+                    isSettingUserParams = false;
                     return actionChose(actualState, messageId, chatId, userData);
                 }
                 else {
                     return EditMessageText.builder()
                             .chatId(chatId)
                             .messageId(toIntExact(messageId))
-                            .text("Ошибка ввода. Повторите ввод.")
+                            .text(safeForceEdit("Ошибка ввода. Повторите ввод."))
                             .build();
                 }
             }
@@ -184,8 +201,8 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Ведите город."+ "\n" + "Доступные города: " + "\n" +
-                                userData.getCorrectCities())
+                        .text(safeForceEdit("Ведите город."+ "\n" + "Доступные города: " + "\n" +
+                                userData.getCorrectCities()))
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -198,8 +215,8 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Введите типы кухни." + "\n" + "Доступные типы кухни: " + "\n" +
-                                userData.getCorrectKitchenTypes())
+                        .text(safeForceEdit("Введите типы кухни." + "\n" + "Доступные типы кухни: " + "\n" +
+                                userData.getCorrectKitchenTypes()))
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -212,8 +229,8 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Введите ценовые категории." + "\n" + "Доступные ценовые категории: " + "\n" +
-                                userData.getCorrectPriceCategories())
+                        .text(safeForceEdit("Введите ценовые категории." + "\n" + "Доступные ценовые категории: " + "\n" +
+                                userData.getCorrectPriceCategories()))
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -226,7 +243,7 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Введите ключевые слова.")
+                        .text(safeForceEdit("Введите ключевые слова."))
                         .build();
             }
             case "goToMenuButton" -> {
@@ -383,7 +400,8 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Укажите город или выберите опцию:")
+                        .text(safeForceEdit("Укажите город или выберите опцию."+ "\n" + "Доступные города: " + "\n" +
+                                userData.getCorrectCities()))
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -398,7 +416,8 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Укажите типы кухни или выберите опцию:")
+                        .text(safeForceEdit("Укажите типы кухни или выберите опцию."+ "\n" + "Доступные типы кухни: " + "\n" +
+                                userData.getCorrectKitchenTypes()))
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -413,7 +432,8 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Укажите ценовые категории или выберите опцию:")
+                        .text(safeForceEdit("Укажите ценовые категории или выберите опцию." + "\n" + "Доступные ценовые категории: " + "\n" +
+                                userData.getCorrectPriceCategories()))
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -428,7 +448,7 @@ public class RestoBotConfig {
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text("Укажите ключевые слова или выберите опцию:")
+                        .text(safeForceEdit("Укажите ключевые слова или выберите опцию."))
                         .replyMarkup(InlineKeyboardMarkup
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(setDefaultButton))
