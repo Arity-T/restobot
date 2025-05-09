@@ -25,8 +25,11 @@ public class RestoBotConfig {
     private static List<RestaurantCard> restaurantSelection;
     private static int actualIndex;
     private static boolean isSettingUserParams;
+    private static boolean isSettingLocation;
+
     private static final String ZWSP = "\u200B";
     private static boolean isZWSP = false;
+
 
 //    private void initStates() {
 //        states = new HashMap<>();
@@ -108,6 +111,7 @@ public class RestoBotConfig {
 //        initStates();
         restaurantSelection = new ArrayList<>();
         isSettingUserParams = false;
+        isSettingLocation = false;
         actualState = "/start";
     }
 
@@ -171,17 +175,21 @@ public class RestoBotConfig {
                             .messageId(toIntExact(messageId))
                             .text(safeForceEdit("Ошибка ввода. Ввод \"" + message.getMessage().getText() + "\" некорректный. " +
                                     "Повторите попытку" ))
+                            .replyMarkup(InlineKeyboardMarkup
+                            .builder()
+                            .keyboardRow(new InlineKeyboardRow(cancelSettingParamsButton))
+                            .build())
                             .build();
                 }
             }
         }
-        actualState = message.getCallbackQuery().getData();
-        return actionChose(actualState, messageId, chatId, userData);
+        return actionChose(message.getCallbackQuery().getData(), messageId, chatId, userData);
     }
 
     private static EditMessageText actionChose(String message, long messageId, long chatId, UserData userData) {
         switch (message) {
             case "goToUserParamsButton" -> {
+                actualState = "goToUserParamsButton";
                 isSettingUserParams = false;
                 return EditMessageText.builder()
                         .chatId(chatId)
@@ -201,6 +209,7 @@ public class RestoBotConfig {
             case "setCityInUserParamsButton" -> {
                 lastParams = "city";
                 isSettingUserParams = true;
+                actualState = "goToUserParamsButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -216,6 +225,7 @@ public class RestoBotConfig {
             case "setKitchenTypesInUserParamsButton" -> {
                 lastParams = "kitchenTypes";
                 isSettingUserParams = true;
+                actualState = "goToUserParamsButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -231,6 +241,7 @@ public class RestoBotConfig {
             case "setPriceCategoriesInUserParamsButton" -> {
                 lastParams = "priceCategories";
                 isSettingUserParams = true;
+                actualState = "goToUserParamsButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -246,6 +257,7 @@ public class RestoBotConfig {
             case "setKeyWordsInUserParamsButton" -> {
                 lastParams = "keyWords";
                 isSettingUserParams = true;
+                actualState = "goToUserParamsButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -253,6 +265,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "goToMenuButton" -> {
+                actualState = "goToMenuButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -267,6 +280,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "goToFavouriteListButton" -> {
+                actualState = "goToFavouriteListButton";
                 if (userData.getFavoriteList() == null || userData.getFavoriteList().isEmpty()) {
                     return EditMessageText.builder()
                             .chatId(chatId)
@@ -293,6 +307,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "removeFromFavouriteListButton" -> {
+                actualState = "removeFromFavouriteListButton";
                 userData.removeRestaurantFromFavouriteListByIndex();
                 RestaurantCard restaurantCard = userData.nextRestaurantFromFavoriteList();
                 return EditMessageText.builder()
@@ -309,6 +324,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "setAsVisitedButton" -> {
+                actualState = "setAsVisitedButton";
                 userData.getRestaurantFromFavouriteListByIndex().changeIsVisited();
                 RestaurantCard restaurantCard = userData.getRestaurantFromFavouriteListByIndex();
                 return EditMessageText.builder()
@@ -325,6 +341,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "randomRestaurantButton" -> {
+                actualState = "randomRestaurantButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -336,6 +353,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "randomRestaurantSearch" -> {
+                actualState = "randomRestaurantSearch";
                 // updateRestaurantSelectionByLocation();
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
@@ -365,6 +383,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "addRandomRestaurantToFavouriteListButton" -> {
+                actualState = "addRandomRestaurantToFavouriteListButton";
                 RestaurantCard restaurantCard = restaurantSelection.get(actualIndex);
                 if(!userData.isRestaurantInFavouriteList(restaurantCard)) userData.addRestaurantToFavouriteList(restaurantCard);
                 else userData.removeRestaurantFromFavouriteList(restaurantCard);
@@ -384,6 +403,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "restaurantSearchButton" -> {
+                actualState = "restaurantSearchButton";
                 isSettingUserParams = false;
                 return EditMessageText.builder()
                         .chatId(chatId)
@@ -404,6 +424,7 @@ public class RestoBotConfig {
             case "setCityRestaurantSearchButton" -> {
                 lastParams = "cityForSearch";
                 isSettingUserParams = true;
+                actualState = "restaurantSearchButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -421,6 +442,7 @@ public class RestoBotConfig {
             case "setKitchenTypesRestaurantSearchButton" -> {
                 lastParams = "kitchenTypesForSearch";
                 isSettingUserParams = true;
+                actualState = "restaurantSearchButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -438,6 +460,7 @@ public class RestoBotConfig {
             case "setPriceCategoriesRestaurantSearchButton" -> {
                 lastParams = "priceCategoriesForSearch";
                 isSettingUserParams = true;
+                actualState = "restaurantSearchButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -455,6 +478,7 @@ public class RestoBotConfig {
             case "setKeyWordsRestaurantSearchButton" -> {
                 lastParams = "keyWordsForSearch";
                 isSettingUserParams = true;
+                actualState = "restaurantSearchButton";
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -468,6 +492,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "setDefaultButton" -> {
+                actualState = "setDefaultButton";
                 setDefaultParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
@@ -486,6 +511,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "setDisabledButton" -> {
+                actualState = "setDisabledButton";
                 setDisableParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
@@ -504,6 +530,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "searchButton" -> {
+                actualState = "searchButton";
                 // updateRestaurantSelectionByUserParams();
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
@@ -533,6 +560,7 @@ public class RestoBotConfig {
                         .build();
             }
             case "addRestaurantSearchToFavouriteListButton" -> {
+                actualState = "addRestaurantSearchToFavouriteListButton";
                 RestaurantCard restaurantCard = restaurantSelection.get(actualIndex);
                 if(!userData.isRestaurantInFavouriteList(restaurantCard)) userData.addRestaurantToFavouriteList(restaurantCard);
                 else userData.removeRestaurantFromFavouriteList(restaurantCard);
@@ -551,6 +579,10 @@ public class RestoBotConfig {
                                 .build())
                         .build();
             }
+            case "cancelSettingParamsButton" -> {
+                return actionChose(actualState, messageId, chatId, userData);
+            }
+
 
             default -> {
                 return EditMessageText.builder()
@@ -800,4 +832,13 @@ public class RestoBotConfig {
             .callbackData("addRandomRestaurantToFavouriteListButton")
             .build();
 
+    public static InlineKeyboardButton cancelSettingParamsButton = InlineKeyboardButton
+            .builder()
+            .text("Отмена")
+            .callbackData("cancelSettingParamsButton")
+            .build();
+
+    public static boolean isSettingLocation() {
+        return isSettingLocation;
+    }
 }
