@@ -463,7 +463,7 @@ public class RestoBotConfig {
                             .text("Мне не удалось подобрать рестораны.")
                             .replyMarkup(InlineKeyboardMarkup
                                     .builder()
-                                    .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
+                                    .keyboardRow(new InlineKeyboardRow(backToRestaurantSearchButton))
                                     .build())
                             .build();
                 }
@@ -479,7 +479,7 @@ public class RestoBotConfig {
                                         (!userData.isRestaurantInFavouriteList(restaurantCard))
                                                 ? addRestaurantSearchToFavouriteListButton
                                                 : removeRestaurantSearchFromFavouriteListButton))
-                                .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRestaurantSearchButton))
                                 .build())
                         .build();
             }
@@ -498,7 +498,7 @@ public class RestoBotConfig {
                                         (!userData.isRestaurantInFavouriteList(restaurantCard))
                                                 ? addRestaurantSearchToFavouriteListButton
                                                 : removeRestaurantSearchFromFavouriteListButton))
-                                .keyboardRow(new InlineKeyboardRow(backToRandomRestaurantButton))
+                                .keyboardRow(new InlineKeyboardRow(backToRestaurantSearchButton))
                                 .build())
                         .build();
             }
