@@ -1,5 +1,4 @@
 package dev.tishenko.restobot.telegram.RestoBot.config;
-import dev.tishenko.restobot.telegram.MyAmazingBot;
 import dev.tishenko.restobot.telegram.RestoBot.RestoBot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,7 @@ public class BotFactoryConfig {
     }
 
     @Bean
-    public RestoBot myAmazingBot(
+    public RestoBot restoBot(
             @Value("${telegram.bot.token}") String botToken,
             @Value("${telegram.bot.username}") String botUsername,
             RestoBotConfig restoBotConfig
