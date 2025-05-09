@@ -48,10 +48,7 @@ public class UserData {
         if (list.size() > 1) {
             return String.join(",", list);
         }
-        return list.stream()
-                .findFirst()
-                .map(s -> s.isEmpty() ? "" : s.substring(0, 1))
-                .orElse("");
+        return list.getFirst();
     }
 
     public long getChatID() {
