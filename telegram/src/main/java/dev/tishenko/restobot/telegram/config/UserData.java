@@ -18,6 +18,7 @@ public class UserData {
     private List<String> kitchenTypes;
     private List<String> priceCategories;
     private List<String> keyWords;
+    private int index;
 
     public UserData() {
     }
@@ -29,6 +30,7 @@ public class UserData {
         kitchenTypes = List.of("Любые");
         priceCategories = List.of("Любые");
         keyWords = List.of("Любые");
+        index = 0;
     }
 
 
@@ -49,6 +51,11 @@ public class UserData {
             return String.join(",", list);
         }
         return list.getFirst();
+    }
+
+    public RestaurantCard nextRestaurantFromFavoriteList(){
+        index = index >= favoriteList.size() ? 0 : index + 1;
+        return favoriteList.get(index);
     }
 
     public long getChatID() {
