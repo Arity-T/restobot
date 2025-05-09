@@ -34,10 +34,10 @@ public class UserData {
         priceCategories = List.of("Любые");
         keyWords = List.of("Любые");
 
-        cityForSearch = "По умолчанию";
-        kitchenTypesForSearch = List.of("По умолчанию");
-        priceCategoriesForSearch = List.of("По умолчанию");
-        keyWordsForSearch = List.of("По умолчанию");
+        cityForSearch = city;
+        kitchenTypesForSearch = kitchenTypes;
+        priceCategoriesForSearch = priceCategories;
+        keyWordsForSearch = keyWords;
         index = 0;
     }
 
