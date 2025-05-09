@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Component
 @Scope("prototype")
@@ -100,6 +98,10 @@ public class UserData {
 
     public void parseKeyWords(String newkeyWords) {
         keyWords = Arrays.stream(newkeyWords.split(" ")).toList();
+    }
+
+    public void removeRestaurantFromFavouriteListByIndex(){
+        favoriteList.remove(index);
     }
 
     public void addRestaurantToFavouriteList(RestaurantCard restaurantCard) {
