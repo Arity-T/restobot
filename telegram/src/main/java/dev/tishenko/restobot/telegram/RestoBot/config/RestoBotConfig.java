@@ -105,6 +105,7 @@ public class RestoBotConfig {
     }
 
     public static SendMessage greetingMessage(UserData userData) {
+        actualState = "goToUserParamsButton";
         return SendMessage
                 .builder()
                 .chatId(userData.getChatID())
@@ -148,8 +149,8 @@ public class RestoBotConfig {
                                 .builder()
                                 .keyboardRow(new InlineKeyboardRow(setCityInUserParamsButton))
                                 .keyboardRow(new InlineKeyboardRow(setKitchenTypesInUserParamsButton))
-                                .keyboardRow(new InlineKeyboardRow(setCityInUserParamsButton))
-                                .keyboardRow(new InlineKeyboardRow(setCityInUserParamsButton))
+                                .keyboardRow(new InlineKeyboardRow(setPriceCategoriesInUserParamsButton))
+                                .keyboardRow(new InlineKeyboardRow(setKeyWordsInUserParamsButton))
                                 .build())
                         .build();
             }
