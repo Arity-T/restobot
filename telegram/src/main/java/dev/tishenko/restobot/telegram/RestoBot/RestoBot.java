@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static java.lang.Math.toIntExact;
-
 
 @Component
 public class RestoBot implements LongPollingUpdateConsumer {
@@ -28,6 +26,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
     private RestoBotConfig botConfig;
     private final TelegramClient telegramClient;
     private UserData userData;
+    private long lastMessageId;
 
     public String getUsername() {
         return botUsername;
@@ -48,9 +47,9 @@ public class RestoBot implements LongPollingUpdateConsumer {
     }
 
     public void consume(Update update) {
-        System.out.println("update");
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if (update.getMessage().getText().equals("/start")) {
+            System.out.println(update.getMessage().getText());
+            if (update.getMessage().getText().equals("/start") && userData == null) {
                 userData = new UserData(update.getMessage().getChatId(), update.getMessage().getChat().getUserName());
                 SendMessage greetingString = RestoBotConfig.greetingMessage(userData);
                 try {
@@ -60,10 +59,20 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 }
             }
         } else if (update.hasCallbackQuery()) {
-            String callData = update.getCallbackQuery().getData();
-            long messageId = update.getCallbackQuery().getMessage().getMessageId();
-            EditMessageText editMessageText = RestoBotConfig.nextState(callData, messageId, false, userData);
-            if (!editMessageText.getText().equals("Ошибка ввода")){
+            System.out.println(update.getCallbackQuery().getData());
+            lastMessageId = update.getCallbackQuery().getMessage().getMessageId();
+            EditMessageText editMessageText = RestoBotConfig.nextState(update, lastMessageId, false, userData);
+            if (!editMessageText.getText().equals("Incorrect state")){
+                try {
+                    telegramClient.execute(editMessageText);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (update.getMessage().hasLocation()) {
+            System.out.println("Location");
+            EditMessageText editMessageText = RestoBotConfig.nextState(update, lastMessageId, true, userData);
+            if (!editMessageText.getText().equals("Incorrect state")) {
                 try {
                     telegramClient.execute(editMessageText);
                 } catch (TelegramApiException e) {
