@@ -5,6 +5,7 @@ import dev.tishenko.restobot.telegram.config.UserData;
 import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -26,6 +27,7 @@ public class RestoBotConfig {
     private static int actualIndex;
     private static boolean isSettingUserParams;
     private static boolean isSettingLocation;
+    private static Location location;
 
     private static final String ZWSP = "\u200B";
     private static boolean isZWSP = false;
@@ -158,11 +160,7 @@ public class RestoBotConfig {
         long chatId = userData.getChatID();
         if (isText) {
             if (message.getMessage().hasLocation()){
-                return EditMessageText.builder()
-                        .chatId(chatId)
-                        .messageId(toIntExact(messageId))
-                        .text("Location")
-                        .build();
+                return actionChose("randomRestaurantSearch", messageId, chatId, userData);
             }
             if (isSettingUserParams){
                 if(setParams(userData, message.getMessage().getText())){
@@ -342,6 +340,7 @@ public class RestoBotConfig {
             }
             case "randomRestaurantButton" -> {
                 actualState = "randomRestaurantButton";
+                isSettingLocation = true;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -354,6 +353,7 @@ public class RestoBotConfig {
             }
             case "randomRestaurantSearch" -> {
                 actualState = "randomRestaurantSearch";
+                isSettingLocation = false;
                 // updateRestaurantSelectionByLocation();
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
