@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -48,7 +49,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     public void consume(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            System.out.println(update.getMessage().getText());
             if (update.getMessage().getText().equals("/start") && userData == null) {
                 userData = new UserData(update.getMessage().getChatId(), update.getMessage().getChat().getUserName());
                 SendMessage greetingString = RestoBotConfig.greetingMessage(userData);
@@ -58,26 +58,66 @@ public class RestoBot implements LongPollingUpdateConsumer {
                     e.printStackTrace();
                 }
             }
-        } else if (update.hasCallbackQuery()) {
-            System.out.println(update.getCallbackQuery().getData());
-            lastMessageId = update.getCallbackQuery().getMessage().getMessageId();
-            EditMessageText editMessageText = RestoBotConfig.nextState(update, lastMessageId, false, userData);
-            if (!editMessageText.getText().equals("Incorrect state")){
+            else if (RestoBotConfig.isSettingUserParams()){
+                System.out.println(update.getMessage().getText());
+                EditMessageText editMessageText = RestoBotConfig.nextState(update, lastMessageId, true, userData);
+                DeleteMessage deleteMessage = DeleteMessage.builder()
+                        .chatId(userData.getChatID())
+                        .messageId(update.getMessage().getMessageId())
+                        .build();
                 try {
                     telegramClient.execute(editMessageText);
+                    telegramClient.execute(deleteMessage);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
             }
-        } else if (update.getMessage().hasLocation()) {
-            System.out.println("Location");
-            EditMessageText editMessageText = RestoBotConfig.nextState(update, lastMessageId, true, userData);
+            else {
+                DeleteMessage deleteMessage = DeleteMessage.builder()
+                        .chatId(userData.getChatID())
+                        .messageId(update.getMessage().getMessageId())
+                        .build();
+                try {
+                    telegramClient.execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (update.hasCallbackQuery()) {
+            System.out.println(update.getCallbackQuery().getData());
+            lastMessageId = update.getCallbackQuery().getMessage().getMessageId();
+            EditMessageText editMessageText = RestoBotConfig.nextState(update, lastMessageId, false, userData);
             if (!editMessageText.getText().equals("Incorrect state")) {
                 try {
                     telegramClient.execute(editMessageText);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
+            }
+        } else if (update.getMessage().hasLocation() && RestoBotConfig.isSettingLocation()) {
+            EditMessageText editMessageText = RestoBotConfig.nextState(update, lastMessageId, true, userData);
+            DeleteMessage deleteMessage = DeleteMessage.builder()
+                    .chatId(userData.getChatID())
+                    .messageId(update.getMessage().getMessageId())
+                    .build();
+            if (!editMessageText.getText().equals("Incorrect state")) {
+                try {
+                    telegramClient.execute(editMessageText);
+                    telegramClient.execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        else {
+            DeleteMessage deleteMessage = DeleteMessage.builder()
+                    .chatId(userData.getChatID())
+                    .messageId(update.getMessage().getMessageId())
+                    .build();
+            try {
+                telegramClient.execute(deleteMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
             }
         }
     }
