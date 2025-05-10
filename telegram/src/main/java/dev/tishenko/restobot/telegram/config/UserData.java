@@ -3,6 +3,7 @@ package dev.tishenko.restobot.telegram.config;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class UserData {
     public UserData(long chatID, String nickName) {
         setChatID(chatID);
         setNickName(nickName);
+        favoriteList = new ArrayList<>();
         city = "Любой";
         kitchenTypes = List.of("Любые");
         priceCategories = List.of("Любые");
@@ -73,7 +75,6 @@ public class UserData {
     }
 
 
-
     public static String listToStringStream(List<String> list) {
         if (list == null || list.isEmpty()) {
             return "";
@@ -84,73 +85,75 @@ public class UserData {
         return list.getFirst();
     }
 
-    public boolean checkAndSetCity(String city){
-        if (correctCities.contains(city)){
+    public boolean checkAndSetCity(String city) {
+        if (correctCities.contains(city)) {
             setCity(city);
             return true;
         }
         return false;
     }
 
-    public boolean checkAndSetCityForSearch(String city){
-        if (correctCities.contains(city)){
+    public boolean checkAndSetCityForSearch(String city) {
+        if (correctCities.contains(city)) {
             setCityForSearch(city);
             return true;
         }
         return false;
     }
 
-    public boolean checkAndSetKitchenTypes(String kitchenTypes){
+    public boolean checkAndSetKitchenTypes(String kitchenTypes) {
         if (Arrays.stream(kitchenTypes.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .allMatch(correctKitchenTypes::contains)){
+                .allMatch(correctKitchenTypes::contains)) {
             setKitchenTypes(List.of(kitchenTypes.split(",")));
             return true;
         }
         return false;
     }
-    public boolean checkAndSetKitchenTypesForSearch(String kitchenTypes){
+
+    public boolean checkAndSetKitchenTypesForSearch(String kitchenTypes) {
         if (Arrays.stream(kitchenTypes.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .allMatch(correctKitchenTypes::contains)){
+                .allMatch(correctKitchenTypes::contains)) {
             setKitchenTypesForSearch(List.of(kitchenTypes.split(",")));
             return true;
         }
         return false;
     }
 
-    public boolean checkAndSetPriceCategories(String priceCategories){
+    public boolean checkAndSetPriceCategories(String priceCategories) {
         if (Arrays.stream(priceCategories.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .allMatch(correctPriceCategories::contains)){
+                .allMatch(correctPriceCategories::contains)) {
             setPriceCategories(List.of(priceCategories.split(",")));
             return true;
         }
         return false;
     }
-    public boolean checkAndSetPriceCategoriesForSearch(String priceCategories){
+
+    public boolean checkAndSetPriceCategoriesForSearch(String priceCategories) {
         if (Arrays.stream(priceCategories.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .allMatch(correctPriceCategories::contains)){
+                .allMatch(correctPriceCategories::contains)) {
             setPriceCategoriesForSearch(List.of(priceCategories.split(",")));
             return true;
         }
         return false;
     }
 
-    public List<String> getCorrectCities(){
+    public List<String> getCorrectCities() {
         return correctCities;
     }
 
-    public List<String> getCorrectKitchenTypes(){
+    public List<String> getCorrectKitchenTypes() {
         return correctKitchenTypes;
     }
 
-    public List<String> getCorrectPriceCategories(){
+    public List<String> getCorrectPriceCategories() {
         return correctPriceCategories;
     }
 
@@ -165,7 +168,7 @@ public class UserData {
     }
 
     public RestaurantCard nextRestaurantFromFavoriteList() {
-        index = index >= favoriteList.size() ? 0 : index + 1;
+        index = index >= favoriteList.size() - 1 ? 0 : index + 1;
         return favoriteList.get(index);
     }
 
