@@ -1,6 +1,6 @@
-package dev.tishenko.restobot.telegram.RestoBot;
+package dev.tishenko.restobot.telegram;
 
-import dev.tishenko.restobot.telegram.RestoBot.config.RestoBotConfig;
+import dev.tishenko.restobot.telegram.config.RestoBotConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

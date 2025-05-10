@@ -1,5 +1,5 @@
-package dev.tishenko.restobot.telegram.RestoBot.config;
-import dev.tishenko.restobot.telegram.RestoBot.RestoBot;
+package dev.tishenko.restobot.telegram.config;
+import dev.tishenko.restobot.telegram.RestoBot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -11,7 +11,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @ComponentScan(basePackages = {
         "dev.tishenko.restobot.telegram",
         "dev.tishenko.restobot.telegram.config",
-        "dev.tishenko.restobot.telegram.RestoBot.config",
 })
 public class BotFactoryConfig {
 

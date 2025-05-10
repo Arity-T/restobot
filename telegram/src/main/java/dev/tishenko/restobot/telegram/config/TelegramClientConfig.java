@@ -1,4 +1,4 @@
-package dev.tishenko.restobot.telegram.RestoBot.config;
+package dev.tishenko.restobot.telegram.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

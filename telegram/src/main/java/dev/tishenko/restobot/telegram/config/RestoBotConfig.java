@@ -1,7 +1,5 @@
-package dev.tishenko.restobot.telegram.RestoBot.config;
+package dev.tishenko.restobot.telegram.config;
 
-import dev.tishenko.restobot.telegram.config.RestaurantCard;
-import dev.tishenko.restobot.telegram.config.UserData;
 import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;

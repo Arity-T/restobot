@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram;
 
-import dev.tishenko.restobot.telegram.RestoBot.RestoBot;
-import dev.tishenko.restobot.telegram.RestoBot.config.BotFactoryConfig;
+import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
