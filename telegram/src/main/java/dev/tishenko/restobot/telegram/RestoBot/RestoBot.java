@@ -33,8 +33,8 @@ public class RestoBot implements LongPollingUpdateConsumer {
         return botUsername;
     }
 
-    public RestoBot(@Value("${telegram.bot.token}") String botToken,
-                    @Value("${telegram.bot.username}") String botUsername,
+    public RestoBot(@Value("${TELEGRAM_BOT_TOKEN}") String botToken,
+                    @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
                     RestoBotConfig botConfig) {
         this.botToken = botToken;
         this.botUsername = botUsername;

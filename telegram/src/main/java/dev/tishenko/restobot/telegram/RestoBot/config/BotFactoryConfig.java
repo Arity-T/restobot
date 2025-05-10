@@ -22,8 +22,8 @@ public class BotFactoryConfig {
 
     @Bean
     public RestoBot restoBot(
-            @Value("${telegram.bot.token}") String botToken,
-            @Value("${telegram.bot.username}") String botUsername,
+            @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
+            @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
             RestoBotConfig restoBotConfig
     ) {
         return new RestoBot(botToken, botUsername, restoBotConfig);

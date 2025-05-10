@@ -15,8 +15,8 @@ public class App {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(BotFactoryConfig.class);
 
-        String botToken = context.getEnvironment().getProperty("telegram.bot.token", Objects.requireNonNull(context.getEnvironment()
-                .getProperty("telegram.bot.token")));
+        String botToken = context.getEnvironment().getProperty("TELEGRAM_BOT_TOKEN", Objects.requireNonNull(context.getEnvironment()
+                .getProperty("TELEGRAM_BOT_TOKEN")));
 
         RestoBot bot = context.getBean(RestoBot.class);
         try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
