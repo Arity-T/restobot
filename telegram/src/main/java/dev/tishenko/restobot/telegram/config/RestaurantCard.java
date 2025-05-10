@@ -47,17 +47,23 @@ public class RestaurantCard {
         this.isVisited = false;
     }
 
+    public String restaurantCardToStringForFavouriteList() {
+        return name + "\n" + "Находится по адресу: " + addressString + '\n'
+                + "Имеет рейтинг: " + rating + "\n" + "Официальный сайт: " + website + '\n' +
+                description + '\n' + "Посещен: " + (isVisited ? "Да" : "Нет");
+    }
+
     public String restaurantCardToString() {
         return name + "\n" + "Находится по адресу: " + addressString + '\n'
                 + "Имеет рейтинг: " + rating + "\n" + "Официальный сайт: " + website + '\n' +
-                description + "Посещен: " + (isVisited ? "Да" : "Нет");
+                description;
     }
 
     public boolean isVisited() {
         return isVisited;
     }
 
-    public void changeIsVisited(){
+    public void changeIsVisited() {
         isVisited = !isVisited;
     }
 
