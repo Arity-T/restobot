@@ -22,7 +22,6 @@ public class RestoBotConfig {
 
     private static String actualState;
     private static String lastParams;
-    //    private static Map<String, List<String>> states;
     private static List<RestaurantCard> restaurantSelection;
     private static int actualIndex;
     private static boolean isSettingUserParams;
@@ -32,85 +31,7 @@ public class RestoBotConfig {
     private static final String ZWSP = "\u200B";
     private static boolean isZWSP = false;
 
-
-//    private void initStates() {
-//        states = new HashMap<>();
-//        states.put("/start", List.of("goToUserParamsButton")); // Greeting
-//        states.put("goToUserParamsButton", List.of(
-//                "setCityInUserParamsButton",
-//                "setKitchenTypesInUserParamsButton",
-//                "setPriceCategoriesInUserParamsButton",
-//                "setKeyWordsInUserParamsButton",
-//                "goToMenuButton")); // User params
-//        states.put("setCityInUserParamsButton", List.of(
-//                "goToUserParamsButton",
-//                "setCityInUserParamsButton")); // Set city (userData params)
-//        states.put("setKitchenTypesInUserParamsButton", List.of(
-//                "goToUserParamsButton",
-//                "setKitchenTypesInUserParamsButton")); // Set kitchen type (userData params)
-//        states.put("setPriceCategoriesInUserParamsButton", List.of(
-//                "goToUserParamsButton",
-//                "setPriceCategoriesInUserParamsButton")); // Set price category (userData params)
-//        states.put("setKeyWordsInUserParamsButton", List.of(
-//                "goToUserParamsButton")); // Set keywords (userData params)
-//        states.put("goToMenuButton", List.of(
-//                "goToUserParamsButton",
-//                "goToFavouriteListButton",
-//                "randomRestaurantButton",
-//                "restaurantSearchButton")); // Menu
-//        states.put("goToFavouriteListButton", List.of(
-//                "goToMenuButton",
-//                "removeFromFavouriteListButton")); // Fav list
-//        states.put("removeFromFavouriteListButton", List.of(
-//                "nextRestaurantFavouriteListButton")); // Remove from Fav list
-//        states.put("nextRestaurantFavouriteListButton", List.of(
-//                "goToFavouriteListButton"));
-//        states.put("setAsVisitedButton", List.of(
-//                "goToFavouriteListButton")); // Set as visited/non-visited
-//        states.put("randomRestaurantButton", List.of(
-//                "goToUserParamsButton")); // Random rest
-//        states.put("randomRestaurantSearch", List.of(
-//                "randomRestaurantButton",
-//                "nextRandomRestaurantButton",
-//                "addRandomRestaurantToFavouriteListButton"));// Rest card (Random rest)
-//        states.put("nextRandomRestaurantButton", List.of(
-//                "randomRestaurantSearch")); // Next rest card (Random rest)
-//        states.put("restaurantSearchButton", List.of(
-//                "goToMenuButton",
-//                "setCityRestaurantSearchButton",
-//                "setKitchenTypesRestaurantSearchButton",
-//                "setPriceCategoriesRestaurantSearchButton",
-//                "setKeyWordsRestaurantSearchButton",
-//                "searchButton")); // Search crit
-//        states.put("setCityRestaurantSearchButton", List.of(
-//                "restaurantSearchButton",
-//                "setCityRestaurantSearchButton",
-//                "setDefaultButton",
-//                "setDisabledButton")); // Set city (Search crit)
-//        states.put("setKitchenTypesRestaurantSearchButton", List.of(
-//                "restaurantSearchButton",
-//                "setKitchenTypesRestaurantSearchButton",
-//                "setDefaultButton",
-//                "setDisabledButton"));// Set kitchen type (Search crit),
-//        states.put("setPriceCategoriesRestaurantSearchButton", List.of(
-//                "restaurantSearchButton",
-//                "setPriceCategoriesRestaurantSearchButton",
-//                "setDefaultButton",
-//                "setDisabledButton")); // Set price category (Search crit)
-//        states.put("setKeyWordsRestaurantSearchButton", List.of(
-//                "restaurantSearchButton",
-//                "setDefaultButton",
-//                "setDisabledButton")); // Set keywords (Search crit)
-//        states.put("searchButton", List.of(
-//                "restaurantSearchButton",
-//                "nextRestaurantSearchButton",
-//                "addRestaurantSearchToFavouriteListButton")); // Rest card (Search crit)
-//        states.put("nextRestaurantSearchButton", List.of(
-//                "restaurantSearchButton")); // Next rest card (Search crit)
-//    }
-
     public RestoBotConfig() throws MalformedURLException {
-//        initStates();
         restaurantSelection = new ArrayList<>();
         isSettingUserParams = false;
         isSettingLocation = false;
