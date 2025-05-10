@@ -28,3 +28,18 @@ application {
     // Define the main class for the application.
     mainClass = 'dev.tishenko.restobot.telegram.App'
 }
+
+run {
+    def envFile = rootProject.file('example.env') // name .env file
+    if (envFile.exists()) {
+        envFile.eachLine { line ->
+            line = line.trim()
+            if (!line.startsWith('#') && line.contains('=')) {
+                def (key, val) = line.split('=', 2)
+                key = key.trim(); val = val.trim()
+                environment key, val
+            }
+        }
+    }
+}
+
