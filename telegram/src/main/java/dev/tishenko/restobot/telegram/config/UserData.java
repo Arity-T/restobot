@@ -1,11 +1,10 @@
 package dev.tishenko.restobot.telegram.config;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
@@ -28,9 +27,7 @@ public class UserData {
     private List<String> correctKitchenTypes;
     private List<String> correctPriceCategories;
 
-
-    public UserData() {
-    }
+    public UserData() {}
 
     public UserData(long chatID, String nickName) {
         setChatID(chatID);
@@ -47,33 +44,84 @@ public class UserData {
         keyWordsForSearch = keyWords;
         index = 0;
 
-        correctCities = List.of("Москва", "Санкт-Петербург", "Новосибирск",
-                "Екатеринбург", "Казань", "Красноярск", "Нижний Новгород",
-                "Челябинск", "Уфа", "Самара", "Ростов-на-Дону",
-                "Краснодар", "Омск", "Воронеж", "Пермь", "Волгоград");
-        correctKitchenTypes = List.of("африканская", "азиатская", "американская",
-                "барбекю", "ближневосточная", "британская", "вьетнамская",
-                "восточно-европейская", "европейская", "ирландская", "испанская", "итальянская",
-                "индийская", "каджунская", "карибская", "китайская", "мексиканская", "немецкая",
-                "средиземноморская", "тайская", "французская", "фьюжн", "греческая", "японская", "южноамериканская");
-        correctPriceCategories = List.of("Дешевое питание", "Средний ценовой сегмент", "Высокая кухня");
+        correctCities =
+                List.of(
+                        "Москва",
+                        "Санкт-Петербург",
+                        "Новосибирск",
+                        "Екатеринбург",
+                        "Казань",
+                        "Красноярск",
+                        "Нижний Новгород",
+                        "Челябинск",
+                        "Уфа",
+                        "Самара",
+                        "Ростов-на-Дону",
+                        "Краснодар",
+                        "Омск",
+                        "Воронеж",
+                        "Пермь",
+                        "Волгоград");
+        correctKitchenTypes =
+                List.of(
+                        "африканская",
+                        "азиатская",
+                        "американская",
+                        "барбекю",
+                        "ближневосточная",
+                        "британская",
+                        "вьетнамская",
+                        "восточно-европейская",
+                        "европейская",
+                        "ирландская",
+                        "испанская",
+                        "итальянская",
+                        "индийская",
+                        "каджунская",
+                        "карибская",
+                        "китайская",
+                        "мексиканская",
+                        "немецкая",
+                        "средиземноморская",
+                        "тайская",
+                        "французская",
+                        "фьюжн",
+                        "греческая",
+                        "японская",
+                        "южноамериканская");
+        correctPriceCategories =
+                List.of("Дешевое питание", "Средний ценовой сегмент", "Высокая кухня");
     }
 
-
     public String userParamsToString() {
-        return "Город: " + city + ".\n" +
-                "Типы кухни: " + listToStringStream(kitchenTypes) + ".\n" +
-                "Ценовые категории: " + listToStringStream(priceCategories) + ".\n" +
-                "Ключевые слова: " + listToStringStream(keyWords) + ".\n";
+        return "Город: "
+                + city
+                + ".\n"
+                + "Типы кухни: "
+                + listToStringStream(kitchenTypes)
+                + ".\n"
+                + "Ценовые категории: "
+                + listToStringStream(priceCategories)
+                + ".\n"
+                + "Ключевые слова: "
+                + listToStringStream(keyWords)
+                + ".\n";
     }
 
     public String userParamsToSearchRestaurantsToString() {
-        return "Город: " + cityForSearch + ".\n" +
-                "Типы кухни: " + listToStringStream(kitchenTypesForSearch) + ".\n" +
-                "Ценовые категории: " + listToStringStream(priceCategoriesForSearch) + ".\n" +
-                "Ключевые слова: " + listToStringStream(keyWordsForSearch) + ".\n";
+        return "Город: "
+                + cityForSearch
+                + ".\n"
+                + "Типы кухни: "
+                + listToStringStream(kitchenTypesForSearch)
+                + ".\n"
+                + "Ценовые категории: "
+                + listToStringStream(priceCategoriesForSearch)
+                + ".\n"
+                + "Ключевые слова: "
+                + listToStringStream(keyWordsForSearch)
+                + ".\n";
     }
-
 
     public static String listToStringStream(List<String> list) {
         if (list == null || list.isEmpty()) {

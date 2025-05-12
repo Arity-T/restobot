@@ -1,10 +1,8 @@
 package dev.tishenko.restobot.telegram.config;
 
+import java.net.URL;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import java.net.URL;
-
 
 @Component
 @Scope("prototype")
@@ -21,19 +19,19 @@ public class RestaurantCard {
     private String city;
     private boolean isVisited;
 
-    public RestaurantCard() {
-    }
+    public RestaurantCard() {}
 
-    public RestaurantCard(int restaurantId,
-                          int tripadvisorId,
-                          String name,
-                          String addressString,
-                          double rating,
-                          URL website,
-                          String description,
-                          double latitude,
-                          double longitude,
-                          String city) {
+    public RestaurantCard(
+            int restaurantId,
+            int tripadvisorId,
+            String name,
+            String addressString,
+            double rating,
+            URL website,
+            String description,
+            double latitude,
+            double longitude,
+            String city) {
         this.restaurantId = restaurantId;
         this.tripadvisorId = tripadvisorId;
         this.name = name;
@@ -48,15 +46,36 @@ public class RestaurantCard {
     }
 
     public String restaurantCardToStringForFavouriteList() {
-        return name + "\n" + "Находится по адресу: " + addressString + '\n'
-                + "Имеет рейтинг: " + rating + "\n" + "Официальный сайт: " + website + '\n' +
-                description + '\n' + "Посещен: " + (isVisited ? "Да" : "Нет");
+        return name
+                + "\n"
+                + "Находится по адресу: "
+                + addressString
+                + '\n'
+                + "Имеет рейтинг: "
+                + rating
+                + "\n"
+                + "Официальный сайт: "
+                + website
+                + '\n'
+                + description
+                + '\n'
+                + "Посещен: "
+                + (isVisited ? "Да" : "Нет");
     }
 
     public String restaurantCardToString() {
-        return name + "\n" + "Находится по адресу: " + addressString + '\n'
-                + "Имеет рейтинг: " + rating + "\n" + "Официальный сайт: " + website + '\n' +
-                description;
+        return name
+                + "\n"
+                + "Находится по адресу: "
+                + addressString
+                + '\n'
+                + "Имеет рейтинг: "
+                + rating
+                + "\n"
+                + "Официальный сайт: "
+                + website
+                + '\n'
+                + description;
     }
 
     public boolean isVisited() {

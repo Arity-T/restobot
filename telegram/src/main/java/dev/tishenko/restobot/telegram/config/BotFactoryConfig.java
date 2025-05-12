@@ -1,11 +1,11 @@
 package dev.tishenko.restobot.telegram.config;
+
 import dev.tishenko.restobot.telegram.RestoBot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-
 
 @Configuration
 @ComponentScan("dev.tishenko.restobot.telegram")
@@ -20,8 +20,7 @@ public class BotFactoryConfig {
     public RestoBot restoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            RestoBotConfig restoBotConfig
-    ) {
+            RestoBotConfig restoBotConfig) {
         return new RestoBot(botToken, botUsername, restoBotConfig);
     }
 }
