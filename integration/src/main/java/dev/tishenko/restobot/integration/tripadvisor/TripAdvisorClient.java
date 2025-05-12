@@ -19,6 +19,7 @@ public class TripAdvisorClient {
     private final String apiKey;
     private final Gson gson;
     private final String language;
+    private final String category = "restaurants";
 
     public TripAdvisorClient(String apiKey, String baseUrl, String language) {
         this.apiKey = apiKey;
@@ -70,22 +71,17 @@ public class TripAdvisorClient {
      * Search for locations by search query
      *
      * @param searchQuery The search query
-     * @param category Optional category filter (hotels, restaurants, attractions)
-     * @param language Optional language code
      * @return Mono with search results
      */
-    public Mono<LocationSearch> searchLocations(String searchQuery, String category) {
-        logger.debug("Searching locations with query: {}, category: {}", searchQuery, category);
+    public Mono<LocationSearch> searchLocations(String searchQuery) {
+        logger.debug("Searching locations with query: {}", searchQuery);
 
         return executeRequest(
                 "/location/search",
                 uriBuilder -> {
                     uriBuilder.queryParam("searchQuery", searchQuery);
 
-                    if (category != null && !category.isEmpty()) {
-                        uriBuilder.queryParam("category", category);
-                    }
-
+                    uriBuilder.queryParam("category", category);
                     return uriBuilder.build();
                 },
                 response -> gson.fromJson(response, LocationSearch.class),
@@ -99,17 +95,15 @@ public class TripAdvisorClient {
      *
      * @param latitude Latitude coordinate
      * @param longitude Longitude coordinate
-     * @param category Optional category filter (hotels, restaurants, attractions)
      * @param radius Optional radius in km (default is 5)
      * @return Mono with nearby search results
      */
     public Mono<LocationSearch> searchNearbyLocations(
-            double latitude, double longitude, String category, Double radius, String radiusUnit) {
+            double latitude, double longitude, Double radius, String radiusUnit) {
         logger.debug(
-                "Searching nearby locations at lat: {}, long: {}, category: {}, radius: {}, radiusUnit: {}",
+                "Searching nearby locations at lat: {}, long: {}, radius: {}, radiusUnit: {}",
                 latitude,
                 longitude,
-                category,
                 radius,
                 radiusUnit);
 
@@ -117,10 +111,6 @@ public class TripAdvisorClient {
                 "/location/nearby_search",
                 uriBuilder -> {
                     uriBuilder.queryParam("latLong", latitude + "," + longitude);
-
-                    if (category != null && !category.isEmpty()) {
-                        uriBuilder.queryParam("category", category);
-                    }
 
                     if (radius != null) {
                         uriBuilder.queryParam("radius", radius);
@@ -130,6 +120,7 @@ public class TripAdvisorClient {
                         uriBuilder.queryParam("radiusUnit", radiusUnit);
                     }
 
+                    uriBuilder.queryParam("category", category);
                     return uriBuilder.build();
                 },
                 response -> gson.fromJson(response, LocationSearch.class),
