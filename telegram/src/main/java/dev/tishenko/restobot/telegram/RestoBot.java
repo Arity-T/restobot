@@ -5,6 +5,8 @@ import dev.tishenko.restobot.telegram.config.UserData;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -18,6 +20,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
 public class RestoBot implements LongPollingUpdateConsumer {
+    private static final Logger logger = LoggerFactory.getLogger(RestoBot.class);
+
     private Executor updatesProcessorExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     private final String botToken;
@@ -57,10 +61,10 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 try {
                     telegramClient.execute(greetingString);
                 } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                    logger.error("Error sending greeting message: {}", e.getMessage());
                 }
             } else if (RestoBotConfig.isSettingUserParams()) {
-                System.out.println(update.getMessage().getText());
+                logger.debug("Setting user params: {}", update.getMessage().getText());
                 EditMessageText editMessageText =
                         RestoBotConfig.nextState(update, lastMessageId, true, userData);
                 DeleteMessage deleteMessage =
@@ -72,7 +76,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
                     telegramClient.execute(editMessageText);
                     telegramClient.execute(deleteMessage);
                 } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                    logger.error("Error editing message: {}", e.getMessage());
                 }
             } else {
                 DeleteMessage deleteMessage =
@@ -83,11 +87,11 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 try {
                     telegramClient.execute(deleteMessage);
                 } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                    logger.error("Error deleting message: {}", e.getMessage());
                 }
             }
         } else if (update.hasCallbackQuery()) {
-            System.out.println(update.getCallbackQuery().getData());
+            logger.debug("Callback query: {}", update.getCallbackQuery().getData());
             lastMessageId = update.getCallbackQuery().getMessage().getMessageId();
             EditMessageText editMessageText =
                     RestoBotConfig.nextState(update, lastMessageId, false, userData);
@@ -95,7 +99,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 try {
                     telegramClient.execute(editMessageText);
                 } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                    logger.error("Error editing message: {}", e.getMessage());
                 }
             }
         } else if (update.getMessage().hasLocation() && RestoBotConfig.isSettingLocation()) {
@@ -111,7 +115,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
                     telegramClient.execute(editMessageText);
                     telegramClient.execute(deleteMessage);
                 } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                    logger.error("Error editing message: {}", e.getMessage());
                 }
             }
         } else {
@@ -123,7 +127,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
             try {
                 telegramClient.execute(deleteMessage);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                logger.error("Error deleting message: {}", e.getMessage());
             }
         }
     }
