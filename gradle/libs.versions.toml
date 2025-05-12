@@ -13,6 +13,7 @@ spotless = "7.0.3"
 slf4j = "2.0.17"
 logback = "1.5.18"
 gson = "2.13.1"
+lombok = "1.18.38"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -24,6 +25,7 @@ jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-da
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
