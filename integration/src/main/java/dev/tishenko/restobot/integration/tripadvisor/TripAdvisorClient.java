@@ -43,10 +43,7 @@ public class TripAdvisorClient {
         return executeRequest(
                 "/location/{locationId}/details",
                 uriBuilder -> uriBuilder.build(locationId),
-                response -> gson.fromJson(response, LocationDetails.class),
-                "Error fetching location details",
-                "location details",
-                locationId);
+                LocationDetails.class);
     }
 
     /**
@@ -61,10 +58,7 @@ public class TripAdvisorClient {
         return executeRequest(
                 "/location/{locationId}/reviews",
                 uriBuilder -> uriBuilder.build(locationId),
-                response -> gson.fromJson(response, LocationReviews.class),
-                "Error fetching location reviews",
-                "location reviews",
-                locationId);
+                LocationReviews.class);
     }
 
     /**
@@ -84,10 +78,7 @@ public class TripAdvisorClient {
                     uriBuilder.queryParam("category", category);
                     return uriBuilder.build();
                 },
-                response -> gson.fromJson(response, LocationSearch.class),
-                "Error searching locations",
-                "location search",
-                searchQuery);
+                LocationSearch.class);
     }
 
     /**
@@ -123,10 +114,7 @@ public class TripAdvisorClient {
                     uriBuilder.queryParam("category", category);
                     return uriBuilder.build();
                 },
-                response -> gson.fromJson(response, LocationSearch.class),
-                "Error searching nearby locations",
-                "nearby location search",
-                latitude + "," + longitude);
+                LocationSearch.class);
     }
 
     /**
@@ -135,19 +123,11 @@ public class TripAdvisorClient {
      * @param path API endpoint path
      * @param uriCustomizer Function to customize URI builder with path parameters and query
      *     parameters
-     * @param responseMapper Function to map the response to a domain object
-     * @param errorPrefix Prefix for error messages
-     * @param operationName Name of the operation for logging
-     * @param identifier Identifier for the request (location ID, search query, etc.)
+     * @param responseType Type of the response
      * @return Mono with the mapped response
      */
     private <R> Mono<R> executeRequest(
-            String path,
-            Function<UriBuilder, URI> uriCustomizer,
-            Function<String, R> responseMapper,
-            String errorPrefix,
-            String operationName,
-            String identifier) {
+            String path, Function<UriBuilder, URI> uriCustomizer, Class<R> responseType) {
 
         return webClient
                 .get()
@@ -174,22 +154,24 @@ public class TripAdvisorClient {
                 .bodyToMono(String.class)
                 .map(
                         response -> {
-                            logger.debug("Received {} response for: {}", operationName, identifier);
+                            logger.debug("Received response: {}", path);
                             logger.trace("Response: {}", response);
-                            return responseMapper.apply(response);
+                            return gson.fromJson(response, responseType);
                         })
                 .onErrorResume(
                         WebClientResponseException.class,
                         e -> {
                             logger.error(
-                                    "Error {} for {}: {} - {}",
-                                    operationName,
-                                    identifier,
+                                    "Error {}: {} - {}",
+                                    path,
                                     e.getStatusCode().value(),
                                     e.getMessage());
                             return Mono.error(
                                     new TripAdvisorApiException(
-                                            errorPrefix + ": " + e.getMessage(),
+                                            "Error while fetching from "
+                                                    + path
+                                                    + ": "
+                                                    + e.getMessage(),
                                             e.getStatusCode().value(),
                                             e));
                         });
