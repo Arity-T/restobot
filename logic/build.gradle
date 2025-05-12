@@ -28,5 +28,5 @@ flyway {
     url = "jdbc:postgresql://localhost:5432/main"
     user = "postgres"
     password = "As8f32sGGWWS"
-    locations = ['filesystem:src/main/resources/db/migration/main']
+    locations = ['classpath:db/migration/main']
 }
