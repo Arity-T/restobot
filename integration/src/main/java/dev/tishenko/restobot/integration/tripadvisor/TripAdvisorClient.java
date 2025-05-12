@@ -50,14 +50,25 @@ public class TripAdvisorClient {
      * Get location reviews by location ID
      *
      * @param locationId The TripAdvisor location ID
+     * @param limit The number of results to return (optional)
+     * @param offset The index of the first result (optional)
      * @return Mono with location reviews
      */
-    public Mono<LocationReviews> getLocationReviews(String locationId) {
+    public Mono<LocationReviews> getLocationReviews(
+            String locationId, Integer limit, Integer offset) {
         logger.debug("Fetching location reviews for ID: {}", locationId);
 
         return executeRequest(
                 "/location/{locationId}/reviews",
-                uriBuilder -> uriBuilder.build(locationId),
+                uriBuilder -> {
+                    if (limit != null) {
+                        uriBuilder.queryParam("limit", limit);
+                    }
+                    if (offset != null) {
+                        uriBuilder.queryParam("offset", offset);
+                    }
+                    return uriBuilder.build(locationId);
+                },
                 LocationReviews.class);
     }
 
