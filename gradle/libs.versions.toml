@@ -7,6 +7,7 @@ shadow = "8.3.6"
 telegrambots-longpolling = "8.3.0"
 telegrambots-client = "8.3.0"
 spring-context = "6.2.6"
+spring-webflux = "6.2.6"
 jackson-dataformat-xml = "2.19.0"
 spotless = "7.0.3"
 slf4j = "2.0.17"
@@ -17,6 +18,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 telegrambots-longpolling = { module = "org.telegram:telegrambots-longpolling", version.ref = "telegrambots-longpolling" }
 telegrambots-client = { module = "org.telegram:telegrambots-client", version.ref = "telegrambots-client" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring-context" }
+spring-webflux = { module = "org.springframework:spring-webflux", version.ref = "spring-webflux" }
 jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson-dataformat-xml" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }

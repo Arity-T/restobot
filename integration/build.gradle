@@ -11,4 +11,5 @@ plugins {
 }
 
 dependencies {
+    implementation libs.spring.webflux
 }
