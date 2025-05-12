@@ -81,3 +81,11 @@ dependencies {
 ### Общие зависимости
 
 Общие зависимости указываются в `build.gradle` файле корневого проекта.
+
+## Форматирование кода
+
+Для форматирования кода используется gradle плагин [*spotless*](https://github.com/diffplug/spotless).
+
+```bash
+./gradlew spotlessApply
+```

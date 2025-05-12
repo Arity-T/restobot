@@ -13,5 +13,4 @@ public class TelegramClientConfig {
     public TelegramClient telegramClient(@Value("${TELEGRAM_BOT_TOKEN}") String token) {
         return new OkHttpTelegramClient(token);
     }
-
 }
