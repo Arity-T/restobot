@@ -30,7 +30,7 @@ application {
 }
 
 run {
-    def envFile = rootProject.file('example.env') // name .env file
+    def envFile = rootProject.file('.env')
     if (envFile.exists()) {
         envFile.eachLine { line ->
             line = line.trim()
