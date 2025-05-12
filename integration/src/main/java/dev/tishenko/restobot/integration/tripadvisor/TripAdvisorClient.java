@@ -3,6 +3,7 @@ package dev.tishenko.restobot.integration.tripadvisor;
 import com.google.gson.Gson;
 import dev.tishenko.restobot.integration.tripadvisor.exception.TripAdvisorApiException;
 import dev.tishenko.restobot.integration.tripadvisor.model.*;
+import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,10 +16,12 @@ public class TripAdvisorClient {
     private final WebClient webClient;
     private final String apiKey;
     private final Gson gson;
+    private final String language;
 
-    public TripAdvisorClient(String apiKey, String baseUrl) {
+    public TripAdvisorClient(String apiKey, String baseUrl, String language) {
         this.apiKey = apiKey;
         this.gson = new Gson();
+        this.language = language;
 
         logger.info("Initializing TripAdvisor client with base URL: {}", baseUrl);
 
@@ -37,11 +40,18 @@ public class TripAdvisorClient {
         return webClient
                 .get()
                 .uri(
-                        uriBuilder ->
-                                uriBuilder
-                                        .path("/location/{locationId}/details")
-                                        .queryParam("key", apiKey)
-                                        .build(locationId))
+                        uriBuilder -> {
+                            URI uri =
+                                    uriBuilder
+                                            .path("/location/{locationId}/details")
+                                            .queryParam("key", apiKey)
+                                            .queryParam("language", language)
+                                            .build(locationId);
+                            logger.info(
+                                    "Requesting TripAdvisor URL: {}",
+                                    uri.toString().replaceAll(apiKey, "****"));
+                            return uri;
+                        })
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(

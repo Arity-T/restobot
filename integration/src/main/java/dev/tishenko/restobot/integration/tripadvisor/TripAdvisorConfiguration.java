@@ -15,6 +15,8 @@ public class TripAdvisorConfiguration {
     private static final String API_KEY_ENV_VAR = "TRIPADVISOR_API_KEY";
     private static final String API_HOST_PROPERTY = "tripadvisor.api.host";
     private static final String DEFAULT_API_HOST = "https://api.content.tripadvisor.com/api/v1";
+    private static final String API_LANGUAGE_PROPERTY = "tripadvisor.api.language";
+    private static final String DEFAULT_API_LANGUAGE = "ru";
 
     /**
      * Creates a TripAdvisor client bean using the API key from Spring environment or system
@@ -31,6 +33,9 @@ public class TripAdvisorConfiguration {
         // If not found, try system environment variable
         if (apiKey == null || apiKey.isEmpty()) {
             apiKey = System.getenv(API_KEY_ENV_VAR);
+            logger.info("TripAdvisor API key found in environment variable: {}", API_KEY_ENV_VAR);
+        } else {
+            logger.info("TripAdvisor API key found in property: {}", API_KEY_PROPERTY);
         }
 
         if (apiKey == null || apiKey.isEmpty()) {
@@ -47,6 +52,9 @@ public class TripAdvisorConfiguration {
         String baseUrl = env.getProperty(API_HOST_PROPERTY, DEFAULT_API_HOST);
         logger.info("Configuring TripAdvisor client with baseUrl: {}", baseUrl);
 
-        return new TripAdvisorClient(apiKey, baseUrl);
+        String language = env.getProperty(API_LANGUAGE_PROPERTY, DEFAULT_API_LANGUAGE);
+        logger.info("Configuring TripAdvisor client with language: {}", language);
+
+        return new TripAdvisorClient(apiKey, baseUrl, language);
     }
 }
