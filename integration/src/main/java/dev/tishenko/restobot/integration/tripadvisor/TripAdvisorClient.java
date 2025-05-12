@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import dev.tishenko.restobot.integration.tripadvisor.exception.TripAdvisorApiException;
 import dev.tishenko.restobot.integration.tripadvisor.model.*;
 import java.net.URI;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
 public class TripAdvisorClient {
@@ -37,43 +39,166 @@ public class TripAdvisorClient {
     public Mono<LocationDetails> getLocationDetails(String locationId) {
         logger.debug("Fetching location details for ID: {}", locationId);
 
+        return executeRequest(
+                "/location/{locationId}/details",
+                uriBuilder -> uriBuilder.build(locationId),
+                response -> gson.fromJson(response, LocationDetails.class),
+                "Error fetching location details",
+                "location details",
+                locationId);
+    }
+
+    /**
+     * Get location reviews by location ID
+     *
+     * @param locationId The TripAdvisor location ID
+     * @return Mono with location reviews
+     */
+    public Mono<LocationReviews> getLocationReviews(String locationId) {
+        logger.debug("Fetching location reviews for ID: {}", locationId);
+
+        return executeRequest(
+                "/location/{locationId}/reviews",
+                uriBuilder -> uriBuilder.build(locationId),
+                response -> gson.fromJson(response, LocationReviews.class),
+                "Error fetching location reviews",
+                "location reviews",
+                locationId);
+    }
+
+    /**
+     * Search for locations by search query
+     *
+     * @param searchQuery The search query
+     * @param category Optional category filter (hotels, restaurants, attractions)
+     * @param language Optional language code
+     * @return Mono with search results
+     */
+    public Mono<LocationSearchResponse> searchLocations(
+            String searchQuery, String category) {
+        logger.debug(
+                "Searching locations with query: {}, category: {}",
+                searchQuery,
+                category);
+
+        return executeRequest(
+                "/location/search",
+                uriBuilder -> {
+                    uriBuilder.queryParam("searchQuery", searchQuery);
+
+                    if (category != null && !category.isEmpty()) {
+                        uriBuilder.queryParam("category", category);
+                    }
+                    
+                    return uriBuilder.build();
+                },
+                response -> gson.fromJson(response, LocationSearchResponse.class),
+                "Error searching locations",
+                "location search",
+                searchQuery);
+    }
+
+    /**
+     * Search for nearby locations
+     *
+     * @param latitude Latitude coordinate
+     * @param longitude Longitude coordinate
+     * @param category Optional category filter (hotels, restaurants, attractions)
+     * @param radius Optional radius in km (default is 5)
+     * @return Mono with nearby search results
+     */
+    public Mono<LocationSearchResponse> searchNearbyLocations(
+            double latitude, double longitude, String category, Double radius, String radiusUnit) {
+        logger.debug(
+                "Searching nearby locations at lat: {}, long: {}, category: {}, radius: {}, radiusUnit: {}",
+                latitude,
+                longitude,
+                category,
+                radius,
+                radiusUnit);
+
+        return executeRequest(
+                "/location/nearby_search",
+                uriBuilder -> {
+                    uriBuilder.queryParam("latLong", latitude + "," + longitude);
+
+                    if (category != null && !category.isEmpty()) {
+                        uriBuilder.queryParam("category", category);
+                    }
+
+                    if (radius != null) {
+                        uriBuilder.queryParam("radius", radius);
+                    }
+
+                    if (radiusUnit != null && !radiusUnit.isEmpty()) {
+                        uriBuilder.queryParam("radiusUnit", radiusUnit);
+                    }
+                    
+                    return uriBuilder.build();
+                },
+                response -> gson.fromJson(response, LocationSearchResponse.class),
+                "Error searching nearby locations",
+                "nearby location search",
+                latitude + "," + longitude);
+    }
+
+    /**
+     * Generic method to execute API requests with common error handling and response mapping
+     *
+     * @param path API endpoint path
+     * @param uriCustomizer Function to customize URI builder with path parameters and query parameters
+     * @param responseMapper Function to map the response to a domain object
+     * @param errorPrefix Prefix for error messages
+     * @param operationName Name of the operation for logging
+     * @param identifier Identifier for the request (location ID, search query, etc.)
+     * @return Mono with the mapped response
+     */
+    private <R> Mono<R> executeRequest(
+            String path,
+            Function<UriBuilder, URI> uriCustomizer,
+            Function<String, R> responseMapper,
+            String errorPrefix,
+            String operationName,
+            String identifier) {
+
         return webClient
                 .get()
-                .uri(
-                        uriBuilder -> {
-                            URI uri =
-                                    uriBuilder
-                                            .path("/location/{locationId}/details")
-                                            .queryParam("key", apiKey)
-                                            .queryParam("language", language)
-                                            .build(locationId);
-                            logger.info(
-                                    "Requesting TripAdvisor URL: {}",
-                                    uri.toString().replaceAll(apiKey, "****"));
-                            return uri;
-                        })
+                .uri(uriBuilder -> {
+                    // Add common parameters
+                    UriBuilder builder = uriBuilder
+                            .path(path)
+                            .queryParam("key", apiKey)
+                            .queryParam("language", language);
+                    
+                    // Apply custom URI building
+                    URI uri = uriCustomizer.apply(builder);
+                    
+                    // Log the URI with masked API key
+                    logger.info(
+                            "Requesting TripAdvisor URL: {}",
+                            uri.toString().replaceAll(apiKey, "****"));
+                    
+                    return uri;
+                })
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(
-                        response -> {
-                            logger.debug(
-                                    "Received location details response for ID: {}", locationId);
-                            logger.trace("Response: {}", response);
-                            return gson.fromJson(response, LocationDetails.class);
-                        })
-                .onErrorResume(
-                        WebClientResponseException.class,
-                        e -> {
-                            logger.error(
-                                    "Error fetching location details for ID {}: {} - {}",
-                                    locationId,
+                .map(response -> {
+                    logger.debug("Received {} response for: {}", operationName, identifier);
+                    logger.trace("Response: {}", response);
+                    return responseMapper.apply(response);
+                })
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    logger.error(
+                            "Error {} for {}: {} - {}",
+                            operationName,
+                            identifier,
+                            e.getStatusCode().value(),
+                            e.getMessage());
+                    return Mono.error(
+                            new TripAdvisorApiException(
+                                    errorPrefix + ": " + e.getMessage(),
                                     e.getStatusCode().value(),
-                                    e.getMessage());
-                            return Mono.error(
-                                    new TripAdvisorApiException(
-                                            "Error fetching location details: " + e.getMessage(),
-                                            e.getStatusCode().value(),
-                                            e));
-                        });
+                                    e));
+                });
     }
 }
