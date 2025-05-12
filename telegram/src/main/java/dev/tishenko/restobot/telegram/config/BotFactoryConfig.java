@@ -8,10 +8,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 
 @Configuration
-@ComponentScan(basePackages = {
-        "dev.tishenko.restobot.telegram",
-        "dev.tishenko.restobot.telegram.config",
-})
+@ComponentScan("dev.tishenko.restobot.telegram")
 public class BotFactoryConfig {
 
     @Bean
