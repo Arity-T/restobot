@@ -17,11 +17,10 @@ shadowJar {
 
 dependencies {
     implementation project(":logic")
-    implementation 'org.telegram:telegrambots-longpolling:8.3.0'
-    implementation 'org.telegram:telegrambots-client:8.3.0'
-
-    implementation "org.springframework:spring-context:6.2.6"
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.0'
+    implementation libs.telegrambots.longpolling
+    implementation libs.telegrambots.client
+    implementation libs.spring.context
+    implementation libs.jackson.dataformat.xml
 }
 
 application {
