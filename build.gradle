@@ -12,6 +12,8 @@ subprojects {
     dependencies {
         // General dependencies
         implementation libs.spring.context
+        implementation libs.slf4j
+        implementation libs.logback
 
         // Use JUnit Jupiter for testing.
         testImplementation libs.junit.jupiter
