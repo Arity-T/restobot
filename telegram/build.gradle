@@ -19,7 +19,6 @@ dependencies {
     implementation project(":logic")
     implementation libs.telegrambots.longpolling
     implementation libs.telegrambots.client
-    implementation libs.spring.context
     implementation libs.jackson.dataformat.xml
 }
 

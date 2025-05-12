@@ -4,6 +4,9 @@ subprojects {
     apply plugin: 'java'
 
     dependencies {
+        // General dependencies
+        implementation libs.spring.context
+
         // Use JUnit Jupiter for testing.
         testImplementation libs.junit.jupiter
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
