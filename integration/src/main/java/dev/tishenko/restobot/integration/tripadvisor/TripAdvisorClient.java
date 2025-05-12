@@ -74,12 +74,8 @@ public class TripAdvisorClient {
      * @param language Optional language code
      * @return Mono with search results
      */
-    public Mono<LocationSearchResponse> searchLocations(
-            String searchQuery, String category) {
-        logger.debug(
-                "Searching locations with query: {}, category: {}",
-                searchQuery,
-                category);
+    public Mono<LocationSearch> searchLocations(String searchQuery, String category) {
+        logger.debug("Searching locations with query: {}, category: {}", searchQuery, category);
 
         return executeRequest(
                 "/location/search",
@@ -89,10 +85,10 @@ public class TripAdvisorClient {
                     if (category != null && !category.isEmpty()) {
                         uriBuilder.queryParam("category", category);
                     }
-                    
+
                     return uriBuilder.build();
                 },
-                response -> gson.fromJson(response, LocationSearchResponse.class),
+                response -> gson.fromJson(response, LocationSearch.class),
                 "Error searching locations",
                 "location search",
                 searchQuery);
@@ -107,7 +103,7 @@ public class TripAdvisorClient {
      * @param radius Optional radius in km (default is 5)
      * @return Mono with nearby search results
      */
-    public Mono<LocationSearchResponse> searchNearbyLocations(
+    public Mono<LocationSearch> searchNearbyLocations(
             double latitude, double longitude, String category, Double radius, String radiusUnit) {
         logger.debug(
                 "Searching nearby locations at lat: {}, long: {}, category: {}, radius: {}, radiusUnit: {}",
@@ -133,10 +129,10 @@ public class TripAdvisorClient {
                     if (radiusUnit != null && !radiusUnit.isEmpty()) {
                         uriBuilder.queryParam("radiusUnit", radiusUnit);
                     }
-                    
+
                     return uriBuilder.build();
                 },
-                response -> gson.fromJson(response, LocationSearchResponse.class),
+                response -> gson.fromJson(response, LocationSearch.class),
                 "Error searching nearby locations",
                 "nearby location search",
                 latitude + "," + longitude);
@@ -146,7 +142,8 @@ public class TripAdvisorClient {
      * Generic method to execute API requests with common error handling and response mapping
      *
      * @param path API endpoint path
-     * @param uriCustomizer Function to customize URI builder with path parameters and query parameters
+     * @param uriCustomizer Function to customize URI builder with path parameters and query
+     *     parameters
      * @param responseMapper Function to map the response to a domain object
      * @param errorPrefix Prefix for error messages
      * @param operationName Name of the operation for logging
@@ -163,42 +160,47 @@ public class TripAdvisorClient {
 
         return webClient
                 .get()
-                .uri(uriBuilder -> {
-                    // Add common parameters
-                    UriBuilder builder = uriBuilder
-                            .path(path)
-                            .queryParam("key", apiKey)
-                            .queryParam("language", language);
-                    
-                    // Apply custom URI building
-                    URI uri = uriCustomizer.apply(builder);
-                    
-                    // Log the URI with masked API key
-                    logger.info(
-                            "Requesting TripAdvisor URL: {}",
-                            uri.toString().replaceAll(apiKey, "****"));
-                    
-                    return uri;
-                })
+                .uri(
+                        uriBuilder -> {
+                            // Add common parameters
+                            UriBuilder builder =
+                                    uriBuilder
+                                            .path(path)
+                                            .queryParam("key", apiKey)
+                                            .queryParam("language", language);
+
+                            // Apply custom URI building
+                            URI uri = uriCustomizer.apply(builder);
+
+                            // Log the URI with masked API key
+                            logger.info(
+                                    "Requesting TripAdvisor URL: {}",
+                                    uri.toString().replaceAll(apiKey, "****"));
+
+                            return uri;
+                        })
                 .retrieve()
                 .bodyToMono(String.class)
-                .map(response -> {
-                    logger.debug("Received {} response for: {}", operationName, identifier);
-                    logger.trace("Response: {}", response);
-                    return responseMapper.apply(response);
-                })
-                .onErrorResume(WebClientResponseException.class, e -> {
-                    logger.error(
-                            "Error {} for {}: {} - {}",
-                            operationName,
-                            identifier,
-                            e.getStatusCode().value(),
-                            e.getMessage());
-                    return Mono.error(
-                            new TripAdvisorApiException(
-                                    errorPrefix + ": " + e.getMessage(),
+                .map(
+                        response -> {
+                            logger.debug("Received {} response for: {}", operationName, identifier);
+                            logger.trace("Response: {}", response);
+                            return responseMapper.apply(response);
+                        })
+                .onErrorResume(
+                        WebClientResponseException.class,
+                        e -> {
+                            logger.error(
+                                    "Error {} for {}: {} - {}",
+                                    operationName,
+                                    identifier,
                                     e.getStatusCode().value(),
-                                    e));
-                });
+                                    e.getMessage());
+                            return Mono.error(
+                                    new TripAdvisorApiException(
+                                            errorPrefix + ": " + e.getMessage(),
+                                            e.getStatusCode().value(),
+                                            e));
+                        });
     }
 }

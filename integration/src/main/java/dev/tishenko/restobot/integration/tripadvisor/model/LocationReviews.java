@@ -1,5 +1,6 @@
 package dev.tishenko.restobot.integration.tripadvisor.model;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import lombok.Getter;
 
@@ -13,24 +14,46 @@ public class LocationReviews {
     public static class Review {
         private Integer id;
         private String lang;
-        private Integer location_id;
-        private String published_date;
+
+        @SerializedName("location_id")
+        private Integer locationId;
+
+        @SerializedName("published_date")
+        private String publishedDate;
+
         private Integer rating;
-        private Integer helpful_votes;
-        private String rating_image_url;
+
+        @SerializedName("helpful_votes")
+        private Integer helpfulVotes;
+
+        @SerializedName("rating_image_url")
+        private String ratingImageUrl;
+
         private String url;
-        private String trip_type;
-        private String travel_date;
+
+        @SerializedName("trip_type")
+        private String tripType;
+
+        @SerializedName("travel_date")
+        private String travelDate;
+
         private String text;
         private String title;
-        private Boolean is_machine_translated;
+
+        @SerializedName("is_machine_translated")
+        private Boolean isMachineTranslated;
+
         private User user;
 
         @Getter
         public static class User {
             private String username;
-            private Integer review_count;
-            private String reviewer_badge;
+
+            @SerializedName("review_count")
+            private Integer reviewCount;
+
+            @SerializedName("reviewer_badge")
+            private String reviewerBadge;
         }
     }
 
@@ -41,7 +64,10 @@ public class LocationReviews {
         private String next;
         private String previous;
         private Integer results;
-        private Integer total_results;
+
+        @SerializedName("total_results")
+        private Integer totalResults;
+
         private Integer skipped;
     }
 }
