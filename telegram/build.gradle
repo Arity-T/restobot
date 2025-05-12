@@ -17,9 +17,29 @@ shadowJar {
 
 dependencies {
     implementation project(":logic")
+    implementation 'org.telegram:telegrambots-longpolling:8.3.0'
+    implementation 'org.telegram:telegrambots-client:8.3.0'
+
+    implementation "org.springframework:spring-context:6.2.6"
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.0'
 }
 
 application {
     // Define the main class for the application.
     mainClass = 'dev.tishenko.restobot.telegram.App'
 }
+
+run {
+    def envFile = rootProject.file('.env')
+    if (envFile.exists()) {
+        envFile.eachLine { line ->
+            line = line.trim()
+            if (!line.startsWith('#') && line.contains('=')) {
+                def (key, val) = line.split('=', 2)
+                key = key.trim(); val = val.trim()
+                environment key, val
+            }
+        }
+    }
+}
+
