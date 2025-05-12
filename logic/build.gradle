@@ -8,8 +8,17 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    alias(libs.plugins.postgresql)
 }
 
 dependencies {
     implementation project(":data")
+    implementation(libs.postgresql)
+}
+
+flyway {
+    url = "jdbc:postgresql://localhost:5432/main"
+    user = "postgres"
+    password = "your_password"
+    locations = ['filesystem:src/main/resources/db/migration/main']
 }

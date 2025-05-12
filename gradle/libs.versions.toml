@@ -11,6 +11,8 @@ jackson-dataformat-xml = "2.19.0"
 spotless = "7.0.3"
 slf4j = "2.0.17"
 logback = "1.5.18"
+flyway = "11.8.1"
+postgresql = "42.7.2"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -20,7 +22,9 @@ spring-context = { module = "org.springframework:spring-context", version.ref = 
 jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson-dataformat-xml" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
