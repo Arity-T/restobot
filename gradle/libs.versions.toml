@@ -7,6 +7,7 @@ shadow = "8.3.6"
 telegrambots-longpolling = "8.3.0"
 telegrambots-client = "8.3.0"
 spring-context = "6.2.6"
+spring-webflux = "6.2.6"
 jackson-dataformat-xml = "2.19.0"
 jackson-databind = "2.19.0"
 spotless = "7.0.3"
@@ -15,18 +16,23 @@ logback = "1.5.18"
 flyway = "11.8.1"
 flyway-database-postgresql = "11.8.1"
 postgresql = "42.7.2"
+gson = "2.13.1"
+lombok = "1.18.38"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 telegrambots-longpolling = { module = "org.telegram:telegrambots-longpolling", version.ref = "telegrambots-longpolling" }
 telegrambots-client = { module = "org.telegram:telegrambots-client", version.ref = "telegrambots-client" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring-context" }
+spring-webflux = { module = "org.springframework:spring-webflux", version.ref = "spring-webflux" }
 jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson-dataformat-xml" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson-databind" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway-database-postgresql" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
