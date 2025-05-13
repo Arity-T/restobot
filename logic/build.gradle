@@ -11,27 +11,75 @@ buildscript {
         classpath(libs.flyway.database.postgresql)
         classpath(libs.jackson.databind)
     }
+
+    configurations['classpath'].resolutionStrategy.eachDependency {
+        if (requested.group.startsWith('org.jooq') && requested.name.startsWith('jooq')) {
+            useVersion '3.20.1'
+        }
+    }
 }
 
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
     alias(libs.plugins.flyway)
+    alias(libs.plugins.jooq)
 }
 
 dependencies {
     implementation project(":data")
     implementation(libs.postgresql)
+
+    jooqGenerator libs.postgresql
 }
 
 def env = loadEnvFile()
 
 flyway {
-    url = env["FLYWAY_MAIN_URL"]
-    user = env["FLYWAY_MAIN_USER"]
-    password = env["FLYWAY_MAIN_PASSWORD"]
+    url = env["MAIN_DB_URL"]
+    user = env["MAIN_DB_USER"]
+    password = env["MAIN_DB_PASSWORD"]
     locations = ['classpath:db/migration/main']
 }
 
 // we need to build classes before we can migrate
 flywayMigrate.dependsOn classes
+
+sourceSets["main"].java.srcDir("build/generated-sources/jooq")
+
+jooq {
+    configurations {
+        main {
+            generationTool {
+                logging = org.jooq.meta.jaxb.Logging.WARN
+
+                jdbc {
+                    driver = 'org.postgresql.Driver'
+                    url = env["MAIN_DB_URL"]
+                    user = env["MAIN_DB_USER"]
+                    password = env["MAIN_DB_PASSWORD"]
+                }
+
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+
+                    database {
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        inputSchema = 'public'
+                    }
+
+                    target {
+                        packageName = 'org.example.jooq.generated'
+                        directory = 'build/generated-sources/jooq'
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.named('generateJooq').configure {
+    launcher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
