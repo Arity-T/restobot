@@ -97,11 +97,12 @@ public class TripAdvisorClient {
      *
      * @param latitude Latitude coordinate
      * @param longitude Longitude coordinate
-     * @param radius Optional radius in km (default is 5)
+     * @param radius Optional radius
+     * @param radiusUnit Optional radius unit
      * @return Mono with nearby search results
      */
     public Mono<LocationSearch> searchNearbyLocations(
-            double latitude, double longitude, Double radius, String radiusUnit) {
+            double latitude, double longitude, Double radius, RadiusUnit radiusUnit) {
         logger.debug(
                 "Searching nearby locations at lat: {}, long: {}, radius: {}, radiusUnit: {}",
                 latitude,
@@ -118,7 +119,7 @@ public class TripAdvisorClient {
                         uriBuilder.queryParam("radius", radius);
                     }
 
-                    if (radiusUnit != null && !radiusUnit.isEmpty()) {
+                    if (radiusUnit != null) {
                         uriBuilder.queryParam("radiusUnit", radiusUnit);
                     }
 
