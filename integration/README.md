@@ -11,9 +11,9 @@
 
 В окружении Spring приложения должны быть заданы следующие properties:
 
-- `tripadvisor.api.host` - URL-адрес API
 - `tripadvisor.api.key` - API-ключ
-- `tripadvisor.api.language` - язык ответов
+- `tripadvisor.api.host` - URL-адрес API (по умолчанию https://api.content.tripadvisor.com/api/v1)
+- `tripadvisor.api.language` - язык ответов (по умолчанию ru)
 
 ## Использование
 
@@ -33,14 +33,13 @@ public class AppConfig {
 @Service
 public class LocationService {
     private final TripAdvisorClient tripAdvisorClient;
-    
-    @Autowired
+
     public LocationService(TripAdvisorClient tripAdvisorClient) {
         this.tripAdvisorClient = tripAdvisorClient;
     }
-    
+
     public Mono<List<String>> getTopRestaurantsInCity(String city) {
-        return tripAdvisorClient.searchLocations(city + " restaurants", "restaurants")
+        return tripAdvisorClient.searchLocations(city + " restaurants", null, null, null, null)
             .map(response -> response.getData().stream()
                 .map(LocationSearchResponse.LocationSearchResult::getName)
                 .collect(Collectors.toList()));
