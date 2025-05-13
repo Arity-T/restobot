@@ -11,4 +11,9 @@ plugins {
 }
 
 dependencies {
+    implementation libs.spring.webflux
+    implementation libs.gson
+
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
 }
