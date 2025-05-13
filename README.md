@@ -7,7 +7,6 @@
 Java applications:
 - `telegram` - telegram бот (dependencies: `logic`).
 - `api` - обработка запросов на наш API (dependencies: `logic`).
-- `cache` - обновление кэша (dependencies: `integration`)
 
 Java libraries:
 - `logic` - бизнес-логика и работа с базой данных (dependencies: `data`).
@@ -26,8 +25,6 @@ Java libraries:
 ./gradlew :telegram:shadowJar
 # или
 ./gradlew :api:shadowJar
-# или
-./gradlew :cache:shadowJar
 ```
 
 В корне проекта есть `build.gradle` файл, который содержит общие настройки сборки для всех подпроектов. Также в каждом подпроекте есть свой `build.gradle` файл, который содержит настройки для данного подпроекта.
@@ -39,8 +36,6 @@ Java libraries:
 java -jar ./telegram/build/libs/telegram-app.jar
 # или
 java -jar ./api/build/libs/api-app.jar
-# или
-java -jar ./cache/build/libs/cache-app.jar
 ```
 
 Запуск из исходников:
@@ -48,8 +43,6 @@ java -jar ./cache/build/libs/cache-app.jar
 ./gradlew :telegram:run
 # или
 ./gradlew :api:run
-# или
-./gradlew :cache:run
 ```
 
 
