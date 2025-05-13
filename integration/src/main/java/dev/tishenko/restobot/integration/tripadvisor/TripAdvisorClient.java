@@ -168,6 +168,24 @@ public class TripAdvisorClient {
                         response -> {
                             logger.debug("Received response: {}", path);
                             logger.trace("Response: {}", response);
+
+                            // Check if response contains error object
+                            if (response.contains("\"error\":")) {
+                                ErrorResponse errorResponse =
+                                        gson.fromJson(response, ErrorResponse.class);
+                                if (errorResponse != null && errorResponse.getError() != null) {
+                                    ErrorResponse.Error error = errorResponse.getError();
+                                    logger.error(
+                                            "TripAdvisor API error: type={}, code={}, message={}",
+                                            error.getType(),
+                                            error.getCode(),
+                                            error.getMessage());
+                                    throw new TripAdvisorApiException(
+                                            "TripAdvisor API error: " + error.getMessage(),
+                                            error.getCode() != null ? error.getCode() : 0);
+                                }
+                            }
+
                             return gson.fromJson(response, responseType);
                         })
                 .onErrorResume(
@@ -178,6 +196,36 @@ public class TripAdvisorClient {
                                     path,
                                     e.getStatusCode().value(),
                                     e.getMessage());
+
+                            // Try to parse error response from the error body
+                            try {
+                                String responseBody = e.getResponseBodyAsString();
+                                if (responseBody != null && !responseBody.isEmpty()) {
+                                    ErrorResponse errorResponse =
+                                            gson.fromJson(responseBody, ErrorResponse.class);
+                                    if (errorResponse != null && errorResponse.getError() != null) {
+                                        ErrorResponse.Error error = errorResponse.getError();
+                                        logger.error(
+                                                "TripAdvisor API error details: type={}, code={}, message={}",
+                                                error.getType(),
+                                                error.getCode(),
+                                                error.getMessage());
+                                        return Mono.error(
+                                                new TripAdvisorApiException(
+                                                        "TripAdvisor API error: "
+                                                                + error.getMessage(),
+                                                        error.getCode() != null
+                                                                ? error.getCode()
+                                                                : e.getStatusCode().value(),
+                                                        e));
+                                    }
+                                }
+                            } catch (Exception parseException) {
+                                logger.debug(
+                                        "Could not parse error response: {}",
+                                        parseException.getMessage());
+                            }
+
                             return Mono.error(
                                     new TripAdvisorApiException(
                                             "Error while fetching from "
