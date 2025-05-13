@@ -1,31 +1,27 @@
 package dev.tishenko.restobot.api;
 
 import com.google.gson.Gson;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
+import dev.tishenko.restobot.api.service.HealthStatusProvider;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
 
-@Component
 public class HealthCheckHandler {
     private static final Logger logger = LoggerFactory.getLogger(HealthCheckHandler.class);
 
     private final Gson gson = new Gson();
-    private LocalDateTime lastTripAdvisorCallTime =
-            LocalDateTime.now(); // можно обновлять по факту успешного обращения
+    private final HealthStatusProvider healthStatusProvider;
+
+    public HealthCheckHandler(HealthStatusProvider healthStatusProvider) {
+        this.healthStatusProvider = healthStatusProvider;
+    }
 
     public Mono<ServerResponse> healthcheck(ServerRequest request) {
         logger.info("Received healthcheck request");
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "OK");
-        response.put("lastTripAdvisorCallTime", lastTripAdvisorCallTime.toString());
-        response.put("authors", List.of("Тищенко Артём", "Гаар Владислав", "Губковский Дмитрий"));
+        Map<String, Object> response = healthStatusProvider.getHealthStatus();
 
         String jsonResponse = gson.toJson(response);
         logger.info("Sending healthcheck response of length {}", jsonResponse.length());
