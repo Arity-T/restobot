@@ -1,6 +1,14 @@
 // General build settings
 // https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#subprojects(groovy.lang.Closure)
 
+def loadEnvFile() {
+    def props = new Properties()
+    if (rootProject.file(".env").exists()) {
+        rootProject.file(".env").withInputStream { props.load(it) }
+    }
+    return props
+}
+
 plugins {
     alias(libs.plugins.spotless)
 }

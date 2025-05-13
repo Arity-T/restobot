@@ -5,11 +5,33 @@
  * For more details on building Java & JVM projects, please refer to https://docs.gradle.org/8.8/userguide/building_java_projects.html in the Gradle documentation.
  */
 
+buildscript {
+    dependencies {
+        // https://github.com/flyway/flyway/issues/3774#issuecomment-1829245496
+        classpath(libs.flyway.database.postgresql)
+        classpath(libs.jackson.databind)
+    }
+}
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    alias(libs.plugins.flyway)
 }
 
 dependencies {
     implementation project(":data")
+    implementation(libs.postgresql)
 }
+
+def env = loadEnvFile()
+
+flyway {
+    url = env["FLYWAY_MAIN_URL"]
+    user = env["FLYWAY_MAIN_USER"]
+    password = env["FLYWAY_MAIN_PASSWORD"]
+    locations = ['classpath:db/migration/main']
+}
+
+// we need to build classes before we can migrate
+flywayMigrate.dependsOn classes
