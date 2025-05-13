@@ -34,15 +34,7 @@ application {
     mainClass = 'dev.tishenko.restobot.cache.App'
 }
 
-def loadEnvFile(File file) {
-    def props = new Properties()
-    if (file.exists()) {
-        file.withInputStream { props.load(it) }
-    }
-    return props
-}
-
-def env = loadEnvFile(rootProject.file(".env"))
+def env = loadEnvFile()
 
 flyway {
     url = env["FLYWAY_CACHE_URL"]
