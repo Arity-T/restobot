@@ -76,15 +76,36 @@ public class TripAdvisorClient {
      * Search for locations by search query
      *
      * @param searchQuery The search query
+     * @param latitude Latitude coordinate (optional)
+     * @param longitude Longitude coordinate (optional)
+     * @param radius Optional radius
+     * @param radiusUnit Optional radius unit
      * @return Mono with search results
      */
-    public Mono<LocationSearch> searchLocations(String searchQuery) {
+    public Mono<LocationSearch> searchLocations(
+            String searchQuery,
+            Double latitude,
+            Double longitude,
+            Double radius,
+            RadiusUnit radiusUnit) {
         logger.debug("Searching locations with query: {}", searchQuery);
 
         return executeRequest(
                 "/location/search",
                 uriBuilder -> {
                     uriBuilder.queryParam("searchQuery", searchQuery);
+
+                    if (latitude != null && longitude != null) {
+                        uriBuilder.queryParam("latLong", latitude + "," + longitude);
+                    }
+
+                    if (radius != null) {
+                        uriBuilder.queryParam("radius", radius);
+                    }
+
+                    if (radiusUnit != null) {
+                        uriBuilder.queryParam("radiusUnit", radiusUnit);
+                    }
 
                     uriBuilder.queryParam("category", category);
                     return uriBuilder.build();
