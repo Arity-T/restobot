@@ -30,4 +30,11 @@ public class UserRepository {
                   .where(Users.USERS.CHAT_ID.eq(chatId))
                   .fetchOne(); // вернёт null, если не найден
     }
+
+    public void updateFavoriteListId(long chatId, int favoriteListId) {
+        dsl.update(Users.USERS)
+           .set(Users.USERS.FAVORITE_LIST_ID, favoriteListId)
+           .where(Users.USERS.CHAT_ID.eq(chatId))
+           .execute();
+    }
 }

@@ -23,4 +23,8 @@ public class UserService {
     public Optional<UsersRecord> getUserById(long chatId) {
         return Optional.ofNullable(userRepository.findByChatId(chatId));
     }
+
+    public void assignFavoriteList(long chatId, int favoriteListId) {
+      userRepository.updateFavoriteListId(chatId, favoriteListId);
+    }
 }
