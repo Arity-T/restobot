@@ -18,6 +18,7 @@ flyway-database-postgresql = "11.8.1"
 postgresql = "42.7.2"
 gson = "2.13.1"
 lombok = "1.18.38"
+jooq = "10.1"
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -38,3 +39,4 @@ lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
+jooq = { id = "nu.studer.jooq", version.ref = "jooq"}
