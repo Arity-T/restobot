@@ -13,6 +13,39 @@ Java libraries:
 - `data` - доступ к данным о ресторанах (dependencies: `integration`).
 - `integration` - работа с TripAdvisor API (dependencies: null).
 
+## Настройка баз данных
+
+### Миграции
+
+Для миграций используется плагин [*Flyway*](https://documentation.red-gate.com/fd/getting-started-with-flyway-184127223.html). 
+
+Перед запуском миграций необходимо вручную создать две базы данных:
+- **Основная база данных**
+- **База данных кэшированной информации**
+
+Далее создайте собственный файл `.env`, указав в нём параметры подключения к обеим базам данных (см. пример в `.env.example`).
+
+После этого можно запустить миграции для каждой базы:
+```pwsh
+./gradlew :logic:flywayMigrate
+./gradlew :data:flywayMigrate
+```
+
+Информацию о текущем состоянии миграций можно получить с помощью задачи `flywayInfo`.
+
+### Генерация кода
+
+Для генерации кода используется плагин [*jOOQ*](https://github.com/etiennestuder/gradle-jooq-plugin).
+
+После выполнения миграций можно сгенерировать Java-классы из схемы базы данных:
+```pwsh
+./gradlew :logic:generateJooq
+./gradlew :data:generateJooq
+```
+
+Сгенерированные классы будут размещены в следующих директориях:
+- `logic/build/generated-sources/jooq`
+- `data/build/generated-sources/jooq`
 
 ## Сборка
 
