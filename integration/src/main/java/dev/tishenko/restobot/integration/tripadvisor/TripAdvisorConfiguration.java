@@ -12,7 +12,6 @@ public class TripAdvisorConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(TripAdvisorConfiguration.class);
 
     private static final String API_KEY_PROPERTY = "tripadvisor.api.key";
-    private static final String API_KEY_ENV_VAR = "TRIPADVISOR_API_KEY";
     private static final String API_HOST_PROPERTY = "tripadvisor.api.host";
     private static final String DEFAULT_API_HOST = "https://api.content.tripadvisor.com/api/v1";
     private static final String API_LANGUAGE_PROPERTY = "tripadvisor.api.language";
@@ -30,23 +29,13 @@ public class TripAdvisorConfiguration {
         // Try to get API key from Spring environment first
         String apiKey = env.getProperty(API_KEY_PROPERTY);
 
-        // If not found, try system environment variable
         if (apiKey == null || apiKey.isEmpty()) {
-            apiKey = System.getenv(API_KEY_ENV_VAR);
-            logger.info("TripAdvisor API key found in environment variable: {}", API_KEY_ENV_VAR);
-        } else {
-            logger.info("TripAdvisor API key found in property: {}", API_KEY_PROPERTY);
+            logger.error("TripAdvisor API key not found in properties");
+            throw new IllegalStateException(
+                    "TripAdvisor API key not found. Set the " + API_KEY_PROPERTY + " property");
         }
 
-        if (apiKey == null || apiKey.isEmpty()) {
-            logger.error("TripAdvisor API key not found in properties or environment variables");
-            throw new IllegalStateException(
-                    "TripAdvisor API key not found. Set the "
-                            + API_KEY_PROPERTY
-                            + " property or "
-                            + API_KEY_ENV_VAR
-                            + " environment variable.");
-        }
+        logger.info("TripAdvisor API key found in property: {}", API_KEY_PROPERTY);
 
         // Get base URL from properties with default fallback
         String baseUrl = env.getProperty(API_HOST_PROPERTY, DEFAULT_API_HOST);
