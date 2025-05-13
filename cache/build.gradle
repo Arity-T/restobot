@@ -5,10 +5,19 @@
  * For more details on building Java & JVM projects, please refer to https://docs.gradle.org/8.8/userguide/building_java_projects.html in the Gradle documentation.
  */
 
+buildscript {
+    dependencies {
+        // https://github.com/flyway/flyway/issues/3774#issuecomment-1829245496
+        classpath(libs.flyway.database.postgresql)
+        classpath(libs.jackson.databind)
+    }
+}
+
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
     alias(libs.plugins.shadow)
+    alias(libs.plugins.flyway)
 }
 
 shadowJar {
@@ -17,9 +26,17 @@ shadowJar {
 
 dependencies {
     implementation project(":integration")
+    implementation(libs.postgresql)
 }
 
 application {
     // Define the main class for the application.
     mainClass = 'dev.tishenko.restobot.cache.App'
+}
+
+flyway {
+    url = "jdbc:postgresql://localhost:5432/cache"
+    user = "postgres"
+    password = "As8f32sGGWWS"
+    locations = ['classpath:db/migration/cache']
 }
