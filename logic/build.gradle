@@ -30,3 +30,6 @@ flyway {
     password = "As8f32sGGWWS"
     locations = ['classpath:db/migration/main']
 }
+
+// we need to build classes before we can migrate
+flywayMigrate.dependsOn classes
