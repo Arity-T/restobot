@@ -34,10 +34,20 @@ application {
     mainClass = 'dev.tishenko.restobot.cache.App'
 }
 
+def loadEnvFile(File file) {
+    def props = new Properties()
+    if (file.exists()) {
+        file.withInputStream { props.load(it) }
+    }
+    return props
+}
+
+def env = loadEnvFile(rootProject.file(".env"))
+
 flyway {
-    url = "jdbc:postgresql://localhost:5432/cache"
-    user = "postgres"
-    password = "As8f32sGGWWS"
+    url = env["FLYWAY_CACHE_URL"]
+    user = env["FLYWAY_CACHE_USER"]
+    password = env["FLYWAY_CACHE_PASSWORD"]
     locations = ['classpath:db/migration/cache']
 }
 
