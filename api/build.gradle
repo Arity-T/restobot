@@ -16,6 +16,9 @@ shadowJar {
 }
 
 dependencies {
+    implementation libs.spring.webflux
+    implementation libs.gson
+    implementation libs.reactor.netty
 }
 
 application {
