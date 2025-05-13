@@ -25,6 +25,10 @@ public class UserService {
     }
 
     public void assignFavoriteList(long chatId, int favoriteListId) {
-      userRepository.updateFavoriteListId(chatId, favoriteListId);
+        userRepository.updateFavoriteListId(chatId, favoriteListId);
+    }
+
+    public void assignCity(long chatId, int cityId) {
+        userRepository.updateCity(chatId, cityId);
     }
 }

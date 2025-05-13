@@ -37,4 +37,11 @@ public class UserRepository {
            .where(Users.USERS.CHAT_ID.eq(chatId))
            .execute();
     }
+
+    public void updateCity(long chatId, int cityId) {
+        dsl.update(Users.USERS)
+           .set(Users.USERS.CITY_ID, cityId)
+           .where(Users.USERS.CHAT_ID.eq(chatId))
+           .execute();
+    }
 }
