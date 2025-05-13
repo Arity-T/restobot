@@ -52,6 +52,8 @@ subprojects {
             removeUnusedImports()
             trimTrailingWhitespace()
             endWithNewline()
+            // Исключить сгенерированные JOOQ файлы
+            targetExclude "**/build/generated-sources/**", "**/build/generated/**"
         }
     }
 } 
