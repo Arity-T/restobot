@@ -6,22 +6,12 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
-    id 'application'
-    alias(libs.plugins.shadow)
-}
-
-shadowJar {
-    archiveFileName = 'api-app.jar'
+    // Apply the java-library plugin for API and implementation separation.
+    id 'java-library'
 }
 
 dependencies {
     implementation libs.spring.webflux
     implementation libs.gson
     implementation libs.reactor.netty
-}
-
-application {
-    // Define the main class for the application.
-    mainClass = 'dev.tishenko.restobot.api.App'
 }
