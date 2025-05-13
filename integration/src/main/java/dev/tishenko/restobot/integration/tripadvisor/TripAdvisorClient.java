@@ -37,7 +37,7 @@ public class TripAdvisorClient {
      * @param locationId The TripAdvisor location ID
      * @return Mono with location details
      */
-    public Mono<LocationDetails> getLocationDetails(String locationId) {
+    public Mono<LocationDetails> getLocationDetails(Integer locationId) {
         logger.debug("Fetching location details for ID: {}", locationId);
 
         return executeRequest(
@@ -55,7 +55,7 @@ public class TripAdvisorClient {
      * @return Mono with location reviews
      */
     public Mono<LocationReviews> getLocationReviews(
-            String locationId, Integer limit, Integer offset) {
+            Integer locationId, Integer limit, Integer offset) {
         logger.debug("Fetching location reviews for ID: {}", locationId);
 
         return executeRequest(
