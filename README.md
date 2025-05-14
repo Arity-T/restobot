@@ -4,11 +4,13 @@
 
 Проект представляет собой [*gradle multi-project*](https://docs.gradle.org/current/userguide/multi_project_builds.html). Каждый подпроект содержит одноименный Java пакет с префиксом `dev.tishenko.restobot`.
 
+TODO: нужно будет решить, что в итоге будет главной точкой входа.
+
 Java applications:
 - `telegram` - telegram бот (dependencies: `logic`).
-- `api` - обработка запросов на наш API (dependencies: `logic`).
 
 Java libraries:
+- `api` - обработка запросов на наш API (dependencies: null).
 - `logic` - бизнес-логика и работа с базой данных (dependencies: `data`).
 - `data` - доступ к данным о ресторанах (dependencies: `integration`).
 - `integration` - работа с TripAdvisor API (dependencies: null).
@@ -53,11 +55,6 @@ Java libraries:
 
 ```bash
 ./gradlew build
-
-# или по отдельности
-./gradlew :telegram:shadowJar
-# или
-./gradlew :api:shadowJar
 ```
 
 В корне проекта есть `build.gradle` файл, который содержит общие настройки сборки для всех подпроектов. Также в каждом подпроекте есть свой `build.gradle` файл, который содержит настройки для данного подпроекта.
@@ -67,15 +64,11 @@ Java libraries:
 Запуск из Fat Jar:
 ```bash
 java -jar ./telegram/build/libs/telegram-app.jar
-# или
-java -jar ./api/build/libs/api-app.jar
 ```
 
 Запуск из исходников:
 ```bash
 ./gradlew :telegram:run
-# или
-./gradlew :api:run
 ```
 
 
