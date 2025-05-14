@@ -44,4 +44,11 @@ public class UserRepository {
            .where(Users.USERS.CHAT_ID.eq(chatId))
            .execute();
     }
+
+    public void updateKeywords(long chatId, String keywords) {
+        dsl.update(Users.USERS)
+           .set(Users.USERS.KEYWORDS, keywords)
+           .where(Users.USERS.CHAT_ID.eq(chatId))
+           .execute();
+    }
 }
