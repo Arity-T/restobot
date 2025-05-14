@@ -1,7 +1,9 @@
 package dev.tishenko.restobot.telegram;
 
-import dev.tishenko.restobot.telegram.config.RestoBotConfig;
+import dev.tishenko.restobot.telegram.config.RestoBotUserHandlerConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
+
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,11 +30,12 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     private final String botToken;
     private final String botUsername;
-    private RestoBotConfig botConfig;
     private final TelegramClient telegramClient;
 
     private Map<Long, UserData> userData;
     private Map<Long, Integer> lastMessageId;
+    private Map<Long, RestoBotUserHandlerConfig> botConfig;
+
 
     public String getBotUserName() {
         return botUsername;
@@ -41,10 +44,10 @@ public class RestoBot implements LongPollingUpdateConsumer {
     public RestoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            RestoBotConfig botConfig) {
+            RestoBotUserHandlerConfig botConfig) {
         this.botToken = botToken;
         this.botUsername = botUsername;
-        this.botConfig = botConfig;
+        this.botConfig = new ConcurrentHashMap<>();
         this.userData = new ConcurrentHashMap<>();
         this.lastMessageId = new ConcurrentHashMap<>();
 
@@ -53,27 +56,35 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     @Override
     public void consume(List<Update> updates) {
-        updates.forEach(update -> updatesProcessorExecutor.execute(() -> consume(update)));
+        updates.forEach(update -> updatesProcessorExecutor.execute(() -> {
+            try {
+                consume(update);
+            } catch (MalformedURLException e) {
+                logger.error("Error URL handle: {}", e.getMessage());
+            }
+        }));
     }
 
-    public void consume(Update update) {
+    public void consume(Update update) throws MalformedURLException {
         if (update.hasMessage() && update.getMessage().hasText()) {
             logger.debug("Updated by user {}", update.getMessage().getChatId());
             long chatId = update.getMessage().getChatId();
             if (update.getMessage().getText().equals("/start") && !userData.containsKey(chatId)) {
                 userData.put(
                         chatId, new UserData(chatId, update.getMessage().getChat().getUserName()));
-                SendMessage greetingString = RestoBotConfig.greetingMessage(userData.get(chatId));
+
+                botConfig.put(chatId, new RestoBotUserHandlerConfig());
+                SendMessage greetingString = botConfig.get(chatId).greetingMessage(userData.get(chatId));
                 logger.debug("User {} was registered", update.getMessage().getChat().getUserName());
                 try {
                     telegramClient.execute(greetingString);
                 } catch (TelegramApiException e) {
                     logger.error("Error sending greeting message: {}", e.getMessage());
                 }
-            } else if (RestoBotConfig.isSettingUserParams()) {
+            } else if (botConfig.get(chatId).isSettingUserParams()) {
                 logger.debug("Setting user params: {}", update.getMessage().getText());
                 EditMessageText editMessageText =
-                        RestoBotConfig.nextState(
+                        botConfig.get(chatId).nextState(
                                 update, lastMessageId.get(chatId), true, userData.get(chatId));
                 DeleteMessage deleteMessage =
                         DeleteMessage.builder()
@@ -103,7 +114,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
             logger.debug("Callback query: {} by user {}", update.getCallbackQuery().getData(), chatId);
             lastMessageId.put(chatId, update.getCallbackQuery().getMessage().getMessageId());
             EditMessageText editMessageText =
-                    RestoBotConfig.nextState(
+                    botConfig.get(chatId).nextState(
                             update, lastMessageId.get(chatId), false, userData.get(chatId));
             if (!editMessageText.getText().equals("Incorrect state")) {
                 try {
@@ -112,10 +123,10 @@ public class RestoBot implements LongPollingUpdateConsumer {
                     logger.error("Error editing message: {}", e.getMessage());
                 }
             }
-        } else if (update.getMessage().hasLocation() && RestoBotConfig.isSettingLocation()) {
+        } else if (update.getMessage().hasLocation() && botConfig.get(update.getMessage().getChatId()).isSettingLocation()) {
             long chatId = update.getMessage().getChatId();
             EditMessageText editMessageText =
-                    RestoBotConfig.nextState(
+                    botConfig.get(chatId).nextState(
                             update, lastMessageId.get(chatId), true, userData.get(chatId));
             DeleteMessage deleteMessage =
                     DeleteMessage.builder()
