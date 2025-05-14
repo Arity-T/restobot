@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram.services;
 
 import java.util.List;
-import org.springframework.stereotype.Service;
 
 /**
  * Data Transfer Object representing a user profile with preferences and favorite restaurants.
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
  * @param keyWords list of search keywords used by the user
  * @param favoriteList list of {@link RestaurantCardDTO} objects marked as favorites by the user
  */
-
 public record UserDTO(
         long chatID,
         String nickName,

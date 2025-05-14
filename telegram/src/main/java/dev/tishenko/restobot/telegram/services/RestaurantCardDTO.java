@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram.services;
 
 import java.net.URL;
-import org.springframework.stereotype.Service;
 
 /**
  * Used to transfer a restaurant card
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
  * @param longitude {@code double}: Longitude of the restaurant
  * @param city {@code String}: Restaurant city
  */
-
 public record RestaurantCardDTO(
         int restaurantId,
         int tripadvisorId,
