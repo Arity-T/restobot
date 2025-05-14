@@ -51,4 +51,4 @@ public class UserRepository {
            .where(Users.USERS.CHAT_ID.eq(chatId))
            .execute();
     }
-}
+} 
