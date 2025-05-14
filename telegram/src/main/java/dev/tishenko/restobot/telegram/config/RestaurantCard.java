@@ -2,7 +2,7 @@ package dev.tishenko.restobot.telegram.config;
 
 import java.net.URL;
 
-import dev.tishenko.restobot.telegram.services.RestaurantCardRecord;
+import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +47,7 @@ public class RestaurantCard {
         this.isVisited = false;
     }
 
-    public RestaurantCard(RestaurantCardRecord restaurantCardRecord) {
+    public RestaurantCard(RestaurantCardDTO restaurantCardRecord) {
         this.restaurantId = restaurantCardRecord.restaurantId();
         this.tripadvisorId = restaurantCardRecord.tripadvisorId();
         this.name = restaurantCardRecord.name();

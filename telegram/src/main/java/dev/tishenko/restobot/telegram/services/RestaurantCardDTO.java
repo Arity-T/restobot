@@ -21,7 +21,7 @@ import java.net.URL;
  * @param city          {@code String}: Restaurant city
  */
 @Service
-public record RestaurantCardRecord(
+public record RestaurantCardDTO(
         int restaurantId,
         int tripadvisorId,
         String name,
