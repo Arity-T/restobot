@@ -31,4 +31,8 @@ public class UserService {
     public void assignCity(long chatId, int cityId) {
         userRepository.updateCity(chatId, cityId);
     }
+
+    public void assignKeywords(long chatId, String keywords) {
+      userRepository.updateKeywords(chatId, keywords);
+    }
 }
