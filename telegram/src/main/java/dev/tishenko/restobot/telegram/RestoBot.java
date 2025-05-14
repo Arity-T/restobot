@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+
 @Component
 public class RestoBot implements LongPollingUpdateConsumer {
     private static final Logger logger = LoggerFactory.getLogger(RestoBot.class);
@@ -31,7 +32,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
     private UserData userData;
     private long lastMessageId;
 
-    public String getUsername() {
+    public String getBotUserName() {
         return botUsername;
     }
 
