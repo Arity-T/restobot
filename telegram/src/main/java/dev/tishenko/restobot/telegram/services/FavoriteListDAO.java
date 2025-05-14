@@ -1,46 +1,50 @@
 package dev.tishenko.restobot.telegram.services;
 
 
-
-
 import java.util.List;
 import java.util.Map;
 
+
 /**
- * DAO for managing the user's favorite restaurants list.
- * Provides methods to add and remove restaurants from the favorites,
- * set the visited status, and retrieve the complete favorites collection.
+ * Data Access Object for managing users' favorite restaurant lists in the database.
+ * <p>
+ * Allows adding and removing restaurants from a user's favorites, setting visit status,
+ * and retrieving the list of favorite restaurants along with their visit status.
+ * </p>
  */
 public interface FavoriteListDAO {
 
     /**
-     * Adds a restaurant card to the favorites list.
+     * Adds a restaurant card to the specified user's favorites list.
      *
-     * @param restaurantId the identifier of the restaurant to add to favorites
+     * @param userId       the unique identifier of the user
+     * @param restaurantId the unique identifier of the restaurant to add to favorites
      */
-    void addRestaurantCardToFavoriteList(int restaurantId);
+    void addRestaurantCardToFavoriteList(int userId, int restaurantId);
 
     /**
-     * Removes a restaurant card from the favorites list.
+     * Removes a restaurant card from the specified user's favorites list.
      *
-     * @param restaurantId the identifier of the restaurant to remove from favorites
+     * @param userId       the unique identifier of the user
+     * @param restaurantId the unique identifier of the restaurant to remove from favorites
      */
-    void removeRestaurantCardToFavoriteList(int restaurantId);
+    void removeRestaurantCardToFavoriteList(int userId, int restaurantId);
 
     /**
-     * Sets or clears the visited flag for a restaurant card in the favorites list.
+     * Sets or clears the visited flag for a restaurant card in the specified user's favorites list.
      *
-     * @param restaurantId the identifier of the restaurant whose status is being changed
+     * @param userId       the unique identifier of the user
+     * @param restaurantId the unique identifier of the restaurant whose status is being changed
      * @param isVisited    {@code true} if the restaurant has been visited; {@code false} otherwise
      */
-    void setVisitedStatus(int restaurantId, boolean isVisited);
+    void setVisitedStatus(int userId, int restaurantId, boolean isVisited);
 
     /**
-     * Retrieves the full list of favorite restaurants along with their visited status.
+     * Retrieves the full favorites list for the specified user, including visit status for each restaurant.
      *
-     * @return a list of entries where each entry maps a {@link RestaurantCardDTO}
-     * to a {@link Boolean} flag indicating visit status ({@code true} if the restaurant has been visited)
+     * @param userId the unique identifier of the user
+     * @return a list of entries mapping each {@link RestaurantCardDTO} to a {@link Boolean} flag indicating
+     *         visit status ({@code true} if the restaurant has been visited)
      */
-    List<Map<RestaurantCardDTO, Boolean>> getFavouriteList();
+    List<Map<RestaurantCardDTO, Boolean>> getFavouriteList(int userId);
 }
-
