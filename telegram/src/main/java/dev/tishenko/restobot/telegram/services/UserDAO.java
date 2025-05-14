@@ -3,6 +3,7 @@ package dev.tishenko.restobot.telegram.services;
 
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Data Access Object for managing user records in the database.
@@ -21,13 +22,15 @@ public interface UserDAO {
      */
     void addUserToDB(UserDTO userDTO);
 
+
     /**
-     * Checks whether a user exists in the database by their identifier.
+     * Checks whether a user exists in the database and retrieves their profile if present.
      *
-     * @param userId the unique identifier of the user to check
-     * @return {@code true} if the user exists in the database; {@code false} otherwise
+     * @param userId the unique identifier of the user to look up
+     * @return an {@link Optional} containing the {@link UserDTO} if the user exists;
+     *         otherwise, an empty {@code Optional}
      */
-    boolean userIsInDB(int userId);
+    Optional<UserDTO> getUserFromDB(int userId);
 
     /**
      * Updates the city for an existing user.
