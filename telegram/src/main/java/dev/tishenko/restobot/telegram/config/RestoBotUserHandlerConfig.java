@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 @Configuration
 @Scope("prototype")
-public class RestoBotConfig {
+public class RestoBotUserHandlerConfig {
 
     private String actualState;
     private String lastParams;
@@ -29,7 +29,7 @@ public class RestoBotConfig {
     private final String ZWSP = "\u200B";
     private boolean isZWSP = false;
 
-    public RestoBotConfig() throws MalformedURLException {
+    public RestoBotUserHandlerConfig() throws MalformedURLException {
         restaurantSelection = new ArrayList<>();
         isSettingUserParams = false;
         isSettingLocation = false;
