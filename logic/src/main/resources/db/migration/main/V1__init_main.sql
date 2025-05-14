@@ -8,9 +8,9 @@ CREATE TABLE IF NOT EXISTS kitchen_type (
 CREATE TABLE IF NOT EXISTS city (
   city_id   SERIAL PRIMARY KEY,
   name      VARCHAR(20),
-  radius    INTEGER,
-  latitude  VARCHAR(20),
-  longitude VARCHAR(20)
+  radius    DOUBLE PRECISION,
+  latitude  DOUBLE PRECISION,
+  longitude DOUBLE PRECISION
 );
 
 CREATE TABLE IF NOT EXISTS price_category (
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS users (
   nickname         VARCHAR(32),
   favorite_list_id INTEGER REFERENCES favorite_list(favorite_list_id),
   city_id          INTEGER REFERENCES city(city_id),
-  keywords         VARCHAR(30)
+  keywords         TEXT
 );
 
 -- 3. Связущие (многие-ко-многим) таблицы
@@ -54,6 +54,6 @@ CREATE TABLE IF NOT EXISTS user_price_category (
 
 CREATE TABLE IF NOT EXISTS admin_data (
   admin_key_id SERIAL PRIMARY KEY,
-  hash         BYTEA NOT NULL,
-  salt         BYTEA NOT NULL
+  hash         VARCHAR(64) NOT NULL,
+  salt         VARCHAR(32) NOT NULL
 );
