@@ -39,9 +39,9 @@ public interface FavoriteListDAO {
     /**
      * Retrieves the full list of favorite restaurants along with their visited status.
      *
-     * @return a list of entries where each entry maps a {@link RestaurantCardRecord}
+     * @return a list of entries where each entry maps a {@link RestaurantCardDTO}
      * to a {@link Boolean} flag indicating visit status ({@code true} if the restaurant has been visited)
      */
-    List<Map<RestaurantCardRecord, Boolean>> getFavouriteList();
+    List<Map<RestaurantCardDTO, Boolean>> getFavouriteList();
 }
 
