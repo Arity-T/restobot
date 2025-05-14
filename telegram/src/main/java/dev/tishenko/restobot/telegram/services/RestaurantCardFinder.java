@@ -8,6 +8,10 @@ import java.util.List;
 /**
  * Service interface for locating restaurant cards based on various search criteria.
  * Provides methods to retrieve restaurant data by geographic coordinates or by custom parameters.
+ *
+ *The "Любые" parameter means that the user can choose any restaurant according to this criterion.
+ * The "Отключено" parameter means that this criterion is not taken into account in the search.
+ *
  */
 @Service
 public interface RestaurantCardFinder {
