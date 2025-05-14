@@ -26,41 +26,41 @@ public interface UserDAO {
     /**
      * Checks whether a user exists in the database and retrieves their profile if present.
      *
-     * @param userId the unique identifier of the user to look up
+     * @param chatId the unique identifier of the user to look up
      * @return an {@link Optional} containing the {@link UserDTO} if the user exists;
      *         otherwise, an empty {@code Optional}
      */
-    Optional<UserDTO> getUserFromDB(int userId);
+    Optional<UserDTO> getUserFromDB(int chatId);
 
     /**
      * Updates the city for an existing user.
      *
-     * @param userId the unique identifier of the user whose city is to be updated
+     * @param chatId the unique identifier of the user whose city is to be updated
      * @param city   the new city name to assign to the user
      */
-    void setNewUserCity(int userId, String city);
+    void setNewUserCity(int chatId, String city);
 
     /**
      * Updates the list of preferred kitchen types for an existing user.
      *
-     * @param userId       the unique identifier of the user whose preferences are updated
+     * @param chatId       the unique identifier of the user whose preferences are updated
      * @param kitchenTypes a list of kitchen or cuisine types to assign to the user
      */
-    void setNewUserKitchenTypes(int userId, List<String> kitchenTypes);
+    void setNewUserKitchenTypes(int chatId, List<String> kitchenTypes);
 
     /**
      * Updates the list of preferred price categories for an existing user.
      *
-     * @param userId         the unique identifier of the user whose preferences are updated
+     * @param chatId         the unique identifier of the user whose preferences are updated
      * @param priceCategories a list of price category identifiers to assign to the user
      */
-    void setNewUserPriceCategories(int userId, List<String> priceCategories);
+    void setNewUserPriceCategories(int chatId, List<String> priceCategories);
 
     /**
      * Updates the list of search keywords for an existing user.
      *
-     * @param userId  the unique identifier of the user whose keywords are updated
+     * @param chatId  the unique identifier of the user whose keywords are updated
      * @param keyWords a list of search keywords to assign to the user
      */
-    void setNewUserKeyWords(int userId, List<String> keyWords);
+    void setNewUserKeyWords(int chatId, List<String> keyWords);
 }
