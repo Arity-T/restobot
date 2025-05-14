@@ -3,6 +3,8 @@ package dev.tishenko.restobot.telegram;
 import dev.tishenko.restobot.telegram.config.RestoBotConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -18,7 +20,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-
 @Component
 public class RestoBot implements LongPollingUpdateConsumer {
     private static final Logger logger = LoggerFactory.getLogger(RestoBot.class);
@@ -29,8 +30,9 @@ public class RestoBot implements LongPollingUpdateConsumer {
     private final String botUsername;
     private RestoBotConfig botConfig;
     private final TelegramClient telegramClient;
-    private UserData userData;
-    private long lastMessageId;
+
+    private Map<Long, UserData> userData;
+    private Map<Long, Integer> lastMessageId;
 
     public String getBotUserName() {
         return botUsername;
@@ -43,6 +45,9 @@ public class RestoBot implements LongPollingUpdateConsumer {
         this.botToken = botToken;
         this.botUsername = botUsername;
         this.botConfig = botConfig;
+        this.userData = new ConcurrentHashMap<>();
+        this.lastMessageId = new ConcurrentHashMap<>();
+
         telegramClient = new OkHttpTelegramClient(botToken);
     }
 
@@ -53,12 +58,13 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     public void consume(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if (update.getMessage().getText().equals("/start") && userData == null) {
-                userData =
-                        new UserData(
-                                update.getMessage().getChatId(),
-                                update.getMessage().getChat().getUserName());
-                SendMessage greetingString = RestoBotConfig.greetingMessage(userData);
+            logger.debug("Updated by user {}", update.getMessage().getChatId());
+            long chatId = update.getMessage().getChatId();
+            if (update.getMessage().getText().equals("/start") && !userData.containsKey(chatId)) {
+                userData.put(
+                        chatId, new UserData(chatId, update.getMessage().getChat().getUserName()));
+                SendMessage greetingString = RestoBotConfig.greetingMessage(userData.get(chatId));
+                logger.debug("User {} was registered", update.getMessage().getChat().getUserName());
                 try {
                     telegramClient.execute(greetingString);
                 } catch (TelegramApiException e) {
@@ -67,10 +73,11 @@ public class RestoBot implements LongPollingUpdateConsumer {
             } else if (RestoBotConfig.isSettingUserParams()) {
                 logger.debug("Setting user params: {}", update.getMessage().getText());
                 EditMessageText editMessageText =
-                        RestoBotConfig.nextState(update, lastMessageId, true, userData);
+                        RestoBotConfig.nextState(
+                                update, lastMessageId.get(chatId), true, userData.get(chatId));
                 DeleteMessage deleteMessage =
                         DeleteMessage.builder()
-                                .chatId(userData.getChatID())
+                                .chatId(chatId)
                                 .messageId(update.getMessage().getMessageId())
                                 .build();
                 try {
@@ -82,7 +89,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
             } else {
                 DeleteMessage deleteMessage =
                         DeleteMessage.builder()
-                                .chatId(userData.getChatID())
+                                .chatId(chatId)
                                 .messageId(update.getMessage().getMessageId())
                                 .build();
                 try {
@@ -92,10 +99,12 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 }
             }
         } else if (update.hasCallbackQuery()) {
-            logger.debug("Callback query: {}", update.getCallbackQuery().getData());
-            lastMessageId = update.getCallbackQuery().getMessage().getMessageId();
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
+            logger.debug("Callback query: {} by user {}", update.getCallbackQuery().getData(), chatId);
+            lastMessageId.put(chatId, update.getCallbackQuery().getMessage().getMessageId());
             EditMessageText editMessageText =
-                    RestoBotConfig.nextState(update, lastMessageId, false, userData);
+                    RestoBotConfig.nextState(
+                            update, lastMessageId.get(chatId), false, userData.get(chatId));
             if (!editMessageText.getText().equals("Incorrect state")) {
                 try {
                     telegramClient.execute(editMessageText);
@@ -104,11 +113,13 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 }
             }
         } else if (update.getMessage().hasLocation() && RestoBotConfig.isSettingLocation()) {
+            long chatId = update.getMessage().getChatId();
             EditMessageText editMessageText =
-                    RestoBotConfig.nextState(update, lastMessageId, true, userData);
+                    RestoBotConfig.nextState(
+                            update, lastMessageId.get(chatId), true, userData.get(chatId));
             DeleteMessage deleteMessage =
                     DeleteMessage.builder()
-                            .chatId(userData.getChatID())
+                            .chatId(chatId)
                             .messageId(update.getMessage().getMessageId())
                             .build();
             if (!editMessageText.getText().equals("Incorrect state")) {
@@ -120,9 +131,10 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 }
             }
         } else {
+            long chatId = update.getMessage().getChatId();
             DeleteMessage deleteMessage =
                     DeleteMessage.builder()
-                            .chatId(userData.getChatID())
+                            .chatId(chatId)
                             .messageId(update.getMessage().getMessageId())
                             .build();
             try {
