@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.telegram.services;
 
 
-import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +11,6 @@ import java.util.Map;
  * Provides methods to add and remove restaurants from the favorites,
  * set the visited status, and retrieve the complete favorites collection.
  */
-@Service
 public interface FavoriteListDAO {
 
     /**

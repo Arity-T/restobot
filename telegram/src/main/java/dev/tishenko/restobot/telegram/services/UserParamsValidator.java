@@ -1,6 +1,6 @@
 package dev.tishenko.restobot.telegram.services;
 
-import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 
@@ -11,7 +11,6 @@ import java.util.List;
  * selected kitchen types, and price categories.
  * </p>
  */
-@Service
 public interface UserParamsValidator {
 
     /**

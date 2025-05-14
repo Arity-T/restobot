@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.telegram.services;
 
 
-import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 
@@ -13,7 +13,6 @@ import java.util.List;
  * Parameter "Отключено" means that this criterion is not taken into account in the search.
  *
  */
-@Service
 public interface RestaurantCardFinder {
 
     /**
