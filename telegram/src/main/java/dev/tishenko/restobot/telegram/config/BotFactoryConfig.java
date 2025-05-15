@@ -20,7 +20,7 @@ public class BotFactoryConfig {
     public RestoBot restoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            RestoBotConfig restoBotConfig) {
+            RestoBotUserHandlerConfig restoBotConfig) {
         return new RestoBot(botToken, botUsername, restoBotConfig);
     }
 }

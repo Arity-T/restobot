@@ -15,21 +15,21 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
 @Configuration
-@Scope("singleton")
-public class RestoBotConfig {
+@Scope("prototype")
+public class RestoBotUserHandlerConfig {
 
-    private static String actualState;
-    private static String lastParams;
-    private static List<RestaurantCard> restaurantSelection;
-    private static int actualIndex;
-    private static boolean isSettingUserParams;
-    private static boolean isSettingLocation;
-    private static Location location;
+    private String actualState;
+    private String lastParams;
+    private List<RestaurantCard> restaurantSelection;
+    private int actualIndex;
+    private boolean isSettingUserParams;
+    private boolean isSettingLocation;
+    private Location location;
 
-    private static final String ZWSP = "\u200B";
-    private static boolean isZWSP = false;
+    private final String ZWSP = "\u200B";
+    private boolean isZWSP = false;
 
-    public RestoBotConfig() throws MalformedURLException {
+    public RestoBotUserHandlerConfig() throws MalformedURLException {
         restaurantSelection = new ArrayList<>();
         isSettingUserParams = false;
         isSettingLocation = false;
@@ -85,16 +85,16 @@ public class RestoBotConfig {
         actualState = "/start";
     }
 
-    public static boolean isSettingUserParams() {
+    public boolean isSettingUserParams() {
         return isSettingUserParams;
     }
 
-    private static RestaurantCard nextRestaurantFromSelection() {
+    private RestaurantCard nextRestaurantFromSelection() {
         actualIndex = actualIndex >= restaurantSelection.size() - 1 ? 0 : actualIndex + 1;
         return restaurantSelection.get(actualIndex);
     }
 
-    public static SendMessage greetingMessage(UserData userData) {
+    public SendMessage greetingMessage(UserData userData) {
         actualState = "goToUserParamsButton";
         return SendMessage.builder()
                 .chatId(userData.getChatID())
@@ -117,7 +117,7 @@ public class RestoBotConfig {
                 .build();
     }
 
-    public static String safeForceEdit(String text) {
+    public String safeForceEdit(String text) {
         if (isZWSP) {
             isZWSP = false;
             return text;
@@ -126,7 +126,7 @@ public class RestoBotConfig {
         return text + ZWSP;
     }
 
-    public static EditMessageText nextState(
+    public EditMessageText nextState(
             Update message, long messageId, boolean isText, UserData userData) {
         long chatId = userData.getChatID();
         if (isText) {
@@ -160,7 +160,7 @@ public class RestoBotConfig {
         return actionChose(message.getCallbackQuery().getData(), messageId, chatId, userData);
     }
 
-    private static EditMessageText actionChose(
+    private EditMessageText actionChose(
             String message, long messageId, long chatId, UserData userData) {
         switch (message) {
             case "goToUserParamsButton" -> {
@@ -732,7 +732,7 @@ public class RestoBotConfig {
         }
     }
 
-    private static boolean setParams(UserData userData, String params) {
+    private boolean setParams(UserData userData, String params) {
         switch (lastParams) {
             case "city" -> {
                 return userData.checkAndSetCity(params);
@@ -762,7 +762,7 @@ public class RestoBotConfig {
         return false;
     }
 
-    private static void setDisableParams(UserData userData) {
+    private void setDisableParams(UserData userData) {
         switch (lastParams) {
             case "cityForSearch" -> {
                 userData.setCityForSearch("Отключено");
@@ -779,7 +779,7 @@ public class RestoBotConfig {
         }
     }
 
-    private static void setDefaultParams(UserData userData) {
+    private void setDefaultParams(UserData userData) {
         switch (lastParams) {
             case "cityForSearch" -> {
                 userData.setCityForSearch(userData.getCity());
@@ -972,7 +972,7 @@ public class RestoBotConfig {
                     .callbackData("cancelSettingParamsButton")
                     .build();
 
-    public static boolean isSettingLocation() {
+    public boolean isSettingLocation() {
         return isSettingLocation;
     }
 }
