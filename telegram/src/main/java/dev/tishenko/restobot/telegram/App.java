@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram;
 
 import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -18,15 +17,12 @@ public class App {
         AnnotationConfigApplicationContext context =
                 new AnnotationConfigApplicationContext(BotFactoryConfig.class);
 
-        String botToken =
-                context.getEnvironment()
-                        .getProperty("TELEGRAM_BOT_TOKEN");
+        String botToken = context.getEnvironment().getProperty("TELEGRAM_BOT_TOKEN");
 
         if (botToken == null || botToken.isEmpty()) {
             logger.error("TELEGRAM_BOT_TOKEN is not set");
             throw new RuntimeException("TELEGRAM_BOT_TOKEN is not set");
         }
-
 
         RestoBot bot = context.getBean(RestoBot.class);
         try (TelegramBotsLongPollingApplication botsApplication =

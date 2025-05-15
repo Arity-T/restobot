@@ -1,15 +1,12 @@
 package dev.tishenko.restobot.telegram.services;
 
-
-
 import java.util.List;
 
 /**
  * Service interface for validating user-provided search parameters.
- * <p>
- * Provides methods to check the validity of user inputs such as city name,
- * selected kitchen types, and price categories.
- * </p>
+ *
+ * <p>Provides methods to check the validity of user inputs such as city name, selected kitchen
+ * types, and price categories.
  */
 public interface UserParamsValidator {
 
@@ -30,11 +27,11 @@ public interface UserParamsValidator {
     boolean kitchenTypesAreValid(List<String> kitchenTypes);
 
     /**
-     * Validates whether the provided list of price category identifiers contains only allowed values.
+     * Validates whether the provided list of price category identifiers contains only allowed
+     * values.
      *
      * @param priceCategories a list of price category identifiers to validate
      * @return {@code true} if all price categories are valid; {@code false} otherwise
      */
     boolean priceCategoriesAreValid(List<String> priceCategories);
 }
-
