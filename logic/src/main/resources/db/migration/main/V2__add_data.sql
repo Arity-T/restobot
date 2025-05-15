@@ -46,4 +46,7 @@ INSERT INTO city (name, radius, latitude, longitude) VALUES
 INSERT INTO price_category (name) VALUES
   ('Дешевое питание'),
   ('Средний ценовой сегмент'),
-  ('Высокая кухня')
+  ('Высокая кухня');
+
+INSERT INTO admin_data (hash, salt) VALUES
+  ('b4a6401c1afe9a191bd4d06f95b5e284de851dea92a01c244c4260f104b95788', 'SOME_SALT');
