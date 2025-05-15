@@ -20,17 +20,19 @@ public class App {
 
         String botToken =
                 context.getEnvironment()
-                        .getProperty(
-                                "TELEGRAM_BOT_TOKEN",
-                                Objects.requireNonNull(
-                                        context.getEnvironment()
-                                                .getProperty("TELEGRAM_BOT_TOKEN")));
+                        .getProperty("TELEGRAM_BOT_TOKEN");
+
+        if (botToken == null || botToken.isEmpty()) {
+            logger.error("TELEGRAM_BOT_TOKEN is not set");
+            throw new RuntimeException("TELEGRAM_BOT_TOKEN is not set");
+        }
+
 
         RestoBot bot = context.getBean(RestoBot.class);
         try (TelegramBotsLongPollingApplication botsApplication =
                 new TelegramBotsLongPollingApplication()) {
             botsApplication.registerBot(botToken, bot);
-            logger.info(bot.getUsername() + " successfully started!");
+            logger.info(bot.getBotUserName() + " successfully started!");
             Thread.currentThread().join();
         } catch (Exception e) {
             logger.error("Error starting bot: {}", e.getMessage());
