@@ -16,11 +16,11 @@ public class AdminService {
         this.repo = repo;
     }
 
-    public void saveAdminKey(byte[] hash, byte[] salt) {
+    public void saveAdminKey(String hash, String salt) {
         repo.insertAdminKey(hash, salt);
     }
 
-    public Optional<AdminDataRecord> getByHash(byte[] hash) {
+    public Optional<AdminDataRecord> getByHash(String hash) {
         return Optional.ofNullable(repo.findByHash(hash));
     }
 }
