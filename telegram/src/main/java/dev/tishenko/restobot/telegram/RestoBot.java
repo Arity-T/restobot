@@ -8,6 +8,7 @@ import dev.tishenko.restobot.telegram.services.*;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -109,9 +110,16 @@ public class RestoBot implements LongPollingUpdateConsumer {
             logger.debug("Updated by user {}", update.getMessage().getChatId());
             long chatId = update.getMessage().getChatId();
             if (update.getMessage().getText().equals("/start") && !userData.containsKey(chatId)) {
-
-                userData.put(
-                        chatId, new UserData(chatId, update.getMessage().getChat().getUserName()));
+                Optional<UserDTO> userDTO = userDAO.getUserFromDB(chatId);
+                if(userDTO.isEmpty()){
+                    userData.put(
+                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName()));
+                    userDAO.addUserToDB(userData.get(chatId).toUserDTO());
+                }
+                else {
+                    userData.put(
+                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName(), userDTO.get()));
+                }
 
                 botConfig.put(chatId, new RestoBotUserHandlerConfig());
                 SendMessage greetingString =
