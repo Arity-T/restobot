@@ -19,21 +19,20 @@ CREATE TABLE IF NOT EXISTS price_category (
 );
 
 -- 2. Основная бизнес-логика
-
-CREATE TABLE IF NOT EXISTS favorite_list (
-  favorite_list_id SERIAL PRIMARY KEY,
-  tripadvisor_id   INTEGER,
-  is_visited       BOOLEAN DEFAULT FALSE
-);
-
 -- Пользователь
 
 CREATE TABLE IF NOT EXISTS users (
   chat_id          BIGINT PRIMARY KEY, 
   nickname         VARCHAR(32),
-  favorite_list_id INTEGER REFERENCES favorite_list(favorite_list_id),
   city_id          INTEGER REFERENCES city(city_id),
   keywords         TEXT
+);
+
+CREATE TABLE IF NOT EXISTS favorite_restaurant (
+  favorite_restaurant_id SERIAL PRIMARY KEY,
+  chat_id                BIGINT REFERENCES users(chat_id) ON DELETE CASCADE,
+  tripadvisor_id         INTEGER,
+  is_visited             BOOLEAN DEFAULT FALSE
 );
 
 -- 3. Связущие (многие-ко-многим) таблицы
