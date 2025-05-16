@@ -41,8 +41,7 @@ public interface FavoriteListDAO {
      * restaurant.
      *
      * @param chatId the unique identifier of the user
-     * @return a list of entries mapping each {@link RestaurantCardDTO} to a {@link Boolean} flag
-     *     indicating visit status ({@code true} if the restaurant has been visited)
+     * @return a list of entries mapping each {@link FavouriteRestaurantCardDTO}
      */
-    List<Map<RestaurantCardDTO, Boolean>> getFavouriteList(long chatId);
+    List<FavouriteRestaurantCardDTO> getFavouriteList(long chatId);
 }
