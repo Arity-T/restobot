@@ -39,11 +39,8 @@ flyway {
     url = env["MAIN_DB_URL"]
     user = env["MAIN_DB_USER"]
     password = env["MAIN_DB_PASSWORD"]
-    locations = ['classpath:db/migration/main']
+    locations = ['filesystem:src/main/resources/db/migration/main']
 }
-
-// we need to build classes before we can migrate
-flywayMigrate.dependsOn classes
 
 sourceSets["main"].java.srcDir("build/generated-sources/jooq")
 
