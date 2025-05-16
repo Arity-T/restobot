@@ -1,5 +1,8 @@
 package dev.tishenko.restobot.telegram.config;
 
+import dev.tishenko.restobot.telegram.services.FavouriteRestaurantCardDTO;
+import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
+import dev.tishenko.restobot.telegram.services.UserDTO;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class UserData {
     private long chatID;
     private String nickName;
-    private List<RestaurantCard> favoriteList;
+    private List<FavouriteRestaurantCardDTO> favoriteList;
     private String city;
     private List<String> kitchenTypes;
     private List<String> priceCategories;
@@ -23,11 +26,22 @@ public class UserData {
     private List<String> priceCategoriesForSearch;
     private List<String> keyWordsForSearch;
 
-    private List<String> correctCities;
-    private List<String> correctKitchenTypes;
-    private List<String> correctPriceCategories;
+    public UserData(long chatID, String nickName, UserDTO userDTO) {
+        setChatID(chatID);
+        setNickName(nickName);
 
-    public UserData() {}
+        favoriteList = userDTO.favoriteList();
+        city = userDTO.city();
+        kitchenTypes = userDTO.kitchenTypes();
+        priceCategories = userDTO.priceCategories();
+        keyWords = userDTO.keyWords();
+
+        cityForSearch = city;
+        kitchenTypesForSearch = kitchenTypes;
+        priceCategoriesForSearch = priceCategories;
+        keyWordsForSearch = keyWords;
+        index = 0;
+    }
 
     public UserData(long chatID, String nickName) {
         setChatID(chatID);
@@ -43,55 +57,12 @@ public class UserData {
         priceCategoriesForSearch = priceCategories;
         keyWordsForSearch = keyWords;
         index = 0;
-
-        correctCities =
-                List.of(
-                        "Москва",
-                        "Санкт-Петербург",
-                        "Новосибирск",
-                        "Екатеринбург",
-                        "Казань",
-                        "Красноярск",
-                        "Нижний Новгород",
-                        "Челябинск",
-                        "Уфа",
-                        "Самара",
-                        "Ростов-на-Дону",
-                        "Краснодар",
-                        "Омск",
-                        "Воронеж",
-                        "Пермь",
-                        "Волгоград");
-        correctKitchenTypes =
-                List.of(
-                        "африканская",
-                        "азиатская",
-                        "американская",
-                        "барбекю",
-                        "ближневосточная",
-                        "британская",
-                        "вьетнамская",
-                        "восточно-европейская",
-                        "европейская",
-                        "ирландская",
-                        "испанская",
-                        "итальянская",
-                        "индийская",
-                        "каджунская",
-                        "карибская",
-                        "китайская",
-                        "мексиканская",
-                        "немецкая",
-                        "средиземноморская",
-                        "тайская",
-                        "французская",
-                        "фьюжн",
-                        "греческая",
-                        "японская",
-                        "южноамериканская");
-        correctPriceCategories =
-                List.of("Дешевое питание", "Средний ценовой сегмент", "Высокая кухня");
     }
+
+        public UserDTO toUserDTO() {
+            return new UserDTO(chatID, nickName, city, kitchenTypes, priceCategories, keyWords,
+     favoriteList);
+        }
 
     public String userParamsToString() {
         return "Город: "
@@ -133,78 +104,6 @@ public class UserData {
         return list.getFirst();
     }
 
-    public boolean checkAndSetCity(String city) {
-        if (correctCities.contains(city)) {
-            setCity(city);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkAndSetCityForSearch(String city) {
-        if (correctCities.contains(city)) {
-            setCityForSearch(city);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkAndSetKitchenTypes(String kitchenTypes) {
-        if (Arrays.stream(kitchenTypes.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .allMatch(correctKitchenTypes::contains)) {
-            setKitchenTypes(List.of(kitchenTypes.split(",")));
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkAndSetKitchenTypesForSearch(String kitchenTypes) {
-        if (Arrays.stream(kitchenTypes.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .allMatch(correctKitchenTypes::contains)) {
-            setKitchenTypesForSearch(List.of(kitchenTypes.split(",")));
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkAndSetPriceCategories(String priceCategories) {
-        if (Arrays.stream(priceCategories.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .allMatch(correctPriceCategories::contains)) {
-            setPriceCategories(List.of(priceCategories.split(",")));
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkAndSetPriceCategoriesForSearch(String priceCategories) {
-        if (Arrays.stream(priceCategories.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .allMatch(correctPriceCategories::contains)) {
-            setPriceCategoriesForSearch(List.of(priceCategories.split(",")));
-            return true;
-        }
-        return false;
-    }
-
-    public List<String> getCorrectCities() {
-        return correctCities;
-    }
-
-    public List<String> getCorrectKitchenTypes() {
-        return correctKitchenTypes;
-    }
-
-    public List<String> getCorrectPriceCategories() {
-        return correctPriceCategories;
-    }
-
     public boolean setKeyWords(String keyWords) {
         this.keyWords = List.of(keyWords.split(","));
         return true;
@@ -215,7 +114,7 @@ public class UserData {
         return true;
     }
 
-    public RestaurantCard nextRestaurantFromFavoriteList() {
+    public FavouriteRestaurantCardDTO nextRestaurantFromFavoriteList() {
         index = index >= favoriteList.size() - 1 ? 0 : index + 1;
         return favoriteList.get(index);
     }
@@ -236,11 +135,11 @@ public class UserData {
         this.nickName = nickName;
     }
 
-    public List<RestaurantCard> getFavoriteList() {
+    public List<FavouriteRestaurantCardDTO> getFavoriteList() {
         return favoriteList;
     }
 
-    public void setFavoriteList(List<RestaurantCard> favoriteList) {
+    public void setFavoriteList(List<FavouriteRestaurantCardDTO> favoriteList) {
         this.favoriteList = favoriteList;
     }
 
@@ -264,26 +163,30 @@ public class UserData {
         keyWords = Arrays.stream(newKeyWords.split(" ")).toList();
     }
 
-    public boolean isRestaurantInFavouriteList(RestaurantCard restaurantCard) {
-        return favoriteList.contains(restaurantCard);
+    public boolean isRestaurantInFavouriteList(RestaurantCardDTO restaurantCard) {
+        return favoriteList.stream().anyMatch(x -> x.restaurantCardDTO() == restaurantCard);
     }
 
     public void removeRestaurantFromFavouriteListByIndex() {
         favoriteList.remove(index);
     }
 
-    public RestaurantCard getRestaurantFromFavouriteListByIndex() {
+    public FavouriteRestaurantCardDTO getRestaurantFromFavouriteListByIndex() {
         return favoriteList.get(index);
     }
 
-    public void addRestaurantToFavouriteList(RestaurantCard restaurantCard) {
-        if (!favoriteList.contains(restaurantCard)) {
-            favoriteList.add(restaurantCard);
+    public void addRestaurantToFavouriteList(RestaurantCardDTO restaurantCard) {
+        if (!isRestaurantInFavouriteList(restaurantCard)) {
+            favoriteList.add(new FavouriteRestaurantCardDTO(restaurantCard, false));
         }
     }
 
-    public void removeRestaurantFromFavouriteList(RestaurantCard restaurantCard) {
-        favoriteList.remove(restaurantCard);
+    public void addRestaurantToFavouriteList(FavouriteRestaurantCardDTO favouriteRestaurantCardDTO){
+        favoriteList.add(favouriteRestaurantCardDTO);
+    }
+
+    public void removeRestaurantFromFavouriteList(RestaurantCardDTO restaurantCard) {
+        favoriteList.removeIf(x -> x.restaurantCardDTO() == restaurantCard);
     }
 
     public List<String> getKitchenTypes() {
@@ -296,6 +199,12 @@ public class UserData {
 
     public void parseKitchenTypes(String newKitchenTypes) {
         kitchenTypes = Arrays.stream(newKitchenTypes.split(" ")).toList();
+    }
+
+    public void changeIsVisited(){
+        var updatedFavouriteRestaurantCardDTO = new FavouriteRestaurantCardDTO(getRestaurantFromFavouriteListByIndex().restaurantCardDTO(), !getRestaurantFromFavouriteListByIndex().isVisited());
+        removeRestaurantFromFavouriteListByIndex();
+        addRestaurantToFavouriteList(updatedFavouriteRestaurantCardDTO);
     }
 
     public List<String> getPriceCategories() {
