@@ -1,5 +1,6 @@
 package dev.tishenko.restobot.telegram;
 
+import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
 import dev.tishenko.restobot.telegram.config.RestoBotUserHandlerConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
 import java.net.MalformedURLException;
@@ -11,8 +12,10 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
+import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -27,7 +30,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     private Executor updatesProcessorExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
-    private final String botToken;
+    private static String botToken;
     private final String botUsername;
     private final TelegramClient telegramClient;
 
@@ -39,6 +42,21 @@ public class RestoBot implements LongPollingUpdateConsumer {
         return botUsername;
     }
 
+    public static void start(){
+        AnnotationConfigApplicationContext context =
+                new AnnotationConfigApplicationContext(BotFactoryConfig.class);
+
+        RestoBot bot = context.getBean(RestoBot.class);
+        try (TelegramBotsLongPollingApplication botsApplication =
+                     new TelegramBotsLongPollingApplication()) {
+            botsApplication.registerBot(botToken, bot);
+            logger.info(bot.getBotUserName() + " successfully started!");
+            Thread.currentThread().join();
+        } catch (Exception e) {
+            logger.error("Error starting bot: {}", e.getMessage());
+        }
+    }
+
     public RestoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
@@ -48,7 +66,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
         this.botConfig = new ConcurrentHashMap<>();
         this.userData = new ConcurrentHashMap<>();
         this.lastMessageId = new ConcurrentHashMap<>();
-
         telegramClient = new OkHttpTelegramClient(botToken);
     }
 
@@ -66,7 +83,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
                                 }));
     }
 
-    public void consume(Update update) throws MalformedURLException {
+    private void consume(Update update) throws MalformedURLException {
         if (update.hasMessage() && update.getMessage().hasText()) {
             logger.debug("Updated by user {}", update.getMessage().getChatId());
             long chatId = update.getMessage().getChatId();
