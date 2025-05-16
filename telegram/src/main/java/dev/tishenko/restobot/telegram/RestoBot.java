@@ -3,10 +3,8 @@ package dev.tishenko.restobot.telegram;
 import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
 import dev.tishenko.restobot.telegram.config.RestoBotUserHandlerConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
-import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
-import dev.tishenko.restobot.telegram.services.RestaurantCardFinder;
-import dev.tishenko.restobot.telegram.services.UserDAO;
-import dev.tishenko.restobot.telegram.services.UserParamsValidator;
+import dev.tishenko.restobot.telegram.services.*;
+
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +44,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
     private RestaurantCardFinder restaurantCardFinder;
     private UserDAO userDAO;
     private UserParamsValidator userParamsValidator;
+    private SearchParametersService searchParametersService;
 
     public String getBotUserName() {
         return botUsername;
@@ -73,7 +72,9 @@ public class RestoBot implements LongPollingUpdateConsumer {
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
-            UserParamsValidator userParamsValidator) {
+            UserParamsValidator userParamsValidator,
+            SearchParametersService searchParametersService ) {
+
         this.botToken = botToken;
         this.botUsername = botUsername;
         this.botConfig = new ConcurrentHashMap<>();
@@ -84,6 +85,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
         this.restaurantCardFinder = restaurantCardFinder;
         this.userDAO = userDAO;
         this.userParamsValidator = userParamsValidator;
+        this.searchParametersService = searchParametersService;
 
         telegramClient = new OkHttpTelegramClient(botToken);
     }
