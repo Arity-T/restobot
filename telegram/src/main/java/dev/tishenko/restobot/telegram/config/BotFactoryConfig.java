@@ -1,6 +1,10 @@
 package dev.tishenko.restobot.telegram.config;
 
 import dev.tishenko.restobot.telegram.RestoBot;
+import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
+import dev.tishenko.restobot.telegram.services.RestaurantCardFinder;
+import dev.tishenko.restobot.telegram.services.UserDAO;
+import dev.tishenko.restobot.telegram.services.UserParamsValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,7 +24,18 @@ public class BotFactoryConfig {
     public RestoBot restoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            RestoBotUserHandlerConfig restoBotConfig) {
-        return new RestoBot(botToken, botUsername, restoBotConfig);
+            RestoBotUserHandlerConfig restoBotConfig,
+            FavoriteListDAO favoriteListDAO,
+            RestaurantCardFinder restaurantCardFinder,
+            UserDAO userDAO,
+            UserParamsValidator userParamsValidator) {
+        return new RestoBot(
+                botToken,
+                botUsername,
+                restoBotConfig,
+                favoriteListDAO,
+                restaurantCardFinder,
+                userDAO,
+                userParamsValidator);
     }
 }

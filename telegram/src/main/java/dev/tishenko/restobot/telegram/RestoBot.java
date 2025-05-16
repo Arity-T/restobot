@@ -3,6 +3,10 @@ package dev.tishenko.restobot.telegram;
 import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
 import dev.tishenko.restobot.telegram.config.RestoBotUserHandlerConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
+import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
+import dev.tishenko.restobot.telegram.services.RestaurantCardFinder;
+import dev.tishenko.restobot.telegram.services.UserDAO;
+import dev.tishenko.restobot.telegram.services.UserParamsValidator;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +42,11 @@ public class RestoBot implements LongPollingUpdateConsumer {
     private Map<Long, Integer> lastMessageId;
     private Map<Long, RestoBotUserHandlerConfig> botConfig;
 
+    private FavoriteListDAO favoriteListDAO;
+    private RestaurantCardFinder restaurantCardFinder;
+    private UserDAO userDAO;
+    private UserParamsValidator userParamsValidator;
+
     public String getBotUserName() {
         return botUsername;
     }
@@ -60,12 +69,22 @@ public class RestoBot implements LongPollingUpdateConsumer {
     public RestoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            RestoBotUserHandlerConfig botConfig) {
+            RestoBotUserHandlerConfig botConfig,
+            FavoriteListDAO favoriteListDAO,
+            RestaurantCardFinder restaurantCardFinder,
+            UserDAO userDAO,
+            UserParamsValidator userParamsValidator) {
         this.botToken = botToken;
         this.botUsername = botUsername;
         this.botConfig = new ConcurrentHashMap<>();
         this.userData = new ConcurrentHashMap<>();
         this.lastMessageId = new ConcurrentHashMap<>();
+
+        this.favoriteListDAO = favoriteListDAO;
+        this.restaurantCardFinder = restaurantCardFinder;
+        this.userDAO = userDAO;
+        this.userParamsValidator = userParamsValidator;
+
         telegramClient = new OkHttpTelegramClient(botToken);
     }
 
@@ -88,6 +107,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
             logger.debug("Updated by user {}", update.getMessage().getChatId());
             long chatId = update.getMessage().getChatId();
             if (update.getMessage().getText().equals("/start") && !userData.containsKey(chatId)) {
+
                 userData.put(
                         chatId, new UserData(chatId, update.getMessage().getChat().getUserName()));
 
