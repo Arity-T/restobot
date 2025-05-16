@@ -1,17 +1,19 @@
-package dev.tishenko.restobot.telegram.example;
+package dev.tishenko.restobot.telegram.example.impl;
 
-import dev.tishenko.restobot.telegram.config.RestaurantCard;
 import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.RestaurantCardFinder;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ExampleRestaurantCardFinder implements RestaurantCardFinder {
     @Override
-    public List<RestaurantCardDTO> getRestaurantCardByGeolocation(double latitude, double longitude) throws MalformedURLException {
-        return List.of(new RestaurantCardDTO(
+    public List<RestaurantCardDTO> getRestaurantCardByGeolocation(double latitude, double longitude)
+            throws MalformedURLException {
+        return List.of(
+                new RestaurantCardDTO(
                         0,
                         "Звездочка",
                         "Энгельса 10",
@@ -53,10 +55,15 @@ public class ExampleRestaurantCardFinder implements RestaurantCardFinder {
                         "Москва"));
     }
 
-
     @Override
-    public List<RestaurantCardDTO> getRestaurantCardByParams(String city, List<String> kitchenTypes, List<String> priceCategories, List<String> keyWords) throws MalformedURLException {
-        return List.of(new RestaurantCardDTO(
+    public List<RestaurantCardDTO> getRestaurantCardByParams(
+            String city,
+            List<String> kitchenTypes,
+            List<String> priceCategories,
+            List<String> keyWords)
+            throws MalformedURLException {
+        return List.of(
+                new RestaurantCardDTO(
                         0,
                         "Звездочка",
                         "Энгельса 10",

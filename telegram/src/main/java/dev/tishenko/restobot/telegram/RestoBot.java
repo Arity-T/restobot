@@ -42,13 +42,13 @@ public class RestoBot implements LongPollingUpdateConsumer {
         return botUsername;
     }
 
-    public static void start(){
+    public static void start() {
         AnnotationConfigApplicationContext context =
                 new AnnotationConfigApplicationContext(BotFactoryConfig.class);
 
         RestoBot bot = context.getBean(RestoBot.class);
         try (TelegramBotsLongPollingApplication botsApplication =
-                     new TelegramBotsLongPollingApplication()) {
+                new TelegramBotsLongPollingApplication()) {
             botsApplication.registerBot(botToken, bot);
             logger.info(bot.getBotUserName() + " successfully started!");
             Thread.currentThread().join();
