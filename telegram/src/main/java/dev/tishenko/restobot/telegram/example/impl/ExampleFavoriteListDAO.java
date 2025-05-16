@@ -1,6 +1,7 @@
 package dev.tishenko.restobot.telegram.example.impl;
 
 import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
+import dev.tishenko.restobot.telegram.services.FavouriteRestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExampleFavoriteListDAO implements FavoriteListDAO {
 
-    private List<Map<RestaurantCardDTO, Boolean>> favouriteList = new ArrayList<>();
+    private List<FavouriteRestaurantCardDTO> favouriteList = new ArrayList<>();
 
     @Override
     public void addRestaurantCardToFavoriteList(long chatId, int tripadvisorId) {}
@@ -22,7 +23,7 @@ public class ExampleFavoriteListDAO implements FavoriteListDAO {
     public void setVisitedStatus(long chatId, int tripadvisorId, boolean isVisited) {}
 
     @Override
-    public List<Map<RestaurantCardDTO, Boolean>> getFavouriteList(long chatId) {
+    public List<FavouriteRestaurantCardDTO> getFavouriteList(long chatId) {
         return favouriteList;
     }
 }
