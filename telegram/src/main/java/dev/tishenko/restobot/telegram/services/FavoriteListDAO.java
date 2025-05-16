@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram.services;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Data Access Object for managing users' favorite restaurant lists in the database.
