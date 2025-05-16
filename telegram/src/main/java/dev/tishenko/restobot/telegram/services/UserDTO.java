@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram.services;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Data Transfer Object representing a user profile with preferences and favorite restaurants.
@@ -15,8 +14,7 @@ import java.util.Map;
  * @param kitchenTypes list of preferred kitchen or cuisine types
  * @param priceCategories list of preferred price category identifiers
  * @param keyWords list of search keywords used by the user
- * @param favoriteList list of entries mapping each {@link RestaurantCardDTO} to a {@link Boolean}
- *     flag indicating visit status ({@code true} if visited)
+ * @param favoriteList list of entries mapping each {@link RestaurantCardDTO}
  */
 public record UserDTO(
         long chatID,
@@ -25,4 +23,4 @@ public record UserDTO(
         List<String> kitchenTypes,
         List<String> priceCategories,
         List<String> keyWords,
-        List<Map<RestaurantCardDTO, Boolean>> favoriteList) {}
+        List<FavouriteRestaurantCardDTO> favoriteList) {}
