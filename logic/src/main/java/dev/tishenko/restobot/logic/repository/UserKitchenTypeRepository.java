@@ -1,11 +1,10 @@
 package dev.tishenko.restobot.logic.repository;
 
-import org.jooq.DSLContext;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 import org.example.jooq.generated.tables.UserKitchenType;
 import org.example.jooq.generated.tables.records.UserKitchenTypeRecord;
-
-import java.util.List;
+import org.jooq.DSLContext;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserKitchenTypeRepository {
@@ -18,21 +17,21 @@ public class UserKitchenTypeRepository {
 
     public void addKitchen(long chatId, int kitchenTypeId) {
         dsl.insertInto(UserKitchenType.USER_KITCHEN_TYPE)
-           .set(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID, chatId)
-           .set(UserKitchenType.USER_KITCHEN_TYPE.KITCHEN_TYPE_ID, kitchenTypeId)
-           .execute();
+                .set(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID, chatId)
+                .set(UserKitchenType.USER_KITCHEN_TYPE.KITCHEN_TYPE_ID, kitchenTypeId)
+                .execute();
     }
 
     public void removeKitchen(long chatId, int kitchenTypeId) {
         dsl.deleteFrom(UserKitchenType.USER_KITCHEN_TYPE)
-           .where(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID.eq(chatId))
-           .and(UserKitchenType.USER_KITCHEN_TYPE.KITCHEN_TYPE_ID.eq(kitchenTypeId))
-           .execute();
+                .where(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID.eq(chatId))
+                .and(UserKitchenType.USER_KITCHEN_TYPE.KITCHEN_TYPE_ID.eq(kitchenTypeId))
+                .execute();
     }
 
     public List<UserKitchenTypeRecord> getAllByUser(long chatId) {
         return dsl.selectFrom(UserKitchenType.USER_KITCHEN_TYPE)
-                  .where(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID.eq(chatId))
-                  .fetch();
+                .where(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID.eq(chatId))
+                .fetch();
     }
 }

@@ -1,11 +1,10 @@
 package dev.tishenko.restobot.logic.repository;
 
-import org.jooq.DSLContext;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 import org.example.jooq.generated.tables.UserPriceCategory;
 import org.example.jooq.generated.tables.records.UserPriceCategoryRecord;
-
-import java.util.List;
+import org.jooq.DSLContext;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserPriceCategoryRepository {
@@ -18,21 +17,21 @@ public class UserPriceCategoryRepository {
 
     public void addPriceCategory(long chatId, int categoryId) {
         dsl.insertInto(UserPriceCategory.USER_PRICE_CATEGORY)
-           .set(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID, chatId)
-           .set(UserPriceCategory.USER_PRICE_CATEGORY.PRICE_CATEGORY_ID, categoryId)
-           .execute();
+                .set(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID, chatId)
+                .set(UserPriceCategory.USER_PRICE_CATEGORY.PRICE_CATEGORY_ID, categoryId)
+                .execute();
     }
 
     public void removePriceCategory(long chatId, int categoryId) {
         dsl.deleteFrom(UserPriceCategory.USER_PRICE_CATEGORY)
-           .where(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID.eq(chatId))
-           .and(UserPriceCategory.USER_PRICE_CATEGORY.PRICE_CATEGORY_ID.eq(categoryId))
-           .execute();
+                .where(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID.eq(chatId))
+                .and(UserPriceCategory.USER_PRICE_CATEGORY.PRICE_CATEGORY_ID.eq(categoryId))
+                .execute();
     }
 
     public List<UserPriceCategoryRecord> getAllByUser(long chatId) {
         return dsl.selectFrom(UserPriceCategory.USER_PRICE_CATEGORY)
-                  .where(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID.eq(chatId))
-                  .fetch();
+                .where(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID.eq(chatId))
+                .fetch();
     }
 }

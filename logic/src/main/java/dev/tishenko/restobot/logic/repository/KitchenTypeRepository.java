@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.logic.repository;
 
 import java.util.List;
-
 import org.example.jooq.generated.tables.KitchenType;
 import org.example.jooq.generated.tables.records.KitchenTypeRecord;
 import org.jooq.DSLContext;
@@ -18,14 +17,14 @@ public class KitchenTypeRepository {
 
     public KitchenTypeRecord findById(int id) {
         return dsl.selectFrom(KitchenType.KITCHEN_TYPE)
-                  .where(KitchenType.KITCHEN_TYPE.KITCHEN_TYPE_ID.eq(id))
-                  .fetchOne();
+                .where(KitchenType.KITCHEN_TYPE.KITCHEN_TYPE_ID.eq(id))
+                .fetchOne();
     }
 
     public KitchenTypeRecord findByName(String name) {
         return dsl.selectFrom(KitchenType.KITCHEN_TYPE)
-                  .where(KitchenType.KITCHEN_TYPE.NAME.eq(name))
-                  .fetchOne();
+                .where(KitchenType.KITCHEN_TYPE.NAME.eq(name))
+                .fetchOne();
     }
 
     public List<KitchenTypeRecord> findAll() {

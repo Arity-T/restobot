@@ -1,11 +1,9 @@
 package dev.tishenko.restobot.logic.service;
 
+import dev.tishenko.restobot.logic.repository.FavoriteListRepository;
 import java.util.List;
-
 import org.example.jooq.generated.tables.records.FavoriteListRecord;
 import org.springframework.stereotype.Service;
-
-import dev.tishenko.restobot.logic.repository.FavoriteListRepository;
 
 @Service
 public class FavoriteListService {

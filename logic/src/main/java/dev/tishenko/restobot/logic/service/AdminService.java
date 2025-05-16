@@ -1,11 +1,9 @@
 package dev.tishenko.restobot.logic.service;
 
+import dev.tishenko.restobot.logic.repository.AdminDataRepository;
 import java.util.Optional;
-
 import org.example.jooq.generated.tables.records.AdminDataRecord;
 import org.springframework.stereotype.Service;
-
-import dev.tishenko.restobot.logic.repository.AdminDataRepository;
 
 @Service
 public class AdminService {
