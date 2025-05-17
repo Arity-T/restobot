@@ -18,6 +18,22 @@ public class BotFactoryConfig {
     }
 
     @Bean
+    public RestoBotUserHandler restoBotUserHandler(
+            FavoriteListDAO favoriteListDAO,
+            RestaurantCardFinder restaurantCardFinder,
+            UserDAO userDAO,
+            UserParamsValidator userParamsValidator,
+            SearchParametersService searchParametersService)
+            throws Exception {
+        return new RestoBotUserHandler(
+                favoriteListDAO,
+                restaurantCardFinder,
+                userDAO,
+                userParamsValidator,
+                searchParametersService);
+    }
+
+    @Bean
     public RestoBot restoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
