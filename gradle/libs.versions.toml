@@ -20,6 +20,8 @@ gson = "2.13.1"
 lombok = "1.18.38"
 jooq = "10.1"
 reactor-netty = "1.2.5"
+guava = "33.0.0-jre"
+
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -36,6 +38,7 @@ flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 reactor-netty = { module = "io.projectreactor.netty:reactor-netty", version.ref = "reactor-netty" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

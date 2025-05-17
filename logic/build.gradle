@@ -29,7 +29,9 @@ plugins {
 dependencies {
     implementation project(":data")
     implementation project(":telegram")
+    implementation project(":api")
     implementation(libs.postgresql)
+    implementation(libs.guava)
 
     jooqGenerator libs.postgresql
 }
