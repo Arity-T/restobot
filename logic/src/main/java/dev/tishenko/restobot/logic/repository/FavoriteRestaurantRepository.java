@@ -19,7 +19,6 @@ public class FavoriteRestaurantRepository {
         return dsl.insertInto(FavoriteRestaurant.FAVORITE_RESTAURANT)
                 .set(FavoriteRestaurant.FAVORITE_RESTAURANT.CHAT_ID, chatId)
                 .set(FavoriteRestaurant.FAVORITE_RESTAURANT.TRIPADVISOR_ID, tripadvisorId)
-                .set(FavoriteRestaurant.FAVORITE_RESTAURANT.IS_VISITED, false)
                 .returning()
                 .fetchOne();
     }
