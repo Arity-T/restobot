@@ -278,7 +278,7 @@ public class RestoBotUserHandler {
                                             .build())
                             .build();
                 }
-                FavouriteRestaurantCardDTO restaurantCard =
+                FavoriteRestaurantCardDTO restaurantCard =
                         userData.nextRestaurantFromFavoriteList();
                 return EditMessageText.builder()
                         .chatId(chatId)
@@ -315,7 +315,7 @@ public class RestoBotUserHandler {
                                             .build())
                             .build();
                 }
-                FavouriteRestaurantCardDTO restaurantCard =
+                FavoriteRestaurantCardDTO restaurantCard =
                         userData.nextRestaurantFromFavoriteList();
                 return EditMessageText.builder()
                         .chatId(chatId)
@@ -341,7 +341,7 @@ public class RestoBotUserHandler {
             case "setAsVisitedButton" -> {
                 actualState = "setAsVisitedButton";
                 userData.changeIsVisited();
-                FavouriteRestaurantCardDTO restaurantCard =
+                FavoriteRestaurantCardDTO restaurantCard =
                         userData.getRestaurantFromFavouriteListByIndex();
                 return EditMessageText.builder()
                         .chatId(chatId)
@@ -937,22 +937,22 @@ public class RestoBotUserHandler {
     }
 
     public String restaurantCardToStringForFavouriteList(
-            FavouriteRestaurantCardDTO favouriteRestaurantCardDTO) {
-        return favouriteRestaurantCardDTO.restaurantCardDTO().name()
+            FavoriteRestaurantCardDTO favoriteRestaurantCardDTO) {
+        return favoriteRestaurantCardDTO.restaurantCardDTO().name()
                 + "\n"
                 + "Находится по адресу: "
-                + favouriteRestaurantCardDTO.restaurantCardDTO().addressString()
+                + favoriteRestaurantCardDTO.restaurantCardDTO().addressString()
                 + '\n'
                 + "Имеет рейтинг: "
-                + favouriteRestaurantCardDTO.restaurantCardDTO().rating()
+                + favoriteRestaurantCardDTO.restaurantCardDTO().rating()
                 + "\n"
                 + "Официальный сайт: "
-                + favouriteRestaurantCardDTO.restaurantCardDTO().website()
+                + favoriteRestaurantCardDTO.restaurantCardDTO().website()
                 + '\n'
-                + favouriteRestaurantCardDTO.restaurantCardDTO().description()
+                + favoriteRestaurantCardDTO.restaurantCardDTO().description()
                 + '\n'
                 + "Посещен: "
-                + (favouriteRestaurantCardDTO.isVisited() ? "Да" : "Нет");
+                + (favoriteRestaurantCardDTO.isVisited() ? "Да" : "Нет");
     }
 
     public String restaurantCardToString(RestaurantCardDTO restaurantCardDTO) {

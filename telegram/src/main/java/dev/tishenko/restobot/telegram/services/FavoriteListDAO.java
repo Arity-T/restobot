@@ -1,7 +1,5 @@
 package dev.tishenko.restobot.telegram.services;
 
-import java.util.List;
-
 /**
  * Data Access Object for managing users' favorite restaurant lists in the database.
  *
@@ -34,13 +32,4 @@ public interface FavoriteListDAO {
      * @param isVisited {@code true} if the restaurant has been visited; {@code false} otherwise
      */
     void setVisitedStatus(long chatId, int tripadvisorId, boolean isVisited);
-
-    /**
-     * Retrieves the full favorites list for the specified user, including visit status for each
-     * restaurant.
-     *
-     * @param chatId the unique identifier of the user
-     * @return a list of entries mapping each {@link FavoriteRestaurantCardDTO}
-     */
-    List<FavoriteRestaurantCardDTO> getFavoriteList(long chatId);
 }
