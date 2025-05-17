@@ -267,7 +267,8 @@ public class UserData {
     }
 
     public boolean checkAndSetKitchenTypes(String params) {
-        List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
+        List<String> kitchenTypes = Arrays.stream(params.split(",")).map(String::trim)
+                .map(String::toLowerCase).toList();
         if (new HashSet<>(correctKitchenTypes).containsAll(kitchenTypes)) {
             this.kitchenTypes = kitchenTypes;
             userDAO.setNewUserKitchenTypes(chatID, kitchenTypes);
@@ -277,7 +278,8 @@ public class UserData {
     }
 
     public boolean checkAndSetPriceCategories(String params) {
-        List<String> priceCategories = Arrays.stream(params.split(",")).toList();
+        List<String> priceCategories = Arrays.stream(params.split(",")).map(String::trim)
+                .map(String::toLowerCase).toList();
         if (new HashSet<>(correctPriceCategories).containsAll(priceCategories)) {
             this.priceCategories = priceCategories;
             userDAO.setNewUserKitchenTypes(chatID, priceCategories);
@@ -295,7 +297,8 @@ public class UserData {
     }
 
     public boolean checkAndSetKitchenTypesForSearch(String params) {
-        List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
+        List<String> kitchenTypes = Arrays.stream(params.split(",")).map(String::trim)
+                .map(String::toLowerCase).toList();
         if (new HashSet<>(correctKitchenTypes).containsAll(kitchenTypes)) {
             this.kitchenTypesForSearch = kitchenTypes;
             return true;
@@ -304,7 +307,8 @@ public class UserData {
     }
 
     public boolean checkAndSetPriceCategoriesForSearch(String params) {
-        List<String> priceCategories = Arrays.stream(params.split(",")).toList();
+        List<String> priceCategories = Arrays.stream(params.split(",")).map(String::trim)
+                .map(String::toLowerCase).toList();
         if (new HashSet<>(correctPriceCategories).containsAll(priceCategories)) {
             this.priceCategoriesForSearch = priceCategories;
             return true;
