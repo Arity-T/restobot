@@ -1,11 +1,12 @@
 package dev.tishenko.restobot.logic.service;
 
 import dev.tishenko.restobot.logic.repository.UserRepository;
+import dev.tishenko.restobot.telegram.services.FavouriteRestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.UserDAO;
 import dev.tishenko.restobot.telegram.services.UserDTO;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.example.jooq.generated.tables.records.UsersRecord;
 import org.springframework.stereotype.Service;
 
@@ -13,68 +14,163 @@ import org.springframework.stereotype.Service;
 public class UserService implements UserDAO {
 
     private final UserRepository userRepository;
+    private final UserKitchenTypeService userKitchenTypeService;
+    private final UserPriceCategoryService userPriceCategoryService;
+    private final CityService cityService;
+    private final FavoriteRestaurantService favoriteRestaurantService;
+    private final KitchenTypeService kitchenTypeService;
+    private final PriceCategoryService priceCategoryService;
 
-    public UserService(UserRepository repo) {
-        this.userRepository = repo;
+    public UserService(
+            UserRepository userRepository,
+            UserKitchenTypeService userKitchenTypeService,
+            UserPriceCategoryService userPriceCategoryService,
+            CityService cityService,
+            FavoriteRestaurantService favoriteRestaurantService,
+            KitchenTypeService kitchenTypeService,
+            PriceCategoryService priceCategoryService) {
+        this.userRepository = userRepository;
+        this.userKitchenTypeService = userKitchenTypeService;
+        this.userPriceCategoryService = userPriceCategoryService;
+        this.cityService = cityService;
+        this.favoriteRestaurantService = favoriteRestaurantService;
+        this.kitchenTypeService = kitchenTypeService;
+        this.priceCategoryService = priceCategoryService;
     }
 
     @Override
     public void addUserToDB(UserDTO userDTO) {
+        // Сохраняем базовую информацию о пользователе
         userRepository.saveUser(userDTO.chatID(), userDTO.nickName());
+
+        // Сохраняем город, если он указан
+        if (!userDTO.city().isEmpty()) {
+            setNewUserCity(userDTO.chatID(), userDTO.city());
+        }
+
+        // Сохраняем типы кухни
+        if (!userDTO.kitchenTypes().isEmpty()) {
+            setNewUserKitchenTypes(userDTO.chatID(), userDTO.kitchenTypes());
+        }
+
+        // Сохраняем ценовые категории
+        if (!userDTO.priceCategories().isEmpty()) {
+            setNewUserPriceCategories(userDTO.chatID(), userDTO.priceCategories());
+        }
+
+        // Сохраняем ключевые слова
+        if (!userDTO.keyWords().isEmpty()) {
+            setNewUserKeyWords(userDTO.chatID(), userDTO.keyWords());
+        }
+
+        // Сохраняем избранные рестораны
+        if (!userDTO.favoriteList().isEmpty()) {
+            userDTO.favoriteList()
+                    .forEach(
+                            restaurant ->
+                                    favoriteRestaurantService.addRestaurantCardToFavoriteList(
+                                            userDTO.chatID(),
+                                            restaurant.restaurantCardDTO().tripadvisorId()));
+        }
     }
 
     @Override
-    public Optional<UserDTO> getUserFromDB(int chatId) {
+    public Optional<UserDTO> getUserFromDB(long chatId) {
         UsersRecord record = userRepository.findByChatId(chatId);
         if (record == null) {
             return Optional.empty();
         }
 
-        // Convert the database record to UserDTO
-        // Split keywords string into List if not null, otherwise empty list
+        // Получаем типы кухни пользователя
+        List<String> kitchenTypes =
+                kitchenTypeService.getAllForUser(chatId).stream()
+                        .map(k -> k.getKitchenTypeId().toString())
+                        .collect(Collectors.toList());
+
+        // Получаем ценовые категории пользователя
+        List<String> priceCategories =
+                userPriceCategoryService.getAllForUser(chatId).stream()
+                        .map(p -> p.getPriceCategoryId().toString())
+                        .collect(Collectors.toList());
+
+        // Получаем ключевые слова
         List<String> keywords =
-                record.getKeywords() != null
-                        ? Arrays.asList(record.getKeywords().split(","))
-                        : List.of();
+                record.getKeywords() != null ? List.of(record.getKeywords().split(",")) : List.of();
+
+        // Получаем избранные рестораны
+        List<FavouriteRestaurantCardDTO> favoriteList =
+                favoriteRestaurantService.getFavouriteList(chatId);
 
         return Optional.of(
                 new UserDTO(
                         record.getChatId(),
                         record.getNickname(),
                         record.getCityId() != null ? record.getCityId().toString() : "",
-                        List.of(), // Kitchen types - needs implementation
-                        List.of(), // Price categories - needs implementation
+                        kitchenTypes,
+                        priceCategories,
                         keywords,
-                        List.of() // Favorite list - needs implementation
-                        ));
+                        favoriteList));
     }
 
     @Override
-    public void setNewUserCity(int chatId, String city) {
+    public void setNewUserCity(long chatId, String city) {
         try {
             int cityId = Integer.parseInt(city);
             userRepository.updateCity(chatId, cityId);
         } catch (NumberFormatException e) {
-            // TODO: Implement proper city name to ID conversion
-            // For now, just storing 0 as default
-            userRepository.updateCity(chatId, 0);
+            // Если передан текст города, ищем его ID
+            cityService
+                    .getCityByName(city)
+                    .ifPresent(cityRecord -> userRepository.updateCity(chatId, cityRecord.getId()));
         }
     }
 
     @Override
-    public void setNewUserKitchenTypes(int chatId, List<String> kitchenTypes) {
-        // TODO: Implement kitchen types storage
-        // This might require a separate table and mapping logic
+    public void setNewUserKitchenTypes(long chatId, List<String> kitchenTypes) {
+        // Сначала удаляем все существующие типы кухни
+        userKitchenTypeService.removeAllByUser(chatId);
+
+        // Добавляем новые типы кухни
+        kitchenTypes.forEach(
+                kitchenType -> {
+                    try {
+                        int kitchenTypeId = Integer.parseInt(kitchenType);
+                        userKitchenTypeService.addKitchen(chatId, kitchenTypeId);
+                    } catch (NumberFormatException e) {
+                        // Если передан текст типа кухни, ищем его ID
+                        kitchenTypeService
+                                .getByName(kitchenType)
+                                .ifPresent(
+                                        k -> userKitchenTypeService.addKitchen(chatId, k.getId()));
+                    }
+                });
     }
 
     @Override
-    public void setNewUserPriceCategories(int chatId, List<String> priceCategories) {
-        // TODO: Implement price categories storage
-        // This might require a separate table and mapping logic
+    public void setNewUserPriceCategories(long chatId, List<String> priceCategories) {
+        // Сначала удаляем все существующие ценовые категории
+        userPriceCategoryService.removeAllByUser(chatId);
+
+        // Добавляем новые ценовые категории
+        priceCategories.forEach(
+                priceCategory -> {
+                    try {
+                        int priceCategoryId = Integer.parseInt(priceCategory);
+                        userPriceCategoryService.addPriceCategory(chatId, priceCategoryId);
+                    } catch (NumberFormatException e) {
+                        // Если передан текст ценовой категории, ищем её ID
+                        priceCategoryService
+                                .getByName(priceCategory)
+                                .ifPresent(
+                                        p ->
+                                                userPriceCategoryService.addPriceCategory(
+                                                        chatId, p.getId()));
+                    }
+                });
     }
 
     @Override
-    public void setNewUserKeyWords(int chatId, List<String> keyWords) {
+    public void setNewUserKeyWords(long chatId, List<String> keyWords) {
         String keywordsString = String.join(",", keyWords);
         userRepository.updateKeywords(chatId, keywordsString);
     }
