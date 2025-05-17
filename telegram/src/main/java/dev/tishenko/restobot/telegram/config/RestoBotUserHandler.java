@@ -125,12 +125,6 @@ public class RestoBotUserHandler {
             if (isSettingUserParams) {
                 if (setParams(userData, message.getMessage().getText())) {
                     isSettingUserParams = false;
-                    restaurantSelection =
-                            restaurantCardFinder.getRestaurantCardByParams(
-                                    userData.getCity(),
-                                    userData.getKitchenTypes(),
-                                    userData.getPriceCategories(),
-                                    userData.getKeyWords());
                     return actionChose(actualState, messageId, chatId, userData);
                 } else {
                     return EditMessageText.builder()
@@ -156,7 +150,7 @@ public class RestoBotUserHandler {
     }
 
     private EditMessageText actionChose(
-            String message, long messageId, long chatId, UserData userData) {
+            String message, long messageId, long chatId, UserData userData) throws MalformedURLException {
         switch (message) {
             case "goToUserParamsButton" -> {
                 actualState = "goToUserParamsButton";
@@ -619,6 +613,12 @@ public class RestoBotUserHandler {
             }
             case "searchButton" -> {
                 actualState = "searchButton";
+                restaurantSelection =
+                        restaurantCardFinder.getRestaurantCardByParams(
+                                userData.getCity(),
+                                userData.getKitchenTypes(),
+                                userData.getPriceCategories(),
+                                userData.getKeyWords());
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
                             .chatId(chatId)
