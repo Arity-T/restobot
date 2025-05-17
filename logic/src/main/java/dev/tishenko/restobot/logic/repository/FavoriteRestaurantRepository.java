@@ -11,7 +11,7 @@ public class FavoriteRestaurantRepository {
 
     private final DSLContext dsl;
 
-        public FavoriteRestaurantRepository(DSLContext dsl) {
+    public FavoriteRestaurantRepository(DSLContext dsl) {
         this.dsl = dsl;
     }
 
@@ -26,15 +26,25 @@ public class FavoriteRestaurantRepository {
     public void markVisited(long chatId, int tripadvisorId, boolean visited) {
         dsl.update(FavoriteRestaurant.FAVORITE_RESTAURANT)
                 .set(FavoriteRestaurant.FAVORITE_RESTAURANT.IS_VISITED, visited)
-                .where(FavoriteRestaurant.FAVORITE_RESTAURANT.CHAT_ID.eq(chatId)
-                        .and(FavoriteRestaurant.FAVORITE_RESTAURANT.TRIPADVISOR_ID.eq(tripadvisorId)))
+                .where(
+                        FavoriteRestaurant.FAVORITE_RESTAURANT
+                                .CHAT_ID
+                                .eq(chatId)
+                                .and(
+                                        FavoriteRestaurant.FAVORITE_RESTAURANT.TRIPADVISOR_ID.eq(
+                                                tripadvisorId)))
                 .execute();
     }
 
     public void delete(long chatId, int tripadvisorId) {
         dsl.deleteFrom(FavoriteRestaurant.FAVORITE_RESTAURANT)
-                .where(FavoriteRestaurant.FAVORITE_RESTAURANT.CHAT_ID.eq(chatId)
-                        .and(FavoriteRestaurant.FAVORITE_RESTAURANT.TRIPADVISOR_ID.eq(tripadvisorId)))
+                .where(
+                        FavoriteRestaurant.FAVORITE_RESTAURANT
+                                .CHAT_ID
+                                .eq(chatId)
+                                .and(
+                                        FavoriteRestaurant.FAVORITE_RESTAURANT.TRIPADVISOR_ID.eq(
+                                                tripadvisorId)))
                 .execute();
     }
 
@@ -46,8 +56,11 @@ public class FavoriteRestaurantRepository {
 
     public List<FavoriteRestaurantRecord> getVisited(long chatId, boolean visited) {
         return dsl.selectFrom(FavoriteRestaurant.FAVORITE_RESTAURANT)
-                .where(FavoriteRestaurant.FAVORITE_RESTAURANT.CHAT_ID.eq(chatId)
-                        .and(FavoriteRestaurant.FAVORITE_RESTAURANT.IS_VISITED.eq(visited)))
+                .where(
+                        FavoriteRestaurant.FAVORITE_RESTAURANT
+                                .CHAT_ID
+                                .eq(chatId)
+                                .and(FavoriteRestaurant.FAVORITE_RESTAURANT.IS_VISITED.eq(visited)))
                 .fetch();
     }
 }

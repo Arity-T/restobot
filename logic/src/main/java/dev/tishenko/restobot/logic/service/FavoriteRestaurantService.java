@@ -37,20 +37,21 @@ public class FavoriteRestaurantService implements FavoriteListDAO {
     @Override
     public List<FavoriteRestaurantCardDTO> getFavoriteList(long chatId) {
         return repo.getAllFavorites(chatId).stream()
-                .map(record -> new FavoriteRestaurantCardDTO(
-                        new RestaurantCardDTO(
-                                record.getTripadvisorId(),
-                                "", // name will be filled by the caller
-                                "", // address will be filled by the caller
-                                0.0, // rating will be filled by the caller
-                                null, // website will be filled by the caller
-                                "", // description will be filled by the caller
-                                0.0, // latitude will be filled by the caller
-                                0.0, // longitude will be filled by the caller
-                                "" // city will be filled by the caller
-                        ),
-                        record.getIsVisited()
-                ))
+                .map(
+                        record ->
+                                new FavoriteRestaurantCardDTO(
+                                        new RestaurantCardDTO(
+                                                record.getTripadvisorId(),
+                                                "", // name will be filled by the caller
+                                                "", // address will be filled by the caller
+                                                0.0, // rating will be filled by the caller
+                                                null, // website will be filled by the caller
+                                                "", // description will be filled by the caller
+                                                0.0, // latitude will be filled by the caller
+                                                0.0, // longitude will be filled by the caller
+                                                "" // city will be filled by the caller
+                                                ),
+                                        record.getIsVisited()))
                 .collect(Collectors.toList());
     }
 
