@@ -5,7 +5,6 @@ import static java.lang.Math.toIntExact;
 import dev.tishenko.restobot.telegram.services.*;
 import java.net.MalformedURLException;
 import java.util.*;
-import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,9 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
-@Configuration
-@Scope("prototype")
-public class RestoBotUserHandlerConfig {
+
+public class RestoBotUserHandler {
 
     private String actualState;
     private String lastParams;
@@ -33,7 +31,7 @@ public class RestoBotUserHandlerConfig {
     private final String ZWSP = "\u200B";
     private boolean isZWSP = false;
 
-    public RestoBotUserHandlerConfig(
+    public RestoBotUserHandler(
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
