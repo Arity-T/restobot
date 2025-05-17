@@ -19,9 +19,4 @@ public class ExampleFavoriteListDAO implements FavoriteListDAO {
 
     @Override
     public void setVisitedStatus(long chatId, int tripadvisorId, boolean isVisited) {}
-
-    @Override
-    public List<FavoriteRestaurantCardDTO> getFavouriteList(long chatId) {
-        return favouriteList;
-    }
 }
