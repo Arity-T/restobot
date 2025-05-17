@@ -6,17 +6,19 @@ import java.util.stream.Collectors;
 import org.example.jooq.generated.tables.records.CityRecord;
 import org.example.jooq.generated.tables.records.KitchenTypeRecord;
 import org.example.jooq.generated.tables.records.PriceCategoryRecord;
+import org.springframework.stereotype.Service;
 
+@Service
 public class SearchParametersServiceImpl implements SearchParametersService {
 
-    private final CityService cityService;
-    private final KitchenTypeService kitchenTypeService;
-    private final PriceCategoryService priceCategoryService;
+    private final LogicCityService cityService;
+    private final LogicKitchenTypeService kitchenTypeService;
+    private final LogicPriceCategoryService priceCategoryService;
 
     public SearchParametersServiceImpl(
-            CityService cityService,
-            KitchenTypeService kitchenTypeService,
-            PriceCategoryService priceCategoryService) {
+            LogicCityService cityService,
+            LogicKitchenTypeService kitchenTypeService,
+            LogicPriceCategoryService priceCategoryService) {
         this.cityService = cityService;
         this.kitchenTypeService = kitchenTypeService;
         this.priceCategoryService = priceCategoryService;

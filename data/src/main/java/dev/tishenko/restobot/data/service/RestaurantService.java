@@ -4,7 +4,9 @@ import dev.tishenko.restobot.data.repository.RestaurantRepository;
 import java.util.List;
 import java.util.Optional;
 import org.example.jooq.generated.tables.records.RestaurantRecord;
+import org.springframework.stereotype.Service;
 
+@Service
 public class RestaurantService {
 
     public final RestaurantRepository repo;

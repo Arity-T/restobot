@@ -1,17 +1,17 @@
 package dev.tishenko.restobot.data.service;
 
-import dev.tishenko.restobot.data.repository.CityRepository;
+import dev.tishenko.restobot.data.repository.DataCityRepository;
 import java.util.List;
 import java.util.Optional;
 import org.example.jooq.generated.tables.records.CityRecord;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CityService {
+public class DataCityService {
 
-    private final CityRepository repo;
+    private final DataCityRepository repo;
 
-    public CityService(CityRepository repo) {
+    public DataCityService(DataCityRepository repo) {
         this.repo = repo;
     }
 

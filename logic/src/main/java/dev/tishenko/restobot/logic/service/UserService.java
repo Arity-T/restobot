@@ -18,19 +18,19 @@ public class UserService implements UserDAO, ApiUserService {
     private final UserRepository userRepository;
     private final UserKitchenTypeService userKitchenTypeService;
     private final UserPriceCategoryService userPriceCategoryService;
-    private final CityService cityService;
+    private final LogicCityService cityService;
     private final FavoriteRestaurantService favoriteRestaurantService;
-    private final KitchenTypeService kitchenTypeService;
-    private final PriceCategoryService priceCategoryService;
+    private final LogicKitchenTypeService kitchenTypeService;
+    private final LogicPriceCategoryService priceCategoryService;
 
     public UserService(
             UserRepository userRepository,
             UserKitchenTypeService userKitchenTypeService,
             UserPriceCategoryService userPriceCategoryService,
-            CityService cityService,
+            LogicCityService cityService,
             FavoriteRestaurantService favoriteRestaurantService,
-            KitchenTypeService kitchenTypeService,
-            PriceCategoryService priceCategoryService) {
+            LogicKitchenTypeService kitchenTypeService,
+            LogicPriceCategoryService priceCategoryService) {
         this.userRepository = userRepository;
         this.userKitchenTypeService = userKitchenTypeService;
         this.userPriceCategoryService = userPriceCategoryService;

@@ -7,11 +7,11 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class KitchenTypeRepository {
+public class DataKitchenTypeRepository {
 
     private final DSLContext dsl;
 
-    public KitchenTypeRepository(DSLContext dsl) {
+    public DataKitchenTypeRepository(DSLContext dsl) {
         this.dsl = dsl;
     }
 

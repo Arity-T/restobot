@@ -1,4 +1,4 @@
-package dev.tishenko.restobot.logic.repository;
+package dev.tishenko.restobot.data.repository;
 
 import java.util.List;
 import org.example.jooq.generated.tables.PriceCategory;
@@ -7,17 +7,17 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class PriceCategoryRepository {
+public class DataPriceCategoryRepository {
 
     private final DSLContext dsl;
 
-    public PriceCategoryRepository(DSLContext dsl) {
+    public DataPriceCategoryRepository(DSLContext dsl) {
         this.dsl = dsl;
     }
 
-    public PriceCategoryRecord findById(int id) {
+    public PriceCategoryRecord findById(int priceCategoryId) {
         return dsl.selectFrom(PriceCategory.PRICE_CATEGORY)
-                .where(PriceCategory.PRICE_CATEGORY.PRICE_CATEGORY_ID.eq(id))
+                .where(PriceCategory.PRICE_CATEGORY.PRICE_CATEGORY_ID.eq(priceCategoryId))
                 .fetchOne();
     }
 

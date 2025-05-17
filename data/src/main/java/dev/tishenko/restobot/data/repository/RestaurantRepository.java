@@ -21,9 +21,9 @@ import org.springframework.stereotype.Repository;
 public class RestaurantRepository {
     private final DSLContext dsl;
 
-    public final CityRepository cityRepository;
+    public final DataCityRepository cityRepository;
 
-    public RestaurantRepository(DSLContext dsl, CityRepository cityRepository) {
+    public RestaurantRepository(DSLContext dsl, DataCityRepository cityRepository) {
         this.dsl = dsl;
         this.cityRepository = cityRepository;
     }

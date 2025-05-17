@@ -1,6 +1,6 @@
 package dev.tishenko.restobot.logic.service;
 
-import dev.tishenko.restobot.data.service.CityService;
+import dev.tishenko.restobot.data.service.DataCityService;
 import dev.tishenko.restobot.data.service.RestaurantService;
 import dev.tishenko.restobot.logic.repository.FavoriteRestaurantRepository;
 import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
@@ -22,12 +22,12 @@ public class FavoriteRestaurantService implements FavoriteListDAO {
 
     private final FavoriteRestaurantRepository repo;
     private final RestaurantService restaurantService;
-    private final CityService cityService;
+    private final DataCityService cityService;
 
     public FavoriteRestaurantService(
             FavoriteRestaurantRepository repo,
             RestaurantService restaurantService,
-            CityService cityService) {
+            DataCityService cityService) {
         this.repo = repo;
         this.restaurantService = restaurantService;
         this.cityService = cityService;

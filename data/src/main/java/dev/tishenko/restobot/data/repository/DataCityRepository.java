@@ -1,4 +1,4 @@
-package dev.tishenko.restobot.logic.repository;
+package dev.tishenko.restobot.data.repository;
 
 import java.util.List;
 import org.example.jooq.generated.tables.City;
@@ -7,10 +7,10 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class CityRepository {
+public class DataCityRepository {
     private final DSLContext dsl;
 
-    public CityRepository(DSLContext dsl) {
+    public DataCityRepository(DSLContext dsl) {
         this.dsl = dsl;
     }
 
@@ -28,5 +28,12 @@ public class CityRepository {
         return dsl.selectFrom(City.CITY)
                 .where(City.CITY.NAME.eq(name))
                 .fetchOne(); // вернёт null, если не найден
+    }
+
+    public String findNameById(int cityId) {
+        return dsl.select(City.CITY.NAME)
+                .from(City.CITY)
+                .where(City.CITY.CITY_ID.eq(cityId))
+                .fetchOne(City.CITY.NAME);
     }
 }

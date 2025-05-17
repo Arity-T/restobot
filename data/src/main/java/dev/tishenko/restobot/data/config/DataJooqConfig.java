@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class JooqConfig {
+public class DataJooqConfig {
 
     @Bean
     public DSLContext dslContext(DataSource dataSource) {
