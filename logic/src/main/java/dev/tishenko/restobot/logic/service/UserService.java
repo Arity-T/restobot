@@ -1,17 +1,19 @@
 package dev.tishenko.restobot.logic.service;
 
+import dev.tishenko.restobot.api.service.ApiUserService;
 import dev.tishenko.restobot.logic.repository.UserRepository;
 import dev.tishenko.restobot.telegram.services.FavoriteRestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.UserDAO;
 import dev.tishenko.restobot.telegram.services.UserDTO;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.example.jooq.generated.tables.records.UsersRecord;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService implements UserDAO {
+public class UserService implements UserDAO, ApiUserService {
 
     private final UserRepository userRepository;
     private final UserKitchenTypeService userKitchenTypeService;
@@ -36,6 +38,17 @@ public class UserService implements UserDAO {
         this.favoriteRestaurantService = favoriteRestaurantService;
         this.kitchenTypeService = kitchenTypeService;
         this.priceCategoryService = priceCategoryService;
+    }
+
+    @Override
+    public List<Map<String, String>> getUsers() {
+        return userRepository.findAll().stream()
+                .map(
+                        user ->
+                                Map.of(
+                                        "chatId", String.valueOf(user.getChatId()),
+                                        "nickname", user.getNickname()))
+                .collect(Collectors.toList());
     }
 
     @Override

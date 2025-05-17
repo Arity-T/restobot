@@ -1,5 +1,6 @@
 package dev.tishenko.restobot.logic.repository;
 
+import java.util.List;
 import org.example.jooq.generated.tables.Users;
 import org.example.jooq.generated.tables.records.UsersRecord;
 import org.jooq.DSLContext;
@@ -43,5 +44,9 @@ public class UserRepository {
                 .set(Users.USERS.KEYWORDS, keywords)
                 .where(Users.USERS.CHAT_ID.eq(chatId))
                 .execute();
+    }
+
+    public List<UsersRecord> findAll() {
+        return dsl.selectFrom(Users.USERS).fetch();
     }
 }
