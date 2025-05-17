@@ -4,7 +4,6 @@ import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
 import dev.tishenko.restobot.telegram.config.RestoBotUserHandlerConfig;
 import dev.tishenko.restobot.telegram.config.UserData;
 import dev.tishenko.restobot.telegram.services.*;
-
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
             UserParamsValidator userParamsValidator,
-            SearchParametersService searchParametersService ) {
+            SearchParametersService searchParametersService) {
 
         this.botToken = botToken;
         this.botUsername = botUsername;
@@ -111,17 +110,36 @@ public class RestoBot implements LongPollingUpdateConsumer {
             long chatId = update.getMessage().getChatId();
             if (update.getMessage().getText().equals("/start") && !userData.containsKey(chatId)) {
                 Optional<UserDTO> userDTO = userDAO.getUserFromDB(chatId);
-                if(userDTO.isEmpty()){
+                if (userDTO.isEmpty()) {
                     userData.put(
-                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName(), userDAO, favoriteListDAO, userParamsValidator));
+                            chatId,
+                            new UserData(
+                                    chatId,
+                                    update.getMessage().getChat().getUserName(),
+                                    userDAO,
+                                    favoriteListDAO,
+                                    userParamsValidator));
                     userDAO.addUserToDB(userData.get(chatId).toUserDTO());
-                }
-                else {
+                } else {
                     userData.put(
-                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName(), userDTO.get(), userDAO, favoriteListDAO, userParamsValidator));
+                            chatId,
+                            new UserData(
+                                    chatId,
+                                    update.getMessage().getChat().getUserName(),
+                                    userDTO.get(),
+                                    userDAO,
+                                    favoriteListDAO,
+                                    userParamsValidator));
                 }
 
-                botConfig.put(chatId, new RestoBotUserHandlerConfig(favoriteListDAO, restaurantCardFinder, userDAO, userParamsValidator, searchParametersService));
+                botConfig.put(
+                        chatId,
+                        new RestoBotUserHandlerConfig(
+                                favoriteListDAO,
+                                restaurantCardFinder,
+                                userDAO,
+                                userParamsValidator,
+                                searchParametersService));
                 SendMessage greetingString =
                         botConfig.get(chatId).greetingMessage(userData.get(chatId));
                 logger.debug("User {} was registered", update.getMessage().getChat().getUserName());

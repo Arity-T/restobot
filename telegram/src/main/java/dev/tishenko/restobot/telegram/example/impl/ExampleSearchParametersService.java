@@ -1,9 +1,8 @@
 package dev.tishenko.restobot.telegram.example.impl;
 
 import dev.tishenko.restobot.telegram.services.SearchParametersService;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ExampleSearchParametersService implements SearchParametersService {

@@ -2,10 +2,8 @@ package dev.tishenko.restobot.telegram.example.impl;
 
 import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
 import dev.tishenko.restobot.telegram.services.FavouriteRestaurantCardDTO;
-import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service

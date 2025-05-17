@@ -2,9 +2,7 @@ package dev.tishenko.restobot.telegram.services;
 
 import java.util.List;
 
-/**
- * Service interface for retrieving available search parameter values for filtering restaurants.
- */
+/** Service interface for retrieving available search parameter values for filtering restaurants. */
 public interface SearchParametersService {
 
     /**

@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram.config;
 
 import dev.tishenko.restobot.telegram.services.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,13 @@ public class UserData {
     private FavoriteListDAO favoriteListDAO;
     private UserParamsValidator userParamsValidator;
 
-    public UserData(long chatID, String nickName, UserDTO userDTO, UserDAO userDAO, FavoriteListDAO favoriteListDAO, UserParamsValidator userParamsValidator) {
+    public UserData(
+            long chatID,
+            String nickName,
+            UserDTO userDTO,
+            UserDAO userDAO,
+            FavoriteListDAO favoriteListDAO,
+            UserParamsValidator userParamsValidator) {
         setChatID(chatID);
         setNickName(nickName);
 
@@ -50,7 +55,12 @@ public class UserData {
         this.userParamsValidator = userParamsValidator;
     }
 
-    public UserData(long chatID, String nickName, UserDAO userDAO, FavoriteListDAO favoriteListDAO, UserParamsValidator userParamsValidator) {
+    public UserData(
+            long chatID,
+            String nickName,
+            UserDAO userDAO,
+            FavoriteListDAO favoriteListDAO,
+            UserParamsValidator userParamsValidator) {
         setChatID(chatID);
         setNickName(nickName);
         favoriteList = new ArrayList<>();
@@ -71,7 +81,8 @@ public class UserData {
     }
 
     public UserDTO toUserDTO() {
-        return new UserDTO(chatID, nickName, city, kitchenTypes, priceCategories, keyWords, favoriteList);
+        return new UserDTO(
+                chatID, nickName, city, kitchenTypes, priceCategories, keyWords, favoriteList);
     }
 
     public String userParamsToString() {
@@ -164,7 +175,8 @@ public class UserData {
     }
 
     public void removeRestaurantFromFavouriteListByIndex() {
-        favoriteListDAO.removeRestaurantCardToFavoriteList(chatID, favoriteList.remove(index).restaurantCardDTO().tripadvisorId());
+        favoriteListDAO.removeRestaurantCardToFavoriteList(
+                chatID, favoriteList.remove(index).restaurantCardDTO().tripadvisorId());
     }
 
     public FavouriteRestaurantCardDTO getRestaurantFromFavouriteListByIndex() {
@@ -178,8 +190,10 @@ public class UserData {
         }
     }
 
-    public void addRestaurantToFavouriteList(FavouriteRestaurantCardDTO favouriteRestaurantCardDTO){
-        favoriteListDAO.addRestaurantCardToFavoriteList(chatID, favouriteRestaurantCardDTO.restaurantCardDTO().tripadvisorId());
+    public void addRestaurantToFavouriteList(
+            FavouriteRestaurantCardDTO favouriteRestaurantCardDTO) {
+        favoriteListDAO.addRestaurantCardToFavoriteList(
+                chatID, favouriteRestaurantCardDTO.restaurantCardDTO().tripadvisorId());
         favoriteList.add(favouriteRestaurantCardDTO);
     }
 
@@ -197,12 +211,17 @@ public class UserData {
         this.kitchenTypes = kitchenTypes;
     }
 
-
-    public void changeIsVisited(){
-        var updatedFavouriteRestaurantCardDTO = new FavouriteRestaurantCardDTO(getRestaurantFromFavouriteListByIndex().restaurantCardDTO(), !getRestaurantFromFavouriteListByIndex().isVisited());
+    public void changeIsVisited() {
+        var updatedFavouriteRestaurantCardDTO =
+                new FavouriteRestaurantCardDTO(
+                        getRestaurantFromFavouriteListByIndex().restaurantCardDTO(),
+                        !getRestaurantFromFavouriteListByIndex().isVisited());
         removeRestaurantFromFavouriteListByIndex();
         addRestaurantToFavouriteList(updatedFavouriteRestaurantCardDTO);
-        favoriteListDAO.setVisitedStatus(chatID, updatedFavouriteRestaurantCardDTO.restaurantCardDTO().tripadvisorId(), updatedFavouriteRestaurantCardDTO.isVisited());
+        favoriteListDAO.setVisitedStatus(
+                chatID,
+                updatedFavouriteRestaurantCardDTO.restaurantCardDTO().tripadvisorId(),
+                updatedFavouriteRestaurantCardDTO.isVisited());
     }
 
     public List<String> getPriceCategories() {
@@ -221,13 +240,12 @@ public class UserData {
         this.priceCategoriesForSearch = priceCategoriesForSearch;
     }
 
-
     public void setKeyWordsForSearch(List<String> keyWordsForSearch) {
         this.keyWordsForSearch = keyWordsForSearch;
     }
 
     public boolean checkAndSetCity(String city) {
-        if(userParamsValidator.cityIsValid(city)){
+        if (userParamsValidator.cityIsValid(city)) {
             this.city = city;
             userDAO.setNewUserCity(chatID, city);
             return true;
@@ -236,8 +254,8 @@ public class UserData {
     }
 
     public boolean checkAndSetKitchenTypes(String params) {
-        List<String> kitchenTypes =  Arrays.stream(params.split(",")).toList();
-        if(userParamsValidator.kitchenTypesAreValid(kitchenTypes)){
+        List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
+        if (userParamsValidator.kitchenTypesAreValid(kitchenTypes)) {
             this.kitchenTypes = kitchenTypes;
             userDAO.setNewUserKitchenTypes(chatID, kitchenTypes);
             return true;
@@ -246,8 +264,8 @@ public class UserData {
     }
 
     public boolean checkAndSetPriceCategories(String params) {
-        List<String> priceCategories =  Arrays.stream(params.split(",")).toList();
-        if(userParamsValidator.priceCategoriesAreValid(priceCategories)){
+        List<String> priceCategories = Arrays.stream(params.split(",")).toList();
+        if (userParamsValidator.priceCategoriesAreValid(priceCategories)) {
             this.priceCategories = priceCategories;
             userDAO.setNewUserKitchenTypes(chatID, priceCategories);
             return true;
@@ -256,7 +274,7 @@ public class UserData {
     }
 
     public boolean checkAndSetCityForSearch(String params) {
-        if(userParamsValidator.cityIsValid(city)){
+        if (userParamsValidator.cityIsValid(city)) {
             this.cityForSearch = city;
             return true;
         }
@@ -264,8 +282,8 @@ public class UserData {
     }
 
     public boolean checkAndSetKitchenTypesForSearch(String params) {
-        List<String> kitchenTypes =  Arrays.stream(params.split(",")).toList();
-        if(userParamsValidator.kitchenTypesAreValid(kitchenTypes)){
+        List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
+        if (userParamsValidator.kitchenTypesAreValid(kitchenTypes)) {
             this.kitchenTypesForSearch = kitchenTypes;
             return true;
         }
@@ -273,8 +291,8 @@ public class UserData {
     }
 
     public boolean checkAndSetPriceCategoriesForSearch(String params) {
-        List<String> priceCategories =  Arrays.stream(params.split(",")).toList();
-        if(userParamsValidator.priceCategoriesAreValid(priceCategories)){
+        List<String> priceCategories = Arrays.stream(params.split(",")).toList();
+        if (userParamsValidator.priceCategoriesAreValid(priceCategories)) {
             this.priceCategoriesForSearch = priceCategories;
             return true;
         }
