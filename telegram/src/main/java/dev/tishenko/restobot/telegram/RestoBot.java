@@ -1,6 +1,6 @@
 package dev.tishenko.restobot.telegram;
 
-import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
+import dev.tishenko.restobot.telegram.config.BotConfig;
 import dev.tishenko.restobot.telegram.config.RestoBotUserHandler;
 import dev.tishenko.restobot.telegram.config.UserData;
 import dev.tishenko.restobot.telegram.services.*;
@@ -13,8 +13,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
@@ -26,31 +24,53 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+/**
+ * Main class for the RestoBot Telegram bot. Handles all interactions with the Telegram API and
+ * routes user messages to the appropriate handlers.
+ */
 @Component
-@Import(BotFactoryConfig.class)
 public class RestoBot implements LongPollingUpdateConsumer {
     private static final Logger logger = LoggerFactory.getLogger(RestoBot.class);
 
-    private Executor updatesProcessorExecutor = Executors.newVirtualThreadPerTaskExecutor();
+    private final Executor updatesProcessorExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
-    private static String botToken;
+    private final String botToken;
     private final String botUsername;
     private final TelegramClient telegramClient;
 
-    private Map<Long, UserData> userData;
-    private Map<Long, Integer> lastMessageId;
-    private Map<Long, RestoBotUserHandler> botConfig;
+    private final Map<Long, UserData> userData = new ConcurrentHashMap<>();
+    private final Map<Long, Integer> lastMessageId = new ConcurrentHashMap<>();
+    private final Map<Long, RestoBotUserHandler> botConfig = new ConcurrentHashMap<>();
 
-    private FavoriteListDAO favoriteListDAO;
-    private RestaurantCardFinder restaurantCardFinder;
-    private UserDAO userDAO;
-    private UserParamsValidator userParamsValidator;
-    private SearchParametersService searchParametersService;
+    private final FavoriteListDAO favoriteListDAO;
+    private final RestaurantCardFinder restaurantCardFinder;
+    private final UserDAO userDAO;
+    private final UserParamsValidator userParamsValidator;
+    private final SearchParametersService searchParametersService;
 
+    /**
+     * Creates a new RestoBot instance using the provided configuration.
+     *
+     * @param config The bot configuration
+     */
+    public RestoBot(BotConfig config) {
+        this.botToken = config.getBotToken();
+        this.botUsername = config.getBotUsername();
+        this.favoriteListDAO = config.getFavoriteListDAO();
+        this.restaurantCardFinder = config.getRestaurantCardFinder();
+        this.userDAO = config.getUserDAO();
+        this.userParamsValidator = config.getUserParamsValidator();
+        this.searchParametersService = config.getSearchParametersService();
+
+        telegramClient = new OkHttpTelegramClient(botToken);
+    }
+
+    /** Returns the bot username. */
     public String getBotUserName() {
         return botUsername;
     }
 
+    /** Starts the bot and listens for incoming messages. */
     public void start() {
         try (TelegramBotsLongPollingApplication botsApplication =
                 new TelegramBotsLongPollingApplication()) {
@@ -60,30 +80,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
         } catch (Exception e) {
             logger.error("Error starting bot: {}", e.getMessage());
         }
-    }
-
-    public RestoBot(
-            @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
-            @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            FavoriteListDAO favoriteListDAO,
-            RestaurantCardFinder restaurantCardFinder,
-            UserDAO userDAO,
-            UserParamsValidator userParamsValidator,
-            SearchParametersService searchParametersService) {
-
-        this.botToken = botToken;
-        this.botUsername = botUsername;
-        this.botConfig = new ConcurrentHashMap<>();
-        this.userData = new ConcurrentHashMap<>();
-        this.lastMessageId = new ConcurrentHashMap<>();
-
-        this.favoriteListDAO = favoriteListDAO;
-        this.restaurantCardFinder = restaurantCardFinder;
-        this.userDAO = userDAO;
-        this.userParamsValidator = userParamsValidator;
-        this.searchParametersService = searchParametersService;
-
-        telegramClient = new OkHttpTelegramClient(botToken);
     }
 
     @Override
