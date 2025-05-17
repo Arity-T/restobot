@@ -1,21 +1,36 @@
 package dev.tishenko.restobot.logic.service;
 
+import dev.tishenko.restobot.data.service.CityService;
+import dev.tishenko.restobot.data.service.RestaurantService;
 import dev.tishenko.restobot.logic.repository.FavoriteRestaurantRepository;
 import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
 import dev.tishenko.restobot.telegram.services.FavoriteRestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.example.jooq.generated.tables.records.FavoriteRestaurantRecord;
+import org.example.jooq.generated.tables.records.RestaurantRecord;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FavoriteRestaurantService implements FavoriteListDAO {
 
     private final FavoriteRestaurantRepository repo;
+    private final RestaurantService restaurantService;
+    private final CityService cityService;
 
-    public FavoriteRestaurantService(FavoriteRestaurantRepository repo) {
+    public FavoriteRestaurantService(
+            FavoriteRestaurantRepository repo,
+            RestaurantService restaurantService,
+            CityService cityService) {
         this.repo = repo;
+        this.restaurantService = restaurantService;
+        this.cityService = cityService;
     }
 
     @Override
@@ -33,24 +48,69 @@ public class FavoriteRestaurantService implements FavoriteListDAO {
         repo.markVisited(chatId, tripadvisorId, isVisited);
     }
 
-    // TODO: implement when cache db is ready
     public List<FavoriteRestaurantCardDTO> getFavoriteList(long chatId) {
-        return repo.getAllFavorites(chatId).stream()
+        List<FavoriteRestaurantRecord> favRecords = repo.getAllFavorites(chatId);
+        List<Integer> tripadvisorIds =
+                favRecords.stream()
+                        .map(FavoriteRestaurantRecord::getTripadvisorId)
+                        .collect(Collectors.toList());
+        if (tripadvisorIds.isEmpty()) {
+            return List.of();
+        }
+        // Получаем рестораны из кэша
+        List<RestaurantRecord> restaurantRecords =
+                restaurantService.getByTripadvisorIds(tripadvisorIds);
+        // Преобразуем в словарь (tripadvisorId -> RestaurantRecord)
+        Map<Integer, RestaurantRecord> restaurantMap =
+                restaurantRecords.stream()
+                        .collect(Collectors.toMap(RestaurantRecord::getTripadvisorId, r -> r));
+        return favRecords.stream()
                 .map(
-                        record ->
-                                new FavoriteRestaurantCardDTO(
+                        record -> {
+                            RestaurantRecord rest = restaurantMap.get(record.getTripadvisorId());
+                            RestaurantCardDTO card;
+                            if (rest == null) {
+                                card =
                                         new RestaurantCardDTO(
                                                 record.getTripadvisorId(),
-                                                "", // name will be filled by the caller
-                                                "", // address will be filled by the caller
-                                                0.0, // rating will be filled by the caller
-                                                null, // website will be filled by the caller
-                                                "", // description will be filled by the caller
-                                                0.0, // latitude will be filled by the caller
-                                                0.0, // longitude will be filled by the caller
-                                                "" // city will be filled by the caller
-                                                ),
-                                        record.getIsVisited()))
+                                                "",
+                                                "",
+                                                0.0,
+                                                null,
+                                                "",
+                                                0.0,
+                                                0.0,
+                                                "");
+                            } else {
+                                URL websiteUrl = null;
+                                try {
+                                    websiteUrl =
+                                            rest.getWebsite() != null
+                                                    ? new URI(rest.getWebsite()).toURL()
+                                                    : null;
+                                } catch (MalformedURLException | URISyntaxException e) {
+                                    // ignore, leave as null
+                                }
+                                card =
+                                        new RestaurantCardDTO(
+                                                rest.getTripadvisorId(),
+                                                rest.getName(),
+                                                rest.getAddressString(),
+                                                rest.getRating() != null
+                                                        ? rest.getRating().doubleValue()
+                                                        : 0.0,
+                                                websiteUrl,
+                                                rest.getDescription(),
+                                                rest.getLatitude() != null
+                                                        ? rest.getLatitude()
+                                                        : 0.0,
+                                                rest.getLongitude() != null
+                                                        ? rest.getLongitude()
+                                                        : 0.0,
+                                                cityService.getCityNameById(rest.getCityId()));
+                            }
+                            return new FavoriteRestaurantCardDTO(card, record.getIsVisited());
+                        })
                 .collect(Collectors.toList());
     }
 
