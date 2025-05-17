@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.telegram;
 
 import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
-import dev.tishenko.restobot.telegram.config.RestoBotUserHandlerConfig;
+import dev.tishenko.restobot.telegram.config.RestoBotUserHandler;
 import dev.tishenko.restobot.telegram.config.UserData;
 import dev.tishenko.restobot.telegram.services.*;
 import java.net.MalformedURLException;
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
@@ -27,6 +28,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
+@Import(BotFactoryConfig.class)
 public class RestoBot implements LongPollingUpdateConsumer {
     private static final Logger logger = LoggerFactory.getLogger(RestoBot.class);
 
@@ -38,7 +40,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     private Map<Long, UserData> userData;
     private Map<Long, Integer> lastMessageId;
-    private Map<Long, RestoBotUserHandlerConfig> botConfig;
+    private Map<Long, RestoBotUserHandler> botConfig;
 
     private FavoriteListDAO favoriteListDAO;
     private RestaurantCardFinder restaurantCardFinder;
@@ -52,7 +54,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
     public static void start() {
         AnnotationConfigApplicationContext context =
-                new AnnotationConfigApplicationContext(BotFactoryConfig.class);
+                new AnnotationConfigApplicationContext(BotFactoryConfig.class, RestoBot.class);
 
         RestoBot bot = context.getBean(RestoBot.class);
         try (TelegramBotsLongPollingApplication botsApplication =
@@ -68,7 +70,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
     public RestoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            RestoBotUserHandlerConfig botConfig,
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
@@ -134,7 +135,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
 
                 botConfig.put(
                         chatId,
-                        new RestoBotUserHandlerConfig(
+                        new RestoBotUserHandler(
                                 favoriteListDAO,
                                 restaurantCardFinder,
                                 userDAO,

@@ -21,7 +21,6 @@ public class BotFactoryConfig {
     public RestoBot restoBot(
             @Value("${TELEGRAM_BOT_TOKEN}") String botToken,
             @Value("${TELEGRAM_BOT_USERNAME}") String botUsername,
-            RestoBotUserHandlerConfig restoBotConfig,
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
@@ -30,7 +29,6 @@ public class BotFactoryConfig {
         return new RestoBot(
                 botToken,
                 botUsername,
-                restoBotConfig,
                 favoriteListDAO,
                 restaurantCardFinder,
                 userDAO,
