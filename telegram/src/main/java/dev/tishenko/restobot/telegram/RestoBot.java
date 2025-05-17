@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -52,15 +51,11 @@ public class RestoBot implements LongPollingUpdateConsumer {
         return botUsername;
     }
 
-    public static void start() {
-        AnnotationConfigApplicationContext context =
-                new AnnotationConfigApplicationContext(BotFactoryConfig.class, RestoBot.class);
-
-        RestoBot bot = context.getBean(RestoBot.class);
+    public void start() {
         try (TelegramBotsLongPollingApplication botsApplication =
                 new TelegramBotsLongPollingApplication()) {
-            botsApplication.registerBot(botToken, bot);
-            logger.info(bot.getBotUserName() + " successfully started!");
+            botsApplication.registerBot(botToken, this);
+            logger.info(botUsername + " successfully started!");
             Thread.currentThread().join();
         } catch (Exception e) {
             logger.error("Error starting bot: {}", e.getMessage());
