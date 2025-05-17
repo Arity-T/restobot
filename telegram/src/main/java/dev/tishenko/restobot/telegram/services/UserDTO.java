@@ -23,4 +23,4 @@ public record UserDTO(
         List<String> kitchenTypes,
         List<String> priceCategories,
         List<String> keyWords,
-        List<FavouriteRestaurantCardDTO> favoriteList) {}
+        List<FavoriteRestaurantCardDTO> favoriteList) {}

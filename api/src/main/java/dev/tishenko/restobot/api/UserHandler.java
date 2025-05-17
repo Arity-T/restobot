@@ -2,7 +2,7 @@ package dev.tishenko.restobot.api;
 
 import com.google.gson.Gson;
 import dev.tishenko.restobot.api.service.ApiKeyValidator;
-import dev.tishenko.restobot.api.service.UserService;
+import dev.tishenko.restobot.api.service.ApiUserService;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,9 @@ public class UserHandler {
 
     private final Gson gson = new Gson();
     private final ApiKeyValidator apiKeyValidator;
-    private final UserService userService;
+    private final ApiUserService userService;
 
-    public UserHandler(ApiKeyValidator apiKeyValidator, UserService userService) {
+    public UserHandler(ApiKeyValidator apiKeyValidator, ApiUserService userService) {
         this.apiKeyValidator = apiKeyValidator;
         this.userService = userService;
     }

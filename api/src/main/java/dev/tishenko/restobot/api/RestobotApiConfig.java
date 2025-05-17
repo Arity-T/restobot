@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.api;
 
+import dev.tishenko.restobot.api.service.ApiHealthStatusProvider;
 import dev.tishenko.restobot.api.service.ApiKeyValidator;
-import dev.tishenko.restobot.api.service.HealthStatusProvider;
-import dev.tishenko.restobot.api.service.UserService;
+import dev.tishenko.restobot.api.service.ApiUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.*;
@@ -15,12 +15,12 @@ import org.springframework.web.reactive.function.server.*;
 public class RestobotApiConfig {
 
     @Bean
-    public HealthCheckHandler healthCheckHandler(HealthStatusProvider healthStatusProvider) {
+    public HealthCheckHandler healthCheckHandler(ApiHealthStatusProvider healthStatusProvider) {
         return new HealthCheckHandler(healthStatusProvider);
     }
 
     @Bean
-    public UserHandler userHandler(ApiKeyValidator apiKeyValidator, UserService userService) {
+    public UserHandler userHandler(ApiKeyValidator apiKeyValidator, ApiUserService userService) {
         return new UserHandler(apiKeyValidator, userService);
     }
 
