@@ -266,8 +266,11 @@ public class UserData {
     }
 
     public boolean checkAndSetKitchenTypes(String params) {
-        List<String> kitchenTypes = Arrays.stream(params.split(",")).map(String::trim)
-                .map(String::toLowerCase).toList();
+        List<String> kitchenTypes =
+                Arrays.stream(params.split(","))
+                        .map(String::trim)
+                        .map(String::toLowerCase)
+                        .toList();
         if (new HashSet<>(correctKitchenTypes).containsAll(kitchenTypes)) {
             this.kitchenTypes = kitchenTypes;
             userDAO.setNewUserKitchenTypes(chatID, kitchenTypes);
@@ -295,8 +298,11 @@ public class UserData {
     }
 
     public boolean checkAndSetKitchenTypesForSearch(String params) {
-        List<String> kitchenTypes = Arrays.stream(params.split(",")).map(String::trim)
-                .map(String::toLowerCase).toList();
+        List<String> kitchenTypes =
+                Arrays.stream(params.split(","))
+                        .map(String::trim)
+                        .map(String::toLowerCase)
+                        .toList();
         if (new HashSet<>(correctKitchenTypes).containsAll(kitchenTypes)) {
             this.kitchenTypesForSearch = kitchenTypes;
             return true;

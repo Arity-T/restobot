@@ -150,7 +150,8 @@ public class RestoBotUserHandler {
     }
 
     private EditMessageText actionChose(
-            String message, long messageId, long chatId, UserData userData) throws MalformedURLException {
+            String message, long messageId, long chatId, UserData userData)
+            throws MalformedURLException {
         switch (message) {
             case "goToUserParamsButton" -> {
                 actualState = "goToUserParamsButton";
