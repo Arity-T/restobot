@@ -24,7 +24,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'dev.tishenko.restobot.telegram.App'
+    mainClass = 'dev.tishenko.restobot.telegram.example.AppExample'
 }
 
 run {
