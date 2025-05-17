@@ -22,6 +22,10 @@ public class UserKitchenTypeService {
         repo.removeKitchen(chatId, kitchenTypeId);
     }
 
+    public void removeAllByUser(long chatId) {
+        repo.removeAllByUser(chatId);
+    }
+
     public List<UserKitchenTypeRecord> getAllForUser(long chatId) {
         return repo.getAllByUser(chatId);
     }

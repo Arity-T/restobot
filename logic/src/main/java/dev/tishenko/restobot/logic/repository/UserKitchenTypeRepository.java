@@ -29,6 +29,12 @@ public class UserKitchenTypeRepository {
                 .execute();
     }
 
+    public void removeAllByUser(long chatId) {
+        dsl.deleteFrom(UserKitchenType.USER_KITCHEN_TYPE)
+                .where(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID.eq(chatId))
+                .execute();
+    }
+
     public List<UserKitchenTypeRecord> getAllByUser(long chatId) {
         return dsl.selectFrom(UserKitchenType.USER_KITCHEN_TYPE)
                 .where(UserKitchenType.USER_KITCHEN_TYPE.CHAT_ID.eq(chatId))

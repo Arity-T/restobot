@@ -22,6 +22,10 @@ public class UserPriceCategoryService {
         repo.removePriceCategory(chatId, categoryId);
     }
 
+    public void removeAllByUser(long chatId) {
+        repo.removeAllByUser(chatId);
+    }
+
     public List<UserPriceCategoryRecord> getAllForUser(long chatId) {
         return repo.getAllByUser(chatId);
     }

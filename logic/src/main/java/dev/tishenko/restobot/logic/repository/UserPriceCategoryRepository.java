@@ -29,6 +29,12 @@ public class UserPriceCategoryRepository {
                 .execute();
     }
 
+    public void removeAllByUser(long chatId) {
+        dsl.deleteFrom(UserPriceCategory.USER_PRICE_CATEGORY)
+                .where(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID.eq(chatId))
+                .execute();
+    }
+
     public List<UserPriceCategoryRecord> getAllByUser(long chatId) {
         return dsl.selectFrom(UserPriceCategory.USER_PRICE_CATEGORY)
                 .where(UserPriceCategory.USER_PRICE_CATEGORY.CHAT_ID.eq(chatId))
