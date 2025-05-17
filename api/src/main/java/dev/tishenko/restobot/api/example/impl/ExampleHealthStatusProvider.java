@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.api.example.impl;
 
-import dev.tishenko.restobot.api.service.HealthStatusProvider;
-import dev.tishenko.restobot.api.service.TripadvisorTracker;
+import dev.tishenko.restobot.api.service.ApiHealthStatusProvider;
+import dev.tishenko.restobot.api.service.ApiTripadvisorTracker;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 
 /** Example implementation of HealthStatusProvider. */
 @Service
-public class ExampleHealthStatusProvider implements HealthStatusProvider {
+public class ExampleHealthStatusProvider implements ApiHealthStatusProvider {
 
-    private final TripadvisorTracker tripadvisorTracker;
+    private final ApiTripadvisorTracker tripadvisorTracker;
 
-    public ExampleHealthStatusProvider(TripadvisorTracker tripadvisorTracker) {
+    public ExampleHealthStatusProvider(ApiTripadvisorTracker tripadvisorTracker) {
         this.tripadvisorTracker = tripadvisorTracker;
     }
 

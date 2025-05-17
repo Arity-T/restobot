@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.api;
 
 import com.google.gson.Gson;
-import dev.tishenko.restobot.api.service.HealthStatusProvider;
+import dev.tishenko.restobot.api.service.ApiHealthStatusProvider;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,9 @@ public class HealthCheckHandler {
     private static final Logger logger = LoggerFactory.getLogger(HealthCheckHandler.class);
 
     private final Gson gson = new Gson();
-    private final HealthStatusProvider healthStatusProvider;
+    private final ApiHealthStatusProvider healthStatusProvider;
 
-    public HealthCheckHandler(HealthStatusProvider healthStatusProvider) {
+    public HealthCheckHandler(ApiHealthStatusProvider healthStatusProvider) {
         this.healthStatusProvider = healthStatusProvider;
     }
 

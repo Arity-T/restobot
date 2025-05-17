@@ -5,10 +5,10 @@ import java.net.URL;
 /**
  * Used to transfer a restaurant card
  *
- * @param tripadvisorId {@code int}: Restaurant tripadvisor ID
+ * @param tripadvisorId {@code Integer}: Restaurant tripadvisor ID
  * @param name {@code String}: Name of the restaurant
  * @param addressString {@code String}: Address of the restaurant
- * @param rating {@code double}: Address of the restaurant
+ * @param rating {@code double}: Rating of the restaurant
  * @param website {@code URL}: of the restaurant
  * @param description {@code String}: of the restaurant
  * @param latitude {@code double}: Latitude of the restaurant
@@ -16,7 +16,7 @@ import java.net.URL;
  * @param city {@code String}: Restaurant city
  */
 public record RestaurantCardDTO(
-        int tripadvisorId,
+        Integer tripadvisorId,
         String name,
         String addressString,
         double rating,
