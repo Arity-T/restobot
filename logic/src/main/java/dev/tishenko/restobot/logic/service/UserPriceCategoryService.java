@@ -1,10 +1,9 @@
 package dev.tishenko.restobot.logic.service;
 
 import dev.tishenko.restobot.logic.repository.UserPriceCategoryRepository;
+import java.util.List;
 import org.example.jooq.generated.tables.records.UserPriceCategoryRecord;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class UserPriceCategoryService {
@@ -21,6 +20,10 @@ public class UserPriceCategoryService {
 
     public void removePriceCategory(long chatId, int categoryId) {
         repo.removePriceCategory(chatId, categoryId);
+    }
+
+    public void removeAllByUser(long chatId) {
+        repo.removeAllByUser(chatId);
     }
 
     public List<UserPriceCategoryRecord> getAllForUser(long chatId) {

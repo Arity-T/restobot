@@ -45,6 +45,20 @@ public class RestaurantCard {
         this.isVisited = false;
     }
 
+    //    public RestaurantCard(RestaurantCardDTO restaurantCardRecord) {
+    //        this.restaurantId = restaurantCardRecord.restaurantId();
+    //        this.tripadvisorId = restaurantCardRecord.tripadvisorId();
+    //        this.name = restaurantCardRecord.name();
+    //        this.addressString = restaurantCardRecord.addressString();
+    //        this.rating = restaurantCardRecord.rating();
+    //        this.website = restaurantCardRecord.website();
+    //        this.description = restaurantCardRecord.description();
+    //        this.latitude = restaurantCardRecord.latitude();
+    //        this.longitude = restaurantCardRecord.longitude();
+    //        this.city = restaurantCardRecord.city();
+    //        this.isVisited = false;
+    //    }
+
     public String restaurantCardToStringForFavouriteList() {
         return name
                 + "\n"

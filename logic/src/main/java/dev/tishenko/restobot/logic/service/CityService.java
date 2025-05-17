@@ -1,12 +1,10 @@
 package dev.tishenko.restobot.logic.service;
 
+import dev.tishenko.restobot.logic.repository.CityRepository;
 import java.util.List;
 import java.util.Optional;
-
 import org.example.jooq.generated.tables.records.CityRecord;
 import org.springframework.stereotype.Service;
-
-import dev.tishenko.restobot.logic.repository.CityRepository;
 
 @Service
 public class CityService {
