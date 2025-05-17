@@ -1,5 +1,6 @@
 package dev.tishenko.restobot.telegram.services;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -18,7 +19,8 @@ public interface RestaurantCardFinder {
      * @param longitude the longitude coordinate to search around
      * @return a list of {@link RestaurantCardDTO} objects located near the given coordinates
      */
-    List<RestaurantCardDTO> getRestaurantCardByGeolocation(double latitude, double longitude);
+    List<RestaurantCardDTO> getRestaurantCardByGeolocation(double latitude, double longitude)
+            throws MalformedURLException;
 
     /**
      * Retrieves a list of restaurant cards matching the given parameters.
@@ -33,5 +35,6 @@ public interface RestaurantCardFinder {
             String city,
             List<String> kitchenTypes,
             List<String> priceCategories,
-            List<String> keyWords);
+            List<String> keyWords)
+            throws MalformedURLException;
 }

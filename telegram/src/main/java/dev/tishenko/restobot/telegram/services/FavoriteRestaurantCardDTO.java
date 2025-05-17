@@ -10,4 +10,4 @@ package dev.tishenko.restobot.telegram.services;
  * @param isVisited {@code true} if the restaurant has been visited by the user; {@code false}
  *     otherwise
  */
-public record FavouriteRestaurantCardDTO(RestaurantCardDTO restaurantCardDTO, Boolean isVisited) {}
+public record FavoriteRestaurantCardDTO(RestaurantCardDTO restaurantCardDTO, Boolean isVisited) {}
