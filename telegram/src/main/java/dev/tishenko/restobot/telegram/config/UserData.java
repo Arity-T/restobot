@@ -287,7 +287,7 @@ public class UserData {
     }
 
     public boolean checkAndSetCityForSearch(String city) {
-        if (correctKitchenTypes.contains(city)) {
+        if (correctCities.contains(city)) {
             this.cityForSearch = city;
             return true;
         }
