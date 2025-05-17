@@ -5,6 +5,7 @@ import dev.tishenko.restobot.telegram.config.RestoBotUserHandler;
 import dev.tishenko.restobot.telegram.config.UserData;
 import dev.tishenko.restobot.telegram.services.*;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,13 +89,13 @@ public class RestoBot implements LongPollingUpdateConsumer {
                                 () -> {
                                     try {
                                         consume(update);
-                                    } catch (MalformedURLException e) {
+                                    } catch (MalformedURLException | URISyntaxException e) {
                                         logger.error("Error URL handle: {}", e.getMessage());
                                     }
                                 }));
     }
 
-    private void consume(Update update) throws MalformedURLException {
+    private void consume(Update update) throws MalformedURLException, URISyntaxException {
         if (update.hasMessage() && update.getMessage().hasText()) {
             logger.debug("Updated by user {}", update.getMessage().getChatId());
             long chatId = update.getMessage().getChatId();
