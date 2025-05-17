@@ -36,4 +36,8 @@ public class RestaurantService {
     public void assignCity(int restaurantId, int cityId) {
         repo.updateCity(restaurantId, cityId);
     }
+
+    public List<RestaurantRecord> getByTripadvisorIds(List<Integer> tripadvisorIds) {
+        return repo.findByTripadvisorIds(tripadvisorIds);
+    }
 }

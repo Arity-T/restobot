@@ -5,23 +5,23 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 import org.example.jooq.generated.tables.City;
 import org.example.jooq.generated.tables.KitchenType;
 import org.example.jooq.generated.tables.PriceCategory;
 import org.example.jooq.generated.tables.Restaurant;
 import org.example.jooq.generated.tables.RestaurantKitchenType;
 import org.example.jooq.generated.tables.RestaurantPriceCategory;
+import org.example.jooq.generated.tables.records.RestaurantRecord;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.example.jooq.generated.tables.records.RestaurantRecord;
-import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class RestaurantRepository {
     private final DSLContext dsl;
 
-    private final CityRepository cityRepository;
+    public final CityRepository cityRepository;
 
     public RestaurantRepository(DSLContext dsl, CityRepository cityRepository) {
         this.dsl = dsl;
@@ -56,7 +56,8 @@ public class RestaurantRepository {
                                         record.get(Restaurant.RESTAURANT.DESCRIPTION),
                                         record.get(Restaurant.RESTAURANT.LATITUDE),
                                         record.get(Restaurant.RESTAURANT.LONGITUDE),
-                                        cityRepository.findNameById(record.get(Restaurant.RESTAURANT.CITY_ID)));
+                                        cityRepository.findNameById(
+                                                record.get(Restaurant.RESTAURANT.CITY_ID)));
                             } catch (URISyntaxException | MalformedURLException e) {
                                 throw new RuntimeException("Invalid URL in database", e);
                             }
@@ -172,7 +173,8 @@ public class RestaurantRepository {
                                         record.get(Restaurant.RESTAURANT.DESCRIPTION),
                                         record.get(Restaurant.RESTAURANT.LATITUDE),
                                         record.get(Restaurant.RESTAURANT.LONGITUDE),
-                                        cityRepository.findNameById(record.get(Restaurant.RESTAURANT.CITY_ID)));
+                                        cityRepository.findNameById(
+                                                record.get(Restaurant.RESTAURANT.CITY_ID)));
                             } catch (URISyntaxException | MalformedURLException e) {
                                 throw new RuntimeException("Invalid URL in database", e);
                             }
@@ -184,15 +186,17 @@ public class RestaurantRepository {
     }
 
     public Optional<RestaurantRecord> findById(int restaurantId) {
-        return Optional.ofNullable(dsl.selectFrom(Restaurant.RESTAURANT)
-                .where(Restaurant.RESTAURANT.RESTAURANT_ID.eq(restaurantId))
-                .fetchOne());
+        return Optional.ofNullable(
+                dsl.selectFrom(Restaurant.RESTAURANT)
+                        .where(Restaurant.RESTAURANT.RESTAURANT_ID.eq(restaurantId))
+                        .fetchOne());
     }
 
     public Optional<RestaurantRecord> findByTripadvisorId(int tripadvisorId) {
-        return Optional.ofNullable(dsl.selectFrom(Restaurant.RESTAURANT)
-                .where(Restaurant.RESTAURANT.TRIPADVISOR_ID.eq(tripadvisorId))
-                .fetchOne());
+        return Optional.ofNullable(
+                dsl.selectFrom(Restaurant.RESTAURANT)
+                        .where(Restaurant.RESTAURANT.TRIPADVISOR_ID.eq(tripadvisorId))
+                        .fetchOne());
     }
 
     public List<RestaurantRecord> findByCityId(int cityId) {
@@ -210,5 +214,11 @@ public class RestaurantRepository {
                 .set(Restaurant.RESTAURANT.CITY_ID, cityId)
                 .where(Restaurant.RESTAURANT.RESTAURANT_ID.eq(restaurantId))
                 .execute();
+    }
+
+    public List<RestaurantRecord> findByTripadvisorIds(List<Integer> tripadvisorIds) {
+        return dsl.selectFrom(Restaurant.RESTAURANT)
+                .where(Restaurant.RESTAURANT.TRIPADVISOR_ID.in(tripadvisorIds))
+                .fetch();
     }
 }
