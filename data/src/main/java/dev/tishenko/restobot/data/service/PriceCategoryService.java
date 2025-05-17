@@ -1,12 +1,10 @@
 package dev.tishenko.restobot.data.service;
 
+import dev.tishenko.restobot.data.repository.PriceCategoryRepository;
 import java.util.List;
 import java.util.Optional;
-
 import org.example.jooq.generated.tables.records.PriceCategoryRecord;
 import org.springframework.stereotype.Service;
-
-import dev.tishenko.restobot.data.repository.PriceCategoryRepository;
 
 @Service
 public class PriceCategoryService {
@@ -17,8 +15,8 @@ public class PriceCategoryService {
         this.repo = repo;
     }
 
-    public Optional<PriceCategoryRecord> getById(int id) {
-        return Optional.ofNullable(repo.findById(id));
+    public Optional<PriceCategoryRecord> getById(int priceCategoryId) {
+        return Optional.ofNullable(repo.findById(priceCategoryId));
     }
 
     public Optional<PriceCategoryRecord> getByName(String name) {

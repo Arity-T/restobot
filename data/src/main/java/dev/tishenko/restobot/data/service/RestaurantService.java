@@ -1,41 +1,39 @@
 package dev.tishenko.restobot.data.service;
 
+import dev.tishenko.restobot.data.repository.RestaurantRepository;
 import java.util.List;
 import java.util.Optional;
-
 import org.example.jooq.generated.tables.records.RestaurantRecord;
 
-import dev.tishenko.restobot.data.repository.RestaurantRepository;
-
 public class RestaurantService {
-  
-  public final RestaurantRepository repo;
 
-  public RestaurantService(RestaurantRepository repo) {
-    this.repo = repo;
-  }
+    public final RestaurantRepository repo;
 
-  public void addRestaurant(RestaurantRecord restaurant) {
-    repo.addRestaurant(restaurant);
-  }
+    public RestaurantService(RestaurantRepository repo) {
+        this.repo = repo;
+    }
 
-  public Optional<RestaurantRecord> getById(int id) {
-    return Optional.ofNullable(repo.findById(id));
-  }
+    public void addRestaurant(RestaurantRecord restaurant) {
+        repo.addRestaurant(restaurant);
+    }
 
-  public Optional<RestaurantRecord> getByTripadvisorId(int tripadvisorId) {
-    return Optional.ofNullable(repo.findByTripadvisorId(tripadvisorId));
-  }
+    public Optional<RestaurantRecord> getById(int restaurantId) {
+        return Optional.ofNullable(repo.findById(restaurantId));
+    }
 
-  public List<RestaurantRecord> getByCityId(int cityId) {
-    return repo.findByCityId(cityId);
-  }
+    public Optional<RestaurantRecord> getByTripadvisorId(int tripadvisorId) {
+        return Optional.ofNullable(repo.findByTripadvisorId(tripadvisorId));
+    }
 
-  public List<RestaurantRecord> getAll() {
-    return repo.findAll();
-  }
+    public List<RestaurantRecord> getByCityId(int cityId) {
+        return repo.findByCityId(cityId);
+    }
 
-  public void assingCity(int restaurantId, int cityId) {
-    repo.updateCity(restaurantId, cityId);
-  }
+    public List<RestaurantRecord> getAll() {
+        return repo.findAll();
+    }
+
+    public void assignCity(int restaurantId, int cityId) {
+        repo.updateCity(restaurantId, cityId);
+    }
 }

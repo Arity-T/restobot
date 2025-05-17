@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.data.repository;
 
 import java.util.List;
-
 import org.example.jooq.generated.tables.City;
 import org.example.jooq.generated.tables.records.CityRecord;
 import org.jooq.DSLContext;
@@ -17,8 +16,8 @@ public class CityRepository {
 
     public CityRecord findById(int cityId) {
         return dsl.selectFrom(City.CITY)
-                  .where(City.CITY.CITY_ID.eq(cityId))
-                  .fetchOne(); // вернёт null, если не найден
+                .where(City.CITY.CITY_ID.eq(cityId))
+                .fetchOne(); // вернёт null, если не найден
     }
 
     public List<CityRecord> findAll() {
@@ -27,7 +26,7 @@ public class CityRepository {
 
     public CityRecord findByName(String name) {
         return dsl.selectFrom(City.CITY)
-                  .where(City.CITY.NAME.eq(name))
-                  .fetchOne(); // вернёт null, если не найден
+                .where(City.CITY.NAME.eq(name))
+                .fetchOne(); // вернёт null, если не найден
     }
 }

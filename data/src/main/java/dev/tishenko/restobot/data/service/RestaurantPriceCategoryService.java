@@ -1,30 +1,28 @@
 package dev.tishenko.restobot.data.service;
 
+import dev.tishenko.restobot.data.repository.RestaurantPriceCategoryRepository;
 import java.util.List;
-
 import org.example.jooq.generated.tables.records.RestaurantPriceCategoryRecord;
 import org.springframework.stereotype.Service;
 
-import dev.tishenko.restobot.data.repository.RestaurantPriceCategoryRepository;
-
 @Service
 public class RestaurantPriceCategoryService {
-  
-  private final RestaurantPriceCategoryRepository repo;
 
-  public RestaurantPriceCategoryService(RestaurantPriceCategoryRepository repo) {
-    this.repo = repo;
-  }
+    private final RestaurantPriceCategoryRepository repo;
 
-  public void addPriceCategory(int restaurantId, int priceCategoryId) {
-    repo.addPriceCategory(restaurantId, priceCategoryId);
-  }
+    public RestaurantPriceCategoryService(RestaurantPriceCategoryRepository repo) {
+        this.repo = repo;
+    }
 
-  public void removePriceCategory(int restaurantId, int priceCategoryId) {
-    repo.removePriceCategory(restaurantId, priceCategoryId);
-  }
+    public void addPriceCategory(int restaurantId, int priceCategoryId) {
+        repo.addPriceCategory(restaurantId, priceCategoryId);
+    }
 
-  public List<RestaurantPriceCategoryRecord> getAllByRestaurant(int restaurantId) {
-    return repo.getAllByRestaurant(restaurantId);
-  }
+    public void removePriceCategory(int restaurantId, int priceCategoryId) {
+        repo.removePriceCategory(restaurantId, priceCategoryId);
+    }
+
+    public List<RestaurantPriceCategoryRecord> getAllByRestaurant(int restaurantId) {
+        return repo.getAllByRestaurant(restaurantId);
+    }
 }
