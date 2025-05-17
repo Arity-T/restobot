@@ -55,6 +55,10 @@ public class FavoriteRestaurantService implements FavoriteListDAO {
                 .collect(Collectors.toList());
     }
 
+    public List<FavoriteRestaurantRecord> getFavoriteListRecords(long chatId) {
+        return repo.getAllFavorites(chatId);
+    }
+
     // Legacy methods for backward compatibility
     public FavoriteRestaurantRecord addRestaurant(long chatId, int tripadvisorId) {
         return repo.addRestaurant(chatId, tripadvisorId);
