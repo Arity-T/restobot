@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class UserData {
     private long chatID;
     private String nickName;
-    private List<FavouriteRestaurantCardDTO> favoriteList;
+    private List<FavoriteRestaurantCardDTO> favoriteList;
     private String city;
     private List<String> kitchenTypes;
     private List<String> priceCategories;
@@ -149,7 +149,7 @@ public class UserData {
         return true;
     }
 
-    public FavouriteRestaurantCardDTO nextRestaurantFromFavoriteList() {
+    public FavoriteRestaurantCardDTO nextRestaurantFromFavoriteList() {
         index = index >= favoriteList.size() - 1 ? 0 : index + 1;
         return favoriteList.get(index);
     }
@@ -166,7 +166,7 @@ public class UserData {
         this.nickName = nickName;
     }
 
-    public List<FavouriteRestaurantCardDTO> getFavoriteList() {
+    public List<FavoriteRestaurantCardDTO> getFavoriteList() {
         return favoriteList;
     }
 
@@ -192,22 +192,21 @@ public class UserData {
                 chatID, favoriteList.remove(index).restaurantCardDTO().tripadvisorId());
     }
 
-    public FavouriteRestaurantCardDTO getRestaurantFromFavouriteListByIndex() {
+    public FavoriteRestaurantCardDTO getRestaurantFromFavouriteListByIndex() {
         return favoriteList.get(index);
     }
 
     public void addRestaurantToFavouriteList(RestaurantCardDTO restaurantCard) {
         if (!isRestaurantInFavouriteList(restaurantCard)) {
-            favoriteList.add(new FavouriteRestaurantCardDTO(restaurantCard, false));
+            favoriteList.add(new FavoriteRestaurantCardDTO(restaurantCard, false));
             favoriteListDAO.addRestaurantCardToFavoriteList(chatID, restaurantCard.tripadvisorId());
         }
     }
 
-    public void addRestaurantToFavouriteList(
-            FavouriteRestaurantCardDTO favouriteRestaurantCardDTO) {
+    public void addRestaurantToFavouriteList(FavoriteRestaurantCardDTO favoriteRestaurantCardDTO) {
         favoriteListDAO.addRestaurantCardToFavoriteList(
-                chatID, favouriteRestaurantCardDTO.restaurantCardDTO().tripadvisorId());
-        favoriteList.add(favouriteRestaurantCardDTO);
+                chatID, favoriteRestaurantCardDTO.restaurantCardDTO().tripadvisorId());
+        favoriteList.add(favoriteRestaurantCardDTO);
     }
 
     public void removeRestaurantFromFavouriteList(RestaurantCardDTO restaurantCard) {
@@ -226,7 +225,7 @@ public class UserData {
 
     public void changeIsVisited() {
         var updatedFavouriteRestaurantCardDTO =
-                new FavouriteRestaurantCardDTO(
+                new FavoriteRestaurantCardDTO(
                         getRestaurantFromFavouriteListByIndex().restaurantCardDTO(),
                         !getRestaurantFromFavouriteListByIndex().isVisited());
         favoriteList.set(index, updatedFavouriteRestaurantCardDTO);
