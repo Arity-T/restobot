@@ -113,15 +113,15 @@ public class RestoBot implements LongPollingUpdateConsumer {
                 Optional<UserDTO> userDTO = userDAO.getUserFromDB(chatId);
                 if(userDTO.isEmpty()){
                     userData.put(
-                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName()));
+                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName(), userDAO, favoriteListDAO, userParamsValidator));
                     userDAO.addUserToDB(userData.get(chatId).toUserDTO());
                 }
                 else {
                     userData.put(
-                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName(), userDTO.get()));
+                            chatId, new UserData(chatId, update.getMessage().getChat().getUserName(), userDTO.get(), userDAO, favoriteListDAO, userParamsValidator));
                 }
 
-                botConfig.put(chatId, new RestoBotUserHandlerConfig());
+                botConfig.put(chatId, new RestoBotUserHandlerConfig(favoriteListDAO, restaurantCardFinder, userDAO, userParamsValidator, searchParametersService));
                 SendMessage greetingString =
                         botConfig.get(chatId).greetingMessage(userData.get(chatId));
                 logger.debug("User {} was registered", update.getMessage().getChat().getUserName());
