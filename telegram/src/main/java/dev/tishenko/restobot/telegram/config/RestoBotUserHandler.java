@@ -309,6 +309,17 @@ public class RestoBotUserHandler {
             case "removeFromFavouriteListButton" -> {
                 actualState = "removeFromFavouriteListButton";
                 userData.removeRestaurantFromFavouriteListByIndex();
+                if (userData.getFavoriteList() == null || userData.getFavoriteList().isEmpty()) {
+                    return EditMessageText.builder()
+                            .chatId(chatId)
+                            .messageId(toIntExact(messageId))
+                            .text("Список пуст")
+                            .replyMarkup(
+                                    InlineKeyboardMarkup.builder()
+                                            .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                            .build())
+                            .build();
+                }
                 FavouriteRestaurantCardDTO restaurantCard =
                         userData.nextRestaurantFromFavoriteList();
                 return EditMessageText.builder()
