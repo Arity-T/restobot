@@ -16,7 +16,6 @@ shadowJar {
 }
 
 dependencies {
-    implementation project(":logic")
     implementation libs.telegrambots.longpolling
     implementation libs.telegrambots.client
     implementation libs.jackson.dataformat.xml
