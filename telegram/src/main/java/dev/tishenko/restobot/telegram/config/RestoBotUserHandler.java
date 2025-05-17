@@ -21,10 +21,10 @@ public class RestoBotUserHandler {
     private boolean isSettingUserParams;
     private boolean isSettingLocation;
 
-    private FavoriteListDAO favoriteListDAO;
-    private RestaurantCardFinder restaurantCardFinder;
-    private UserDAO userDAO;
-    private SearchParametersService searchParametersService;
+    private final FavoriteListDAO favoriteListDAO;
+    private final RestaurantCardFinder restaurantCardFinder;
+    private final UserDAO userDAO;
+    private final SearchParametersService searchParametersService;
 
     private final String correctCities;
     private final String correctKitchenTypes;
@@ -43,6 +43,11 @@ public class RestoBotUserHandler {
         isSettingUserParams = false;
         isSettingLocation = false;
         actualState = "/start";
+
+        this.favoriteListDAO = favoriteListDAO;
+        this.restaurantCardFinder = restaurantCardFinder;
+        this.userDAO = userDAO;
+        this.searchParametersService = searchParametersService;
 
         correctCities =
                 searchParametersService
