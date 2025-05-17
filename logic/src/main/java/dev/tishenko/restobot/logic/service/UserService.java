@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.logic.service;
 
 import dev.tishenko.restobot.logic.repository.UserRepository;
-import dev.tishenko.restobot.telegram.services.FavouriteRestaurantCardDTO;
+import dev.tishenko.restobot.telegram.services.FavoriteRestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.UserDAO;
 import dev.tishenko.restobot.telegram.services.UserDTO;
 import java.util.List;
@@ -83,7 +83,7 @@ public class UserService implements UserDAO {
 
         // Получаем типы кухни пользователя
         List<String> kitchenTypes =
-                kitchenTypeService.getAllForUser(chatId).stream()
+                userKitchenTypeService.getAllForUser(chatId).stream()
                         .map(k -> k.getKitchenTypeId().toString())
                         .collect(Collectors.toList());
 
@@ -98,8 +98,8 @@ public class UserService implements UserDAO {
                 record.getKeywords() != null ? List.of(record.getKeywords().split(",")) : List.of();
 
         // Получаем избранные рестораны
-        List<FavouriteRestaurantCardDTO> favoriteList =
-                favoriteRestaurantService.getFavouriteList(chatId);
+        List<FavoriteRestaurantCardDTO> favoriteList =
+                favoriteRestaurantService.getFavoriteList(chatId);
 
         return Optional.of(
                 new UserDTO(
@@ -121,7 +121,9 @@ public class UserService implements UserDAO {
             // Если передан текст города, ищем его ID
             cityService
                     .getCityByName(city)
-                    .ifPresent(cityRecord -> userRepository.updateCity(chatId, cityRecord.getId()));
+                    .ifPresent(
+                            cityRecord ->
+                                    userRepository.updateCity(chatId, cityRecord.getCityId()));
         }
     }
 
@@ -141,7 +143,9 @@ public class UserService implements UserDAO {
                         kitchenTypeService
                                 .getByName(kitchenType)
                                 .ifPresent(
-                                        k -> userKitchenTypeService.addKitchen(chatId, k.getId()));
+                                        k ->
+                                                userKitchenTypeService.addKitchen(
+                                                        chatId, k.getKitchenTypeId()));
                     }
                 });
     }
@@ -164,7 +168,7 @@ public class UserService implements UserDAO {
                                 .ifPresent(
                                         p ->
                                                 userPriceCategoryService.addPriceCategory(
-                                                        chatId, p.getId()));
+                                                        chatId, p.getPriceCategoryId()));
                     }
                 });
     }
