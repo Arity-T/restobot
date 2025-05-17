@@ -8,9 +8,9 @@ CREATE TABLE IF NOT EXISTS kitchen_type (
 CREATE TABLE IF NOT EXISTS city (
   city_id   SERIAL PRIMARY KEY,
   name      VARCHAR(20),
-  radius    INTEGER,
-  latitude  VARCHAR(20),
-  longitude VARCHAR(20)
+  radius    DOUBLE PRECISION,
+  latitude  DOUBLE PRECISION,
+  longitude DOUBLE PRECISION
 );
 
 CREATE TABLE IF NOT EXISTS price_category (
@@ -24,15 +24,15 @@ CREATE TABLE IF NOT EXISTS price_category (
 CREATE TABLE IF NOT EXISTS restaurant (
   restaurant_id    SERIAL PRIMARY KEY, 
   tripadvisor_id   INTEGER,
-  name             VARCHAR(50), -- По логике хватит
-  address_string   VARCHAR(255),
+  name             TEXT,
+  address_string   TEXT,
   rating           NUMERIC(2, 1),
   website          TEXT,
   description      TEXT,
-  latitude         VARCHAR(20),
-  longitude        VARCHAR(20),
+  latitude         DOUBLE PRECISION,
+  longitude        DOUBLE PRECISION,
   city_id          INTEGER REFERENCES city(city_id),
-  creating_date    TIMESTAMP
+  creating_date    TIMESTAMP DEFAULT now()
 );
 
 -- 3. Связущие (многие-ко-многим) таблицы
