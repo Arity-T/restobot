@@ -34,7 +34,6 @@ public class FavoriteRestaurantService implements FavoriteListDAO {
     }
 
     // TODO: implement when cache db is ready
-    @Override
     public List<FavoriteRestaurantCardDTO> getFavoriteList(long chatId) {
         return repo.getAllFavorites(chatId).stream()
                 .map(

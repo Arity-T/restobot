@@ -2,94 +2,78 @@ package dev.tishenko.restobot.telegram.config;
 
 import static java.lang.Math.toIntExact;
 
+import dev.tishenko.restobot.telegram.services.*;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
-import org.springframework.context.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
-@Configuration
-@Scope("prototype")
-public class RestoBotUserHandlerConfig {
+public class RestoBotUserHandler {
 
     private String actualState;
     private String lastParams;
-    private List<RestaurantCard> restaurantSelection;
+    private List<RestaurantCardDTO> restaurantSelection;
     private int actualIndex;
     private boolean isSettingUserParams;
     private boolean isSettingLocation;
-    private Location location;
+
+    private final FavoriteListDAO favoriteListDAO;
+    private final RestaurantCardFinder restaurantCardFinder;
+    private final UserDAO userDAO;
+    private final SearchParametersService searchParametersService;
+
+    private final String correctCities;
+    private final String correctKitchenTypes;
+    private final String correctPriceCategories;
 
     private final String ZWSP = "\u200B";
     private boolean isZWSP = false;
 
-    public RestoBotUserHandlerConfig() throws MalformedURLException {
+    public RestoBotUserHandler(
+            FavoriteListDAO favoriteListDAO,
+            RestaurantCardFinder restaurantCardFinder,
+            UserDAO userDAO,
+            SearchParametersService searchParametersService)
+            throws MalformedURLException {
         restaurantSelection = new ArrayList<>();
         isSettingUserParams = false;
         isSettingLocation = false;
-        restaurantSelection.add(
-                new RestaurantCard(
-                        0,
-                        0,
-                        "Звездочка",
-                        "Энгельса 10",
-                        9.3,
-                        new URL("https://github.com/Arity-T/restobot"),
-                        "Самый лучший ресторан",
-                        33.0,
-                        12.0,
-                        "Москва"));
-        restaurantSelection.add(
-                new RestaurantCard(
-                        1,
-                        1,
-                        "Жердочка",
-                        "Фенгельса 10",
-                        4.3,
-                        new URL("https://github.com/Arity-T/restobot"),
-                        "Самый лучший ресторан",
-                        33.0,
-                        12.0,
-                        "Москва"));
-        restaurantSelection.add(
-                new RestaurantCard(
-                        2,
-                        2,
-                        "Черточка",
-                        "Шменгельса 10",
-                        5.3,
-                        new URL("https://github.com/Arity-T/restobot"),
-                        "Самый лучший ресторан",
-                        33.0,
-                        12.0,
-                        "Москва"));
-        restaurantSelection.add(
-                new RestaurantCard(
-                        3,
-                        3,
-                        "Форточка",
-                        "Чемельса 10",
-                        6.3,
-                        new URL("https://github.com/Arity-T/restobot"),
-                        "Самый лучший ресторан",
-                        33.0,
-                        12.0,
-                        "Москва"));
-
         actualState = "/start";
+
+        this.favoriteListDAO = favoriteListDAO;
+        this.restaurantCardFinder = restaurantCardFinder;
+        this.userDAO = userDAO;
+        this.searchParametersService = searchParametersService;
+
+        correctCities =
+                searchParametersService
+                        .getCitiesNames()
+                        .toString()
+                        .replace("[", "")
+                        .replace("]", "");
+        correctKitchenTypes =
+                searchParametersService
+                        .getKitchenTypesNames()
+                        .toString()
+                        .replace("[", "")
+                        .replace("]", "");
+        correctPriceCategories =
+                searchParametersService
+                        .getPriceCategoriesNames()
+                        .toString()
+                        .replace("[", "")
+                        .replace("]", "");
     }
 
     public boolean isSettingUserParams() {
         return isSettingUserParams;
     }
 
-    private RestaurantCard nextRestaurantFromSelection() {
+    private RestaurantCardDTO nextRestaurantFromSelection() {
         actualIndex = actualIndex >= restaurantSelection.size() - 1 ? 0 : actualIndex + 1;
         return restaurantSelection.get(actualIndex);
     }
@@ -127,10 +111,15 @@ public class RestoBotUserHandlerConfig {
     }
 
     public EditMessageText nextState(
-            Update message, long messageId, boolean isText, UserData userData) {
+            Update message, long messageId, boolean isText, UserData userData)
+            throws MalformedURLException {
         long chatId = userData.getChatID();
         if (isText) {
             if (message.getMessage().hasLocation()) {
+                restaurantSelection =
+                        restaurantCardFinder.getRestaurantCardByGeolocation(
+                                message.getMessage().getLocation().getLatitude(),
+                                message.getMessage().getLocation().getLongitude());
                 return actionChose("randomRestaurantSearch", messageId, chatId, userData);
             }
             if (isSettingUserParams) {
@@ -161,7 +150,8 @@ public class RestoBotUserHandlerConfig {
     }
 
     private EditMessageText actionChose(
-            String message, long messageId, long chatId, UserData userData) {
+            String message, long messageId, long chatId, UserData userData)
+            throws MalformedURLException {
         switch (message) {
             case "goToUserParamsButton" -> {
                 actualState = "goToUserParamsButton";
@@ -203,14 +193,7 @@ public class RestoBotUserHandlerConfig {
                                                 + "\n"
                                                 + "Доступные города: "
                                                 + "\n"
-                                                + userData.getCorrectCities()
-                                                        .toString()
-                                                        .substring(
-                                                                1,
-                                                                userData.getCorrectCities()
-                                                                                .toString()
-                                                                                .length()
-                                                                        - 1)))
+                                                + correctCities))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -230,14 +213,7 @@ public class RestoBotUserHandlerConfig {
                                                 + "\n"
                                                 + "Доступные типы кухни: "
                                                 + "\n"
-                                                + userData.getCorrectKitchenTypes()
-                                                        .toString()
-                                                        .substring(
-                                                                1,
-                                                                userData.getCorrectKitchenTypes()
-                                                                                .toString()
-                                                                                .length()
-                                                                        - 1)))
+                                                + correctKitchenTypes))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -257,14 +233,7 @@ public class RestoBotUserHandlerConfig {
                                                 + "\n"
                                                 + "Доступные ценовые категории: "
                                                 + "\n"
-                                                + userData.getCorrectPriceCategories()
-                                                        .toString()
-                                                        .substring(
-                                                                1,
-                                                                userData.getCorrectPriceCategories()
-                                                                                .toString()
-                                                                                .length()
-                                                                        - 1)))
+                                                + correctPriceCategories))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -309,13 +278,12 @@ public class RestoBotUserHandlerConfig {
                                             .build())
                             .build();
                 }
-                RestaurantCard restaurantCard = userData.nextRestaurantFromFavoriteList();
+                FavoriteRestaurantCardDTO restaurantCard =
+                        userData.nextRestaurantFromFavoriteList();
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text(
-                                safeForceEdit(
-                                        restaurantCard.restaurantCardToStringForFavouriteList()))
+                        .text(safeForceEdit(restaurantCardToStringForFavouriteList(restaurantCard)))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(
@@ -336,13 +304,23 @@ public class RestoBotUserHandlerConfig {
             case "removeFromFavouriteListButton" -> {
                 actualState = "removeFromFavouriteListButton";
                 userData.removeRestaurantFromFavouriteListByIndex();
-                RestaurantCard restaurantCard = userData.nextRestaurantFromFavoriteList();
+                if (userData.getFavoriteList() == null || userData.getFavoriteList().isEmpty()) {
+                    return EditMessageText.builder()
+                            .chatId(chatId)
+                            .messageId(toIntExact(messageId))
+                            .text("Список пуст")
+                            .replyMarkup(
+                                    InlineKeyboardMarkup.builder()
+                                            .keyboardRow(new InlineKeyboardRow(goToMenuButton))
+                                            .build())
+                            .build();
+                }
+                FavoriteRestaurantCardDTO restaurantCard =
+                        userData.nextRestaurantFromFavoriteList();
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text(
-                                safeForceEdit(
-                                        restaurantCard.restaurantCardToStringForFavouriteList()))
+                        .text(safeForceEdit(restaurantCardToStringForFavouriteList(restaurantCard)))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(
@@ -362,14 +340,13 @@ public class RestoBotUserHandlerConfig {
             }
             case "setAsVisitedButton" -> {
                 actualState = "setAsVisitedButton";
-                userData.getRestaurantFromFavouriteListByIndex().changeIsVisited();
-                RestaurantCard restaurantCard = userData.getRestaurantFromFavouriteListByIndex();
+                userData.changeIsVisited();
+                FavoriteRestaurantCardDTO restaurantCard =
+                        userData.getRestaurantFromFavouriteListByIndex();
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text(
-                                safeForceEdit(
-                                        restaurantCard.restaurantCardToStringForFavouriteList()))
+                        .text(safeForceEdit(restaurantCardToStringForFavouriteList(restaurantCard)))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(
@@ -404,7 +381,6 @@ public class RestoBotUserHandlerConfig {
             case "randomRestaurantSearch" -> {
                 actualState = "randomRestaurantSearch";
                 isSettingLocation = false;
-                // updateRestaurantSelectionByLocation();
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
                             .chatId(chatId)
@@ -418,11 +394,11 @@ public class RestoBotUserHandlerConfig {
                                             .build())
                             .build();
                 }
-                RestaurantCard restaurantCard = nextRestaurantFromSelection();
+                RestaurantCardDTO restaurantCard = nextRestaurantFromSelection();
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text(safeForceEdit(restaurantCard.restaurantCardToString()))
+                        .text(safeForceEdit(restaurantCardToString(restaurantCard)))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(
@@ -440,14 +416,14 @@ public class RestoBotUserHandlerConfig {
             }
             case "addRandomRestaurantToFavouriteListButton" -> {
                 actualState = "addRandomRestaurantToFavouriteListButton";
-                RestaurantCard restaurantCard = restaurantSelection.get(actualIndex);
+                RestaurantCardDTO restaurantCard = restaurantSelection.get(actualIndex);
                 if (!userData.isRestaurantInFavouriteList(restaurantCard))
                     userData.addRestaurantToFavouriteList(restaurantCard);
                 else userData.removeRestaurantFromFavouriteList(restaurantCard);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text(safeForceEdit(restaurantCard.restaurantCardToString()))
+                        .text(safeForceEdit(restaurantCardToString(restaurantCard)))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(
@@ -505,14 +481,7 @@ public class RestoBotUserHandlerConfig {
                                                 + "\n"
                                                 + "Доступные города: "
                                                 + "\n"
-                                                + userData.getCorrectCities()
-                                                        .toString()
-                                                        .substring(
-                                                                1,
-                                                                userData.getCorrectCities()
-                                                                                .toString()
-                                                                                .length()
-                                                                        - 1)))
+                                                + correctCities))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -535,14 +504,7 @@ public class RestoBotUserHandlerConfig {
                                                 + "\n"
                                                 + "Доступные типы кухни: "
                                                 + "\n"
-                                                + userData.getCorrectKitchenTypes()
-                                                        .toString()
-                                                        .substring(
-                                                                1,
-                                                                userData.getCorrectKitchenTypes()
-                                                                                .toString()
-                                                                                .length()
-                                                                        - 1)))
+                                                + correctKitchenTypes))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -565,14 +527,7 @@ public class RestoBotUserHandlerConfig {
                                                 + "\n"
                                                 + "Доступные ценовые категории: "
                                                 + "\n"
-                                                + userData.getCorrectPriceCategories()
-                                                        .toString()
-                                                        .substring(
-                                                                1,
-                                                                userData.getCorrectPriceCategories()
-                                                                                .toString()
-                                                                                .length()
-                                                                        - 1)))
+                                                + correctPriceCategories))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -659,7 +614,12 @@ public class RestoBotUserHandlerConfig {
             }
             case "searchButton" -> {
                 actualState = "searchButton";
-                // updateRestaurantSelectionByUserParams();
+                restaurantSelection =
+                        restaurantCardFinder.getRestaurantCardByParams(
+                                userData.getCity(),
+                                userData.getKitchenTypes(),
+                                userData.getPriceCategories(),
+                                userData.getKeyWords());
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
                             .chatId(chatId)
@@ -673,11 +633,11 @@ public class RestoBotUserHandlerConfig {
                                             .build())
                             .build();
                 }
-                RestaurantCard restaurantCard = nextRestaurantFromSelection();
+                RestaurantCardDTO restaurantCard = nextRestaurantFromSelection();
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text(safeForceEdit(restaurantCard.restaurantCardToString()))
+                        .text(safeForceEdit(restaurantCardToString(restaurantCard)))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(
@@ -695,14 +655,14 @@ public class RestoBotUserHandlerConfig {
             }
             case "addRestaurantSearchToFavouriteListButton" -> {
                 actualState = "addRestaurantSearchToFavouriteListButton";
-                RestaurantCard restaurantCard = restaurantSelection.get(actualIndex);
+                RestaurantCardDTO restaurantCard = restaurantSelection.get(actualIndex);
                 if (!userData.isRestaurantInFavouriteList(restaurantCard))
                     userData.addRestaurantToFavouriteList(restaurantCard);
                 else userData.removeRestaurantFromFavouriteList(restaurantCard);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
-                        .text(safeForceEdit(restaurantCard.restaurantCardToString()))
+                        .text(safeForceEdit(restaurantCardToString(restaurantCard)))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(
@@ -974,5 +934,39 @@ public class RestoBotUserHandlerConfig {
 
     public boolean isSettingLocation() {
         return isSettingLocation;
+    }
+
+    public String restaurantCardToStringForFavouriteList(
+            FavoriteRestaurantCardDTO favoriteRestaurantCardDTO) {
+        return favoriteRestaurantCardDTO.restaurantCardDTO().name()
+                + "\n"
+                + "Находится по адресу: "
+                + favoriteRestaurantCardDTO.restaurantCardDTO().addressString()
+                + '\n'
+                + "Имеет рейтинг: "
+                + favoriteRestaurantCardDTO.restaurantCardDTO().rating()
+                + "\n"
+                + "Официальный сайт: "
+                + favoriteRestaurantCardDTO.restaurantCardDTO().website()
+                + '\n'
+                + favoriteRestaurantCardDTO.restaurantCardDTO().description()
+                + '\n'
+                + "Посещен: "
+                + (favoriteRestaurantCardDTO.isVisited() ? "Да" : "Нет");
+    }
+
+    public String restaurantCardToString(RestaurantCardDTO restaurantCardDTO) {
+        return restaurantCardDTO.name()
+                + "\n"
+                + "Находится по адресу: "
+                + restaurantCardDTO.addressString()
+                + '\n'
+                + "Имеет рейтинг: "
+                + restaurantCardDTO.rating()
+                + "\n"
+                + "Официальный сайт: "
+                + restaurantCardDTO.website()
+                + '\n'
+                + restaurantCardDTO.description();
     }
 }
