@@ -24,7 +24,6 @@ public class RestoBotUserHandler {
     private FavoriteListDAO favoriteListDAO;
     private RestaurantCardFinder restaurantCardFinder;
     private UserDAO userDAO;
-    private UserParamsValidator userParamsValidator;
     private SearchParametersService searchParametersService;
 
     private final String ZWSP = "\u200B";
@@ -34,7 +33,6 @@ public class RestoBotUserHandler {
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
-            UserParamsValidator userParamsValidator,
             SearchParametersService searchParametersService)
             throws MalformedURLException {
         restaurantSelection = new ArrayList<>();

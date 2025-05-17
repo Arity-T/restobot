@@ -9,7 +9,6 @@ public class BotConfig {
     private final FavoriteListDAO favoriteListDAO;
     private final RestaurantCardFinder restaurantCardFinder;
     private final UserDAO userDAO;
-    private final UserParamsValidator userParamsValidator;
     private final SearchParametersService searchParametersService;
 
     public BotConfig(
@@ -18,14 +17,12 @@ public class BotConfig {
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
-            UserParamsValidator userParamsValidator,
             SearchParametersService searchParametersService) {
         this.botToken = botToken;
         this.botUsername = botUsername;
         this.favoriteListDAO = favoriteListDAO;
         this.restaurantCardFinder = restaurantCardFinder;
         this.userDAO = userDAO;
-        this.userParamsValidator = userParamsValidator;
         this.searchParametersService = searchParametersService;
     }
 
@@ -47,10 +44,6 @@ public class BotConfig {
 
     public UserDAO getUserDAO() {
         return userDAO;
-    }
-
-    public UserParamsValidator getUserParamsValidator() {
-        return userParamsValidator;
     }
 
     public SearchParametersService getSearchParametersService() {

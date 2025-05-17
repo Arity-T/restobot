@@ -30,7 +30,6 @@ public class BotFactoryConfig {
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
-            UserParamsValidator userParamsValidator,
             SearchParametersService searchParametersService) {
 
         return new BotConfig(
@@ -39,7 +38,6 @@ public class BotFactoryConfig {
                 favoriteListDAO,
                 restaurantCardFinder,
                 userDAO,
-                userParamsValidator,
                 searchParametersService);
     }
 
@@ -48,14 +46,12 @@ public class BotFactoryConfig {
             FavoriteListDAO favoriteListDAO,
             RestaurantCardFinder restaurantCardFinder,
             UserDAO userDAO,
-            UserParamsValidator userParamsValidator,
             SearchParametersService searchParametersService)
             throws Exception {
         return new RestoBotUserHandler(
                 favoriteListDAO,
                 restaurantCardFinder,
                 userDAO,
-                userParamsValidator,
                 searchParametersService);
     }
 

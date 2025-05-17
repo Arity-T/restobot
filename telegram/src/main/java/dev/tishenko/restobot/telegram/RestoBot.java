@@ -45,7 +45,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
     private final FavoriteListDAO favoriteListDAO;
     private final RestaurantCardFinder restaurantCardFinder;
     private final UserDAO userDAO;
-    private final UserParamsValidator userParamsValidator;
     private final SearchParametersService searchParametersService;
 
     /**
@@ -59,7 +58,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
         this.favoriteListDAO = config.getFavoriteListDAO();
         this.restaurantCardFinder = config.getRestaurantCardFinder();
         this.userDAO = config.getUserDAO();
-        this.userParamsValidator = config.getUserParamsValidator();
         this.searchParametersService = config.getSearchParametersService();
 
         telegramClient = new OkHttpTelegramClient(botToken);
@@ -110,7 +108,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
                                     update.getMessage().getChat().getUserName(),
                                     userDAO,
                                     favoriteListDAO,
-                                    userParamsValidator));
+                                    searchParametersService));
                     userDAO.addUserToDB(userData.get(chatId).toUserDTO());
                 } else {
                     userData.put(
@@ -121,7 +119,7 @@ public class RestoBot implements LongPollingUpdateConsumer {
                                     userDTO.get(),
                                     userDAO,
                                     favoriteListDAO,
-                                    userParamsValidator));
+                                    searchParametersService));
                 }
 
                 botConfig.put(
@@ -130,7 +128,6 @@ public class RestoBot implements LongPollingUpdateConsumer {
                                 favoriteListDAO,
                                 restaurantCardFinder,
                                 userDAO,
-                                userParamsValidator,
                                 searchParametersService));
                 SendMessage greetingString =
                         botConfig.get(chatId).greetingMessage(userData.get(chatId));

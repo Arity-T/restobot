@@ -3,6 +3,7 @@ package dev.tishenko.restobot.telegram.config;
 import dev.tishenko.restobot.telegram.services.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -24,9 +25,9 @@ public class UserData {
     private List<String> priceCategoriesForSearch;
     private List<String> keyWordsForSearch;
 
-    private UserDAO userDAO;
-    private FavoriteListDAO favoriteListDAO;
-    private UserParamsValidator userParamsValidator;
+    private final UserDAO userDAO;
+    private final FavoriteListDAO favoriteListDAO;
+    private final SearchParametersService searchParametersService;
 
     public UserData(
             long chatID,
@@ -34,7 +35,7 @@ public class UserData {
             UserDTO userDTO,
             UserDAO userDAO,
             FavoriteListDAO favoriteListDAO,
-            UserParamsValidator userParamsValidator) {
+            SearchParametersService searchParametersService) {
         setChatID(chatID);
         setNickName(nickName);
 
@@ -52,7 +53,7 @@ public class UserData {
 
         this.userDAO = userDAO;
         this.favoriteListDAO = favoriteListDAO;
-        this.userParamsValidator = userParamsValidator;
+        this.searchParametersService = searchParametersService;
     }
 
     public UserData(
@@ -60,7 +61,7 @@ public class UserData {
             String nickName,
             UserDAO userDAO,
             FavoriteListDAO favoriteListDAO,
-            UserParamsValidator userParamsValidator) {
+            SearchParametersService searchParametersService) {
         setChatID(chatID);
         setNickName(nickName);
         favoriteList = new ArrayList<>();
@@ -77,7 +78,7 @@ public class UserData {
 
         this.userDAO = userDAO;
         this.favoriteListDAO = favoriteListDAO;
-        this.userParamsValidator = userParamsValidator;
+        this.searchParametersService = searchParametersService;
     }
 
     public UserDTO toUserDTO() {
@@ -245,7 +246,7 @@ public class UserData {
     }
 
     public boolean checkAndSetCity(String city) {
-        if (userParamsValidator.cityIsValid(city)) {
+        if (searchParametersService.getCitiesNames().contains(city)) {
             this.city = city;
             userDAO.setNewUserCity(chatID, city);
             return true;
@@ -255,7 +256,7 @@ public class UserData {
 
     public boolean checkAndSetKitchenTypes(String params) {
         List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
-        if (userParamsValidator.kitchenTypesAreValid(kitchenTypes)) {
+        if (new HashSet<>(searchParametersService.getKitchenTypesNames()).containsAll(kitchenTypes)) {
             this.kitchenTypes = kitchenTypes;
             userDAO.setNewUserKitchenTypes(chatID, kitchenTypes);
             return true;
@@ -265,7 +266,7 @@ public class UserData {
 
     public boolean checkAndSetPriceCategories(String params) {
         List<String> priceCategories = Arrays.stream(params.split(",")).toList();
-        if (userParamsValidator.priceCategoriesAreValid(priceCategories)) {
+        if (new HashSet<>(searchParametersService.getPriceCategoriesNames()).containsAll(priceCategories)) {
             this.priceCategories = priceCategories;
             userDAO.setNewUserKitchenTypes(chatID, priceCategories);
             return true;
@@ -274,8 +275,8 @@ public class UserData {
     }
 
     public boolean checkAndSetCityForSearch(String params) {
-        if (userParamsValidator.cityIsValid(city)) {
-            this.cityForSearch = city;
+        if (searchParametersService.getCitiesNames().contains(params)) {
+            this.cityForSearch = params;
             return true;
         }
         return false;
@@ -283,7 +284,7 @@ public class UserData {
 
     public boolean checkAndSetKitchenTypesForSearch(String params) {
         List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
-        if (userParamsValidator.kitchenTypesAreValid(kitchenTypes)) {
+        if (new HashSet<>(searchParametersService.getKitchenTypesNames()).containsAll(kitchenTypes)) {
             this.kitchenTypesForSearch = kitchenTypes;
             return true;
         }
@@ -292,7 +293,7 @@ public class UserData {
 
     public boolean checkAndSetPriceCategoriesForSearch(String params) {
         List<String> priceCategories = Arrays.stream(params.split(",")).toList();
-        if (userParamsValidator.priceCategoriesAreValid(priceCategories)) {
+        if (new HashSet<>(searchParametersService.getPriceCategoriesNames()).containsAll(priceCategories)) {
             this.priceCategoriesForSearch = priceCategories;
             return true;
         }
