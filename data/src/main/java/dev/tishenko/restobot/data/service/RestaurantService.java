@@ -18,11 +18,11 @@ public class RestaurantService {
     }
 
     public Optional<RestaurantRecord> getById(int restaurantId) {
-        return Optional.ofNullable(repo.findById(restaurantId));
+        return repo.findById(restaurantId);
     }
 
     public Optional<RestaurantRecord> getByTripadvisorId(int tripadvisorId) {
-        return Optional.ofNullable(repo.findByTripadvisorId(tripadvisorId));
+        return repo.findByTripadvisorId(tripadvisorId);
     }
 
     public List<RestaurantRecord> getByCityId(int cityId) {
