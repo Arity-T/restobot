@@ -26,4 +26,8 @@ public class CityService {
     public Optional<CityRecord> getCityByName(String name) {
         return Optional.ofNullable(repo.findByName(name));
     }
+
+    public String getCityNameById(int cityId) {
+        return repo.findNameById(cityId);
+    }
 }

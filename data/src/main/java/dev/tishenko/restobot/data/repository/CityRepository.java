@@ -29,4 +29,11 @@ public class CityRepository {
                 .where(City.CITY.NAME.eq(name))
                 .fetchOne(); // вернёт null, если не найден
     }
+
+    public String findNameById(int cityId) {
+        return dsl.select(City.CITY.NAME)
+                .from(City.CITY)
+                .where(City.CITY.CITY_ID.eq(cityId))
+                .fetchOne(City.CITY.NAME);
+    }
 }
