@@ -1,12 +1,15 @@
 package dev.tishenko.restobot.logic.service;
 
+import com.google.common.hash.Hashing;
+import dev.tishenko.restobot.api.service.ApiKeyValidator;
 import dev.tishenko.restobot.logic.repository.AdminDataRepository;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.example.jooq.generated.tables.records.AdminDataRecord;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AdminService {
+public class AdminService implements ApiKeyValidator {
 
     private final AdminDataRepository repo;
 
@@ -18,7 +21,27 @@ public class AdminService {
         repo.insertAdminKey(hash, salt);
     }
 
-    public Optional<AdminDataRecord> getByHash(String hash) {
-        return Optional.ofNullable(repo.findByHash(hash));
+    public List<AdminDataRecord> getAllAdminKeys() {
+        return repo.findAll();
+    }
+
+    @Override
+    public boolean isValidApiKey(String apiKey) {
+        List<AdminDataRecord> adminKeys = getAllAdminKeys();
+
+        for (AdminDataRecord adminKey : adminKeys) {
+            String saltedKey = adminKey.getSalt() + apiKey;
+            String hashedKey = hashWithSHA256(saltedKey);
+
+            if (hashedKey.equals(adminKey.getHash())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String hashWithSHA256(String input) {
+        return Hashing.sha256().hashString(input, StandardCharsets.UTF_8).toString();
     }
 }

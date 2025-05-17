@@ -1,5 +1,6 @@
 package dev.tishenko.restobot.logic.repository;
 
+import java.util.List;
 import org.example.jooq.generated.tables.AdminData;
 import org.example.jooq.generated.tables.records.AdminDataRecord;
 import org.jooq.DSLContext;
@@ -25,5 +26,9 @@ public class AdminDataRepository {
         return dsl.selectFrom(AdminData.ADMIN_DATA)
                 .where(AdminData.ADMIN_DATA.HASH.eq(hash))
                 .fetchOne();
+    }
+
+    public List<AdminDataRecord> findAll() {
+        return dsl.selectFrom(AdminData.ADMIN_DATA).fetch();
     }
 }
