@@ -26,6 +26,10 @@ public class RestoBotUserHandler {
     private UserDAO userDAO;
     private SearchParametersService searchParametersService;
 
+    private final String correctCities;
+    private final String correctKitchenTypes;
+    private final String correctPriceCategories;
+
     private final String ZWSP = "\u200B";
     private boolean isZWSP = false;
 
@@ -39,6 +43,16 @@ public class RestoBotUserHandler {
         isSettingUserParams = false;
         isSettingLocation = false;
         actualState = "/start";
+
+        correctCities = searchParametersService.getCitiesNames().toString()
+                .replace("[", "")
+                .replace("]", "");
+        correctKitchenTypes = searchParametersService.getKitchenTypesNames().toString()
+                .replace("[", "")
+                .replace("]", "");
+        correctPriceCategories = searchParametersService.getPriceCategoriesNames().toString()
+                .replace("[", "")
+                .replace("]", "");
     }
 
     public boolean isSettingUserParams() {
@@ -170,11 +184,7 @@ public class RestoBotUserHandler {
                                                 + "\n"
                                                 + "Доступные города: "
                                                 + "\n"
-                                                + searchParametersService
-                                                        .getCitiesNames()
-                                                        .toString()
-                                                        .replace("[", "")
-                                                        .replace("]", "")))
+                                                + correctCities))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -194,11 +204,7 @@ public class RestoBotUserHandler {
                                                 + "\n"
                                                 + "Доступные типы кухни: "
                                                 + "\n"
-                                                + searchParametersService
-                                                        .getKitchenTypesNames()
-                                                        .toString()
-                                                        .replace("[", "")
-                                                        .replace("]", "")))
+                                                + correctKitchenTypes))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -218,11 +224,7 @@ public class RestoBotUserHandler {
                                                 + "\n"
                                                 + "Доступные ценовые категории: "
                                                 + "\n"
-                                                + searchParametersService
-                                                        .getPriceCategoriesNames()
-                                                        .toString()
-                                                        .replace("[", "")
-                                                        .replace("]", "")))
+                                                + correctPriceCategories))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(cancelUserParamsButton))
@@ -459,11 +461,7 @@ public class RestoBotUserHandler {
                                                 + "\n"
                                                 + "Доступные города: "
                                                 + "\n"
-                                                + searchParametersService
-                                                        .getCitiesNames()
-                                                        .toString()
-                                                        .replace("[", "")
-                                                        .replace("]", "")))
+                                                + correctCities))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -486,11 +484,7 @@ public class RestoBotUserHandler {
                                                 + "\n"
                                                 + "Доступные типы кухни: "
                                                 + "\n"
-                                                + searchParametersService
-                                                        .getKitchenTypesNames()
-                                                        .toString()
-                                                        .replace("[", "")
-                                                        .replace("]", "")))
+                                                + correctKitchenTypes))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(setDefaultButton))
@@ -513,11 +507,7 @@ public class RestoBotUserHandler {
                                                 + "\n"
                                                 + "Доступные ценовые категории: "
                                                 + "\n"
-                                                + searchParametersService
-                                                        .getPriceCategoriesNames()
-                                                        .toString()
-                                                        .replace("[", "")
-                                                        .replace("]", "")))
+                                                + correctPriceCategories))
                         .replyMarkup(
                                 InlineKeyboardMarkup.builder()
                                         .keyboardRow(new InlineKeyboardRow(setDefaultButton))
