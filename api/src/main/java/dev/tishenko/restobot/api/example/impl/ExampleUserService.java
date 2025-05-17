@@ -1,13 +1,13 @@
 package dev.tishenko.restobot.api.example.impl;
 
-import dev.tishenko.restobot.api.service.UserService;
+import dev.tishenko.restobot.api.service.ApiUserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 
-/** Example implementation of UserService. */
+/** Example implementation of ApiUserService. */
 @Service
-public class ExampleUserService implements UserService {
+public class ExampleUserService implements ApiUserService {
 
     @Override
     public List<Map<String, String>> getUsers() {
