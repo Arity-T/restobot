@@ -40,7 +40,7 @@ public interface FavoriteListDAO {
      * restaurant.
      *
      * @param chatId the unique identifier of the user
-     * @return a list of entries mapping each {@link FavouriteRestaurantCardDTO}
+     * @return a list of entries mapping each {@link FavoriteRestaurantCardDTO}
      */
-    List<FavouriteRestaurantCardDTO> getFavouriteList(long chatId);
+    List<FavoriteRestaurantCardDTO> getFavoriteList(long chatId);
 }
