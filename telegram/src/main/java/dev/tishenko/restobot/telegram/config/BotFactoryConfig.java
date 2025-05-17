@@ -49,10 +49,7 @@ public class BotFactoryConfig {
             SearchParametersService searchParametersService)
             throws Exception {
         return new RestoBotUserHandler(
-                favoriteListDAO,
-                restaurantCardFinder,
-                userDAO,
-                searchParametersService);
+                favoriteListDAO, restaurantCardFinder, userDAO, searchParametersService);
     }
 
     @Bean

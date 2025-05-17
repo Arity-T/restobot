@@ -29,9 +29,9 @@ public class UserData {
     private final FavoriteListDAO favoriteListDAO;
     private final SearchParametersService searchParametersService;
 
-    private List<String> correctCities;
-    private List<String> correctKitchenTypes;
-    private List<String> correctPriceCategories;
+    private final List<String> correctCities;
+    private final List<String> correctKitchenTypes;
+    private final List<String> correctPriceCategories;
 
     public UserData(
             long chatID,

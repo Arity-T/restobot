@@ -44,15 +44,24 @@ public class RestoBotUserHandler {
         isSettingLocation = false;
         actualState = "/start";
 
-        correctCities = searchParametersService.getCitiesNames().toString()
-                .replace("[", "")
-                .replace("]", "");
-        correctKitchenTypes = searchParametersService.getKitchenTypesNames().toString()
-                .replace("[", "")
-                .replace("]", "");
-        correctPriceCategories = searchParametersService.getPriceCategoriesNames().toString()
-                .replace("[", "")
-                .replace("]", "");
+        correctCities =
+                searchParametersService
+                        .getCitiesNames()
+                        .toString()
+                        .replace("[", "")
+                        .replace("]", "");
+        correctKitchenTypes =
+                searchParametersService
+                        .getKitchenTypesNames()
+                        .toString()
+                        .replace("[", "")
+                        .replace("]", "");
+        correctPriceCategories =
+                searchParametersService
+                        .getPriceCategoriesNames()
+                        .toString()
+                        .replace("[", "")
+                        .replace("]", "");
     }
 
     public boolean isSettingUserParams() {
