@@ -133,7 +133,7 @@ public class UserData {
             return "";
         }
         if (list.size() > 1) {
-            return String.join(",", list);
+            return String.join(", ", list);
         }
         return list.getFirst();
     }
