@@ -29,6 +29,10 @@ public class UserData {
     private final FavoriteListDAO favoriteListDAO;
     private final SearchParametersService searchParametersService;
 
+    private List<String> correctCities;
+    private List<String> correctKitchenTypes;
+    private List<String> correctPriceCategories;
+
     public UserData(
             long chatID,
             String nickName,
@@ -54,6 +58,10 @@ public class UserData {
         this.userDAO = userDAO;
         this.favoriteListDAO = favoriteListDAO;
         this.searchParametersService = searchParametersService;
+
+        correctCities = searchParametersService.getCitiesNames();
+        correctKitchenTypes = searchParametersService.getKitchenTypesNames();
+        correctPriceCategories = searchParametersService.getPriceCategoriesNames();
     }
 
     public UserData(
@@ -79,6 +87,10 @@ public class UserData {
         this.userDAO = userDAO;
         this.favoriteListDAO = favoriteListDAO;
         this.searchParametersService = searchParametersService;
+
+        correctCities = searchParametersService.getCitiesNames();
+        correctKitchenTypes = searchParametersService.getKitchenTypesNames();
+        correctPriceCategories = searchParametersService.getPriceCategoriesNames();
     }
 
     public UserDTO toUserDTO() {
@@ -246,7 +258,7 @@ public class UserData {
     }
 
     public boolean checkAndSetCity(String city) {
-        if (searchParametersService.getCitiesNames().contains(city)) {
+        if (correctCities.contains(city)) {
             this.city = city;
             userDAO.setNewUserCity(chatID, city);
             return true;
@@ -256,7 +268,7 @@ public class UserData {
 
     public boolean checkAndSetKitchenTypes(String params) {
         List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
-        if (new HashSet<>(searchParametersService.getKitchenTypesNames()).containsAll(kitchenTypes)) {
+        if (new HashSet<>(correctKitchenTypes).containsAll(kitchenTypes)) {
             this.kitchenTypes = kitchenTypes;
             userDAO.setNewUserKitchenTypes(chatID, kitchenTypes);
             return true;
@@ -266,7 +278,7 @@ public class UserData {
 
     public boolean checkAndSetPriceCategories(String params) {
         List<String> priceCategories = Arrays.stream(params.split(",")).toList();
-        if (new HashSet<>(searchParametersService.getPriceCategoriesNames()).containsAll(priceCategories)) {
+        if (new HashSet<>(correctPriceCategories).containsAll(priceCategories)) {
             this.priceCategories = priceCategories;
             userDAO.setNewUserKitchenTypes(chatID, priceCategories);
             return true;
@@ -274,9 +286,9 @@ public class UserData {
         return false;
     }
 
-    public boolean checkAndSetCityForSearch(String params) {
-        if (searchParametersService.getCitiesNames().contains(params)) {
-            this.cityForSearch = params;
+    public boolean checkAndSetCityForSearch(String city) {
+        if (correctKitchenTypes.contains(city)) {
+            this.cityForSearch = city;
             return true;
         }
         return false;
@@ -284,7 +296,7 @@ public class UserData {
 
     public boolean checkAndSetKitchenTypesForSearch(String params) {
         List<String> kitchenTypes = Arrays.stream(params.split(",")).toList();
-        if (new HashSet<>(searchParametersService.getKitchenTypesNames()).containsAll(kitchenTypes)) {
+        if (new HashSet<>(correctKitchenTypes).containsAll(kitchenTypes)) {
             this.kitchenTypesForSearch = kitchenTypes;
             return true;
         }
@@ -293,7 +305,7 @@ public class UserData {
 
     public boolean checkAndSetPriceCategoriesForSearch(String params) {
         List<String> priceCategories = Arrays.stream(params.split(",")).toList();
-        if (new HashSet<>(searchParametersService.getPriceCategoriesNames()).containsAll(priceCategories)) {
+        if (new HashSet<>(correctPriceCategories).containsAll(priceCategories)) {
             this.priceCategoriesForSearch = priceCategories;
             return true;
         }
