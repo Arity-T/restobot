@@ -136,3 +136,34 @@ dependencies {
 ```bash
 ./gradlew spotlessApply
 ```
+
+## Сборка образа
+
+Требования:
+- Java 23+
+- gradle 8.10+
+
+1. Создать `.env` файл в корне проекта.
+2. Запустить PostgreSQL
+   ```bash
+   docker compose up -d postgres
+   ```
+3. Выполнить миграции
+   ```bash
+   ./gradlew :logic:flywayMigrate
+   ```
+4. Собрать проект
+   ```bash
+   ./gradlew build
+   ```
+5. Собрать образ
+   ```bash
+   docker compose build app
+   ```
+
+Готово! Приложение собрано в образе `restobot-app:latest`.
+
+Запустить приложение вместе с базой данных:
+```bash
+docker compose up -d
+```
