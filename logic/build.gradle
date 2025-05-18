@@ -30,6 +30,7 @@ plugins {
 dependencies {
     implementation project(":telegram")
     implementation project(":api")
+    implementation project(":integration")
     implementation(libs.postgresql)
     implementation(libs.guava)
     implementation(libs.spring.context)
