@@ -22,8 +22,20 @@
     <!-- Управление логами Spring Framework -->
     <logger name="org.springframework" level="INFO" />
     
+    <!-- Логи телеграм модуля -->
+    <logger name="dev.tishenko.restobot.telegram" level="INFO" />
+    
+    <!-- Логи модуля логики -->
+    <logger name="dev.tishenko.restobot.logic" level="INFO" />
+    
+    <!-- Логи интеграционного модуля -->
+    <logger name="dev.tishenko.restobot.integration" level="INFO" />
+    
+    <!-- Логи API модуля -->
+    <logger name="dev.tishenko.restobot.api" level="INFO" />
+    
     <!-- Логи приложения -->
-    <logger name="dev.tishenko.restobot" level="DEBUG" />
+    <logger name="dev.tishenko.restobot.app" level="DEBUG" />
 
     <!-- Корневой логгер -->
     <root level="INFO">
