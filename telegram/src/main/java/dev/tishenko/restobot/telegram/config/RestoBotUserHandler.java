@@ -965,7 +965,7 @@ public class RestoBotUserHandler {
                 + "Официальный сайт: "
                 + (favoriteRestaurantCardDTO.restaurantCardDTO().website() == null ? "Мне не удалось найти сайт" :  favoriteRestaurantCardDTO.restaurantCardDTO().website())
                 + '\n'
-                + (favoriteRestaurantCardDTO.restaurantCardDTO().description().isEmpty() || favoriteRestaurantCardDTO.restaurantCardDTO().description() == null ? "" : favoriteRestaurantCardDTO.restaurantCardDTO().description() + '\n')
+                + (favoriteRestaurantCardDTO.restaurantCardDTO().description() == null || favoriteRestaurantCardDTO.restaurantCardDTO().description().isEmpty()  ? "" : favoriteRestaurantCardDTO.restaurantCardDTO().description() + '\n')
                 + "Посещен: "
                 + (favoriteRestaurantCardDTO.isVisited() ? "Да" : "Нет");
     }
@@ -982,6 +982,6 @@ public class RestoBotUserHandler {
                 + "Официальный сайт: "
                 + (restaurantCardDTO.website() == null ? "Мне не удалось найти сайт" :  restaurantCardDTO.website())
                 + '\n'
-                + (restaurantCardDTO.description().isEmpty() || restaurantCardDTO.description() == null ? "" : restaurantCardDTO.description());
+                + (restaurantCardDTO.description() == null || restaurantCardDTO.description().isEmpty() ? "" : restaurantCardDTO.description());
     }
 }
