@@ -9,11 +9,11 @@ import org.example.jooq.generated.tables.records.AdminDataRecord;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AdminService implements ApiKeyValidator {
+public class ApiKeyValidatorImpl implements ApiKeyValidator {
 
     private final AdminDataRepository repo;
 
-    public AdminService(AdminDataRepository repo) {
+    public ApiKeyValidatorImpl(AdminDataRepository repo) {
         this.repo = repo;
     }
 

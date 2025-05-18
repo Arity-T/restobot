@@ -1,4 +1,4 @@
-package dev.tishenko.restobot.logic.service;
+package dev.tishenko.restobot.logic.service.telegram;
 
 import dev.tishenko.restobot.data.service.DataCityService;
 import dev.tishenko.restobot.data.service.RestaurantService;
@@ -18,13 +18,13 @@ import org.example.jooq.generated.tables.records.RestaurantRecord;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FavoriteRestaurantService implements FavoriteListDAO {
+public class FavoriteListDAOImpl implements FavoriteListDAO {
 
     private final FavoriteRestaurantRepository repo;
     private final RestaurantService restaurantService;
     private final DataCityService cityService;
 
-    public FavoriteRestaurantService(
+    public FavoriteListDAOImpl(
             FavoriteRestaurantRepository repo,
             RestaurantService restaurantService,
             DataCityService cityService) {

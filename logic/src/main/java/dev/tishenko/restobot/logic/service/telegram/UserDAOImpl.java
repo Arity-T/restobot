@@ -1,34 +1,37 @@
-package dev.tishenko.restobot.logic.service;
+package dev.tishenko.restobot.logic.service.telegram;
 
-import dev.tishenko.restobot.api.service.ApiUserService;
 import dev.tishenko.restobot.logic.repository.UserRepository;
+import dev.tishenko.restobot.logic.service.LogicCityService;
+import dev.tishenko.restobot.logic.service.LogicKitchenTypeService;
+import dev.tishenko.restobot.logic.service.LogicPriceCategoryService;
+import dev.tishenko.restobot.logic.service.UserKitchenTypeService;
+import dev.tishenko.restobot.logic.service.UserPriceCategoryService;
 import dev.tishenko.restobot.telegram.services.FavoriteRestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.UserDAO;
 import dev.tishenko.restobot.telegram.services.UserDTO;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.example.jooq.generated.tables.records.UsersRecord;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService implements UserDAO, ApiUserService {
+public class UserDAOImpl implements UserDAO {
 
     private final UserRepository userRepository;
     private final UserKitchenTypeService userKitchenTypeService;
     private final UserPriceCategoryService userPriceCategoryService;
     private final LogicCityService cityService;
-    private final FavoriteRestaurantService favoriteRestaurantService;
+    private final FavoriteListDAOImpl favoriteRestaurantService;
     private final LogicKitchenTypeService kitchenTypeService;
     private final LogicPriceCategoryService priceCategoryService;
 
-    public UserService(
+    public UserDAOImpl(
             UserRepository userRepository,
             UserKitchenTypeService userKitchenTypeService,
             UserPriceCategoryService userPriceCategoryService,
             LogicCityService cityService,
-            FavoriteRestaurantService favoriteRestaurantService,
+            FavoriteListDAOImpl favoriteRestaurantService,
             LogicKitchenTypeService kitchenTypeService,
             LogicPriceCategoryService priceCategoryService) {
         this.userRepository = userRepository;
@@ -38,17 +41,6 @@ public class UserService implements UserDAO, ApiUserService {
         this.favoriteRestaurantService = favoriteRestaurantService;
         this.kitchenTypeService = kitchenTypeService;
         this.priceCategoryService = priceCategoryService;
-    }
-
-    @Override
-    public List<Map<String, String>> getUsers() {
-        return userRepository.findAll().stream()
-                .map(
-                        user ->
-                                Map.of(
-                                        "chatId", String.valueOf(user.getChatId()),
-                                        "nickname", user.getNickname()))
-                .collect(Collectors.toList());
     }
 
     @Override

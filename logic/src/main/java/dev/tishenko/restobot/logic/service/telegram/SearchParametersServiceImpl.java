@@ -1,5 +1,8 @@
-package dev.tishenko.restobot.logic.service;
+package dev.tishenko.restobot.logic.service.telegram;
 
+import dev.tishenko.restobot.logic.service.LogicCityService;
+import dev.tishenko.restobot.logic.service.LogicKitchenTypeService;
+import dev.tishenko.restobot.logic.service.LogicPriceCategoryService;
 import dev.tishenko.restobot.telegram.services.SearchParametersService;
 import java.util.List;
 import java.util.stream.Collectors;

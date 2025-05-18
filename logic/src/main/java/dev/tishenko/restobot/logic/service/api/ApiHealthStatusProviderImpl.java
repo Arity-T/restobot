@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service
-public class HealthStatusProvider implements ApiHealthStatusProvider {
+public class ApiHealthStatusProviderImpl implements ApiHealthStatusProvider {
 
     @Override
     public Map<String, Object> getHealthStatus() {
