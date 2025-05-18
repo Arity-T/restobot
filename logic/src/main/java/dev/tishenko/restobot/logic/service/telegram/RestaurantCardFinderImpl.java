@@ -155,14 +155,10 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
                                 // ignore, leave as null
                             }
 
-                            String description = details.getDescription();
-                            if (description == null) {
-                                description = "";
-                            }
-                            if (priceCategories != null && !priceCategories.isEmpty()) {
-                                description +=
-                                        " Price categories: " + String.join(", ", priceCategories);
-                            }
+                            String description =
+                                    details.getDescription() != null
+                                            ? details.getDescription()
+                                            : "";
 
                             return new RestaurantCardDTO(
                                     details.getLocationId(),
