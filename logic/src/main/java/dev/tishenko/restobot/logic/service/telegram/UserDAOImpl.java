@@ -87,7 +87,13 @@ public class UserDAOImpl implements UserDAO {
         }
 
         // Получаем город пользователя
-        String city = cityService.getCityById(record.getCityId()).map(c -> c.getName()).orElse("");
+        String city =
+                record.getCityId() != null
+                        ? cityService
+                                .getCityById(record.getCityId())
+                                .map(c -> c.getName())
+                                .orElse("")
+                        : "";
 
         // Получаем типы кухни пользователя
         List<String> kitchenTypes =
