@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.logic.repository;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.City;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.CityRecord;
 import java.util.List;
-import org.example.jooq.generated.tables.City;
-import org.example.jooq.generated.tables.records.CityRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 

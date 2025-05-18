@@ -2,10 +2,10 @@ package dev.tishenko.restobot.logic.service.api;
 
 import com.google.common.hash.Hashing;
 import dev.tishenko.restobot.api.service.ApiKeyValidator;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.AdminDataRecord;
 import dev.tishenko.restobot.logic.repository.AdminDataRepository;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.example.jooq.generated.tables.records.AdminDataRecord;
 import org.springframework.stereotype.Service;
 
 @Service

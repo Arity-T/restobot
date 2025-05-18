@@ -1,5 +1,6 @@
 package dev.tishenko.restobot.logic.service.telegram;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.UsersRecord;
 import dev.tishenko.restobot.logic.repository.UserRepository;
 import dev.tishenko.restobot.logic.service.LogicCityService;
 import dev.tishenko.restobot.logic.service.LogicKitchenTypeService;
@@ -12,7 +13,6 @@ import dev.tishenko.restobot.telegram.services.UserDTO;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.example.jooq.generated.tables.records.UsersRecord;
 import org.springframework.stereotype.Service;
 
 @Service

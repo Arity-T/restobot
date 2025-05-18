@@ -1,14 +1,14 @@
 package dev.tishenko.restobot.logic.service.telegram;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.CityRecord;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.KitchenTypeRecord;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.PriceCategoryRecord;
 import dev.tishenko.restobot.logic.service.LogicCityService;
 import dev.tishenko.restobot.logic.service.LogicKitchenTypeService;
 import dev.tishenko.restobot.logic.service.LogicPriceCategoryService;
 import dev.tishenko.restobot.telegram.services.SearchParametersService;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.example.jooq.generated.tables.records.CityRecord;
-import org.example.jooq.generated.tables.records.KitchenTypeRecord;
-import org.example.jooq.generated.tables.records.PriceCategoryRecord;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -79,7 +79,7 @@ jooq {
                     }
 
                     target {
-                        packageName = 'org.example.jooq.generated'
+                        packageName = 'dev.tishenko.restobot.logic.jooq.generated'
                         directory = 'build/generated-sources/jooq'
                     }
                 }

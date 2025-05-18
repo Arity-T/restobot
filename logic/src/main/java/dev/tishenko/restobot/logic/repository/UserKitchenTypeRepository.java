@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.logic.repository;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.UserKitchenType;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.UserKitchenTypeRecord;
 import java.util.List;
-import org.example.jooq.generated.tables.UserKitchenType;
-import org.example.jooq.generated.tables.records.UserKitchenTypeRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 

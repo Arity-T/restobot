@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.logic.service;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.UserKitchenTypeRecord;
 import dev.tishenko.restobot.logic.repository.UserKitchenTypeRepository;
 import java.util.List;
-import org.example.jooq.generated.tables.records.UserKitchenTypeRecord;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.logic.service;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.UserPriceCategoryRecord;
 import dev.tishenko.restobot.logic.repository.UserPriceCategoryRepository;
 import java.util.List;
-import org.example.jooq.generated.tables.records.UserPriceCategoryRecord;
 import org.springframework.stereotype.Service;
 
 @Service

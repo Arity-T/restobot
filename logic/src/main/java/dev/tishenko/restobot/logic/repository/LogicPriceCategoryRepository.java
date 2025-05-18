@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.logic.repository;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.PriceCategory;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.PriceCategoryRecord;
 import java.util.List;
-import org.example.jooq.generated.tables.PriceCategory;
-import org.example.jooq.generated.tables.records.PriceCategoryRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 

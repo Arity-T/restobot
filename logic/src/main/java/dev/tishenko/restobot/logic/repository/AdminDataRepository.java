@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.logic.repository;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.AdminData;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.AdminDataRecord;
 import java.util.List;
-import org.example.jooq.generated.tables.AdminData;
-import org.example.jooq.generated.tables.records.AdminDataRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 

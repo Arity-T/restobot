@@ -2,6 +2,7 @@ package dev.tishenko.restobot.logic.service.telegram;
 
 import dev.tishenko.restobot.data.service.DataCityService;
 import dev.tishenko.restobot.data.service.RestaurantService;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.FavoriteRestaurantRecord;
 import dev.tishenko.restobot.logic.repository.FavoriteRestaurantRepository;
 import dev.tishenko.restobot.telegram.services.FavoriteListDAO;
 import dev.tishenko.restobot.telegram.services.FavoriteRestaurantCardDTO;
@@ -13,7 +14,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.example.jooq.generated.tables.records.FavoriteRestaurantRecord;
 import org.example.jooq.generated.tables.records.RestaurantRecord;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package dev.tishenko.restobot.logic.repository;
 
+import dev.tishenko.restobot.logic.jooq.generated.tables.Users;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.UsersRecord;
 import java.util.List;
-import org.example.jooq.generated.tables.Users;
-import org.example.jooq.generated.tables.records.UsersRecord;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
