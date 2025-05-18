@@ -1,6 +1,7 @@
 package dev.tishenko.restobot.telegram.services;
 
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * Used to transfer a restaurant card
@@ -24,4 +25,6 @@ public record RestaurantCardDTO(
         String description,
         double latitude,
         double longitude,
-        String city) {}
+        String city) {
+
+}
