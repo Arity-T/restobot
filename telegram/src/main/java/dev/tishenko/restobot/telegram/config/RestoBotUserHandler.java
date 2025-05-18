@@ -630,10 +630,10 @@ public class RestoBotUserHandler {
                 if (!isGettingRestaurantsByParams) {
                     restaurantSelection =
                             restaurantCardFinder.getRestaurantCardByParams(
-                                    userData.getCity(),
-                                    userData.getKitchenTypes(),
-                                    userData.getPriceCategories(),
-                                    userData.getKeyWords());
+                                    userData.getCityForSearch(),
+                                    userData.getKitchenTypesForSearch(),
+                                    userData.getpriceCategoriesForSearch(),
+                                    userData.getKeyWordsForSearch());
                     isGettingRestaurantsByParams = true;
                 }
                 if (restaurantSelection.isEmpty()) {

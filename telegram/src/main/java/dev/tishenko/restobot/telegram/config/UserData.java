@@ -176,6 +176,27 @@ public class UserData {
         return list.getFirst();
     }
 
+    public String getCityForSearch(){
+        return cityForSearch;
+    }
+
+    public List<String> getKitchenTypesForSearch() {
+        return kitchenTypesForSearch;
+    }
+
+    public List<String> getpriceCategoriesForSearch() {
+        return priceCategoriesForSearch;
+    }
+
+    public List<String> getKeyWordsForSearch() {
+        return keyWordsForSearch;
+    }
+
+
+    public List<String> getKeyWords() {
+        return keyWords;
+    }
+
     public boolean setKeyWords(String keyWords) {
         this.keyWords = List.of(keyWords.split(","));
         userDAO.setNewUserKeyWords(chatID, List.of(keyWords.split(",")));
@@ -212,14 +233,13 @@ public class UserData {
         return city;
     }
 
+
+
     public void setCity(String city) {
         this.city = city;
         userDAO.setNewUserCity(chatID, city);
     }
 
-    public List<String> getKeyWords() {
-        return keyWords;
-    }
 
     public boolean isRestaurantInFavouriteList(RestaurantCardDTO restaurantCard) {
         return favoriteList.stream().anyMatch(x -> x.restaurantCardDTO() == restaurantCard);
