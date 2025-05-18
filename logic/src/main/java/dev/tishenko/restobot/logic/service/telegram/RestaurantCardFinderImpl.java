@@ -141,19 +141,6 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
                                 return null;
                             }
 
-                            // Filter by price category if specified
-                            if (priceCategories != null && !priceCategories.isEmpty()) {
-                                String priceLevel = details.getPriceLevel();
-                                if (priceLevel == null || !priceCategories.contains(priceLevel)) {
-                                    logger.debug(
-                                            "Skipping location {} due to price category mismatch: {} not in {}",
-                                            details.getName(),
-                                            priceLevel,
-                                            priceCategories);
-                                    return null;
-                                }
-                            }
-
                             URL websiteUrl = null;
                             try {
                                 websiteUrl =
@@ -168,13 +155,22 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
                                 // ignore, leave as null
                             }
 
+                            String description = details.getDescription();
+                            if (description == null) {
+                                description = "";
+                            }
+                            if (priceCategories != null && !priceCategories.isEmpty()) {
+                                description +=
+                                        " Price categories: " + String.join(", ", priceCategories);
+                            }
+
                             return new RestaurantCardDTO(
                                     details.getLocationId(),
                                     details.getName(),
                                     details.getAddressObj().getAddressString(),
                                     details.getRating() != null ? details.getRating() : 0.0,
                                     websiteUrl,
-                                    details.getDescription(),
+                                    description,
                                     details.getLatitude() != null ? details.getLatitude() : 0.0,
                                     details.getLongitude() != null ? details.getLongitude() : 0.0,
                                     details.getAddressObj().getCity());
