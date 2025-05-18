@@ -3,15 +3,15 @@
     <!-- Консольный аппендер -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [TELEGRAM] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
         </encoder>
     </appender>
 
     <!-- Файловый аппендер для всех логов -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/restobot.log</file>
+        <file>logs/telegram.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/restobot.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/telegram.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -22,10 +22,7 @@
     <!-- Управление логами Spring Framework -->
     <logger name="org.springframework" level="INFO" />
     
-    <!-- Управление логами Telegram Bot API -->
-    <logger name="org.telegram" level="INFO" />
-    
-    <!-- Логи приложения -->
+    <!-- Логи телеграм модуля -->
     <logger name="dev.tishenko.restobot.telegram" level="DEBUG" />
 
     <!-- Корневой логгер -->

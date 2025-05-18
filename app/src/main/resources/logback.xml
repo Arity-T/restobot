@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Консольный аппендер для общих логов -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [LIBS] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Консольный аппендер для LOGIC -->
+    <appender name="CONSOLE-LOGIC" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [LOGIC] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Консольный аппендер для TELEGRAM -->
+    <appender name="CONSOLE-TELEGRAM" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [TELEGRAM] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Консольный аппендер для API -->
+    <appender name="CONSOLE-API" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [API] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Консольный аппендер для INTEGRATION -->
+    <appender name="CONSOLE-INTEGRATION" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [INTEGRATION] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Консольный аппендер для APP -->
+    <appender name="CONSOLE-APP" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [APP] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Файловый аппендер для всех логов -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/restobot.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/restobot.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Управление логами Spring Framework -->
+    <logger name="org.springframework" level="INFO" />
+    
+    <!-- Логи телеграм модуля -->
+    <logger name="dev.tishenko.restobot.telegram" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE-TELEGRAM" />
+        <appender-ref ref="FILE" />
+    </logger>
+    
+    <!-- Логи модуля логики -->
+    <logger name="dev.tishenko.restobot.logic" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE-LOGIC" />
+        <appender-ref ref="FILE" />
+    </logger>
+    
+    <!-- Логи интеграционного модуля -->
+    <logger name="dev.tishenko.restobot.integration" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE-INTEGRATION" />
+        <appender-ref ref="FILE" />
+    </logger>
+    
+    <!-- Логи API модуля -->
+    <logger name="dev.tishenko.restobot.api" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE-API" />
+        <appender-ref ref="FILE" />
+    </logger>
+    
+    <!-- Логи приложения -->
+    <logger name="dev.tishenko.restobot.app" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE-APP" />
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <!-- Корневой логгер для всех остальных логов -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration> 
