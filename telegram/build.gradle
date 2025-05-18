@@ -8,15 +8,9 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
-    alias(libs.plugins.shadow)
-}
-
-shadowJar {
-    archiveFileName = 'telegram-app.jar'
 }
 
 dependencies {
-    implementation project(":logic")
     implementation libs.telegrambots.longpolling
     implementation libs.telegrambots.client
     implementation libs.jackson.dataformat.xml
@@ -24,7 +18,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'dev.tishenko.restobot.telegram.App'
+    mainClass = 'dev.tishenko.restobot.telegram.example.AppExample'
 }
 
 run {
