@@ -95,7 +95,8 @@ public class RestoBotUserHandler {
                                 .keyboardRow(new InlineKeyboardRow(setCityInUserParamsButton))
                                 .keyboardRow(
                                         new InlineKeyboardRow(setKitchenTypesInUserParamsButton))
-                                .keyboardRow(new InlineKeyboardRow(setPriceCategoriesInUserParamsButton))
+                                .keyboardRow(
+                                        new InlineKeyboardRow(setPriceCategoriesInUserParamsButton))
                                 .keyboardRow(new InlineKeyboardRow(setKeyWordsInUserParamsButton))
                                 .keyboardRow(new InlineKeyboardRow(goToMenuButton))
                                 .build())

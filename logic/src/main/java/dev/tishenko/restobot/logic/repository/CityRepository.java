@@ -7,10 +7,10 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class LogicCityRepository {
+public class CityRepository {
     private final DSLContext dsl;
 
-    public LogicCityRepository(DSLContext dsl) {
+    public CityRepository(DSLContext dsl) {
         this.dsl = dsl;
     }
 

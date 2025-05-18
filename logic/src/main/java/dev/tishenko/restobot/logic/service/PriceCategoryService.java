@@ -1,17 +1,17 @@
 package dev.tishenko.restobot.logic.service;
 
 import dev.tishenko.restobot.logic.jooq.generated.tables.records.PriceCategoryRecord;
-import dev.tishenko.restobot.logic.repository.LogicPriceCategoryRepository;
+import dev.tishenko.restobot.logic.repository.PriceCategoryRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LogicPriceCategoryService {
+public class PriceCategoryService {
 
-    private final LogicPriceCategoryRepository repo;
+    private final PriceCategoryRepository repo;
 
-    public LogicPriceCategoryService(LogicPriceCategoryRepository repo) {
+    public PriceCategoryService(PriceCategoryRepository repo) {
         this.repo = repo;
     }
 

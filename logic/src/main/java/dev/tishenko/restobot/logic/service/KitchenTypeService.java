@@ -1,17 +1,17 @@
 package dev.tishenko.restobot.logic.service;
 
 import dev.tishenko.restobot.logic.jooq.generated.tables.records.KitchenTypeRecord;
-import dev.tishenko.restobot.logic.repository.LogicKitchenTypeRepository;
+import dev.tishenko.restobot.logic.repository.KitchenTypeRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LogicKitchenTypeService {
+public class KitchenTypeService {
 
-    private final LogicKitchenTypeRepository repo;
+    private final KitchenTypeRepository repo;
 
-    public LogicKitchenTypeService(LogicKitchenTypeRepository repo) {
+    public KitchenTypeService(KitchenTypeRepository repo) {
         this.repo = repo;
     }
 

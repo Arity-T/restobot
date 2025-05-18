@@ -3,9 +3,9 @@ package dev.tishenko.restobot.logic.service.telegram;
 import dev.tishenko.restobot.logic.jooq.generated.tables.records.CityRecord;
 import dev.tishenko.restobot.logic.jooq.generated.tables.records.KitchenTypeRecord;
 import dev.tishenko.restobot.logic.jooq.generated.tables.records.PriceCategoryRecord;
-import dev.tishenko.restobot.logic.service.LogicCityService;
-import dev.tishenko.restobot.logic.service.LogicKitchenTypeService;
-import dev.tishenko.restobot.logic.service.LogicPriceCategoryService;
+import dev.tishenko.restobot.logic.service.CityService;
+import dev.tishenko.restobot.logic.service.KitchenTypeService;
+import dev.tishenko.restobot.logic.service.PriceCategoryService;
 import dev.tishenko.restobot.telegram.services.SearchParametersService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,14 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchParametersServiceImpl implements SearchParametersService {
 
-    private final LogicCityService cityService;
-    private final LogicKitchenTypeService kitchenTypeService;
-    private final LogicPriceCategoryService priceCategoryService;
+    private final CityService cityService;
+    private final KitchenTypeService kitchenTypeService;
+    private final PriceCategoryService priceCategoryService;
 
     public SearchParametersServiceImpl(
-            LogicCityService cityService,
-            LogicKitchenTypeService kitchenTypeService,
-            LogicPriceCategoryService priceCategoryService) {
+            CityService cityService,
+            KitchenTypeService kitchenTypeService,
+            PriceCategoryService priceCategoryService) {
         this.cityService = cityService;
         this.kitchenTypeService = kitchenTypeService;
         this.priceCategoryService = priceCategoryService;

@@ -7,11 +7,11 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class LogicPriceCategoryRepository {
+public class PriceCategoryRepository {
 
     private final DSLContext dsl;
 
-    public LogicPriceCategoryRepository(DSLContext dsl) {
+    public PriceCategoryRepository(DSLContext dsl) {
         this.dsl = dsl;
     }
 

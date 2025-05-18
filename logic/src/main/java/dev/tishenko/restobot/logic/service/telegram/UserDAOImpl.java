@@ -2,9 +2,9 @@ package dev.tishenko.restobot.logic.service.telegram;
 
 import dev.tishenko.restobot.logic.jooq.generated.tables.records.UsersRecord;
 import dev.tishenko.restobot.logic.repository.UserRepository;
-import dev.tishenko.restobot.logic.service.LogicCityService;
-import dev.tishenko.restobot.logic.service.LogicKitchenTypeService;
-import dev.tishenko.restobot.logic.service.LogicPriceCategoryService;
+import dev.tishenko.restobot.logic.service.CityService;
+import dev.tishenko.restobot.logic.service.KitchenTypeService;
+import dev.tishenko.restobot.logic.service.PriceCategoryService;
 import dev.tishenko.restobot.logic.service.UserKitchenTypeService;
 import dev.tishenko.restobot.logic.service.UserPriceCategoryService;
 import dev.tishenko.restobot.telegram.services.FavoriteRestaurantCardDTO;
@@ -21,19 +21,19 @@ public class UserDAOImpl implements UserDAO {
     private final UserRepository userRepository;
     private final UserKitchenTypeService userKitchenTypeService;
     private final UserPriceCategoryService userPriceCategoryService;
-    private final LogicCityService cityService;
+    private final CityService cityService;
     private final FavoriteListDAOImpl favoriteRestaurantService;
-    private final LogicKitchenTypeService kitchenTypeService;
-    private final LogicPriceCategoryService priceCategoryService;
+    private final KitchenTypeService kitchenTypeService;
+    private final PriceCategoryService priceCategoryService;
 
     public UserDAOImpl(
             UserRepository userRepository,
             UserKitchenTypeService userKitchenTypeService,
             UserPriceCategoryService userPriceCategoryService,
-            LogicCityService cityService,
+            CityService cityService,
             FavoriteListDAOImpl favoriteRestaurantService,
-            LogicKitchenTypeService kitchenTypeService,
-            LogicPriceCategoryService priceCategoryService) {
+            KitchenTypeService kitchenTypeService,
+            PriceCategoryService priceCategoryService) {
         this.userRepository = userRepository;
         this.userKitchenTypeService = userKitchenTypeService;
         this.userPriceCategoryService = userPriceCategoryService;
@@ -87,25 +87,28 @@ public class UserDAOImpl implements UserDAO {
         }
 
         // Получаем город пользователя
-        String city =
-                cityService.getCityById(record.getCityId())
-                        .map(c -> c.getName())
-                        .orElse("");
+        String city = cityService.getCityById(record.getCityId()).map(c -> c.getName()).orElse("");
 
         // Получаем типы кухни пользователя
         List<String> kitchenTypes =
                 userKitchenTypeService.getAllForUser(chatId).stream()
-                        .map(k -> kitchenTypeService.getById(k.getKitchenTypeId())
-                                .map(kt -> kt.getName())
-                                .orElse(""))
+                        .map(
+                                k ->
+                                        kitchenTypeService
+                                                .getById(k.getKitchenTypeId())
+                                                .map(kt -> kt.getName())
+                                                .orElse(""))
                         .collect(Collectors.toList());
 
         // Получаем ценовые категории пользователя
         List<String> priceCategories =
                 userPriceCategoryService.getAllForUser(chatId).stream()
-                        .map(p -> priceCategoryService.getById(p.getPriceCategoryId())
-                                .map(pc -> pc.getName())
-                                .orElse(""))
+                        .map(
+                                p ->
+                                        priceCategoryService
+                                                .getById(p.getPriceCategoryId())
+                                                .map(pc -> pc.getName())
+                                                .orElse(""))
                         .collect(Collectors.toList());
 
         // Получаем ключевые слова
