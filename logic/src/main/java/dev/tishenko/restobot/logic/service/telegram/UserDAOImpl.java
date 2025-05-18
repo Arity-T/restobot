@@ -87,25 +87,28 @@ public class UserDAOImpl implements UserDAO {
         }
 
         // Получаем город пользователя
-        String city =
-                cityService.getCityById(record.getCityId())
-                        .map(c -> c.getName())
-                        .orElse("");
+        String city = cityService.getCityById(record.getCityId()).map(c -> c.getName()).orElse("");
 
         // Получаем типы кухни пользователя
         List<String> kitchenTypes =
                 userKitchenTypeService.getAllForUser(chatId).stream()
-                        .map(k -> kitchenTypeService.getById(k.getKitchenTypeId())
-                                .map(kt -> kt.getName())
-                                .orElse(""))
+                        .map(
+                                k ->
+                                        kitchenTypeService
+                                                .getById(k.getKitchenTypeId())
+                                                .map(kt -> kt.getName())
+                                                .orElse(""))
                         .collect(Collectors.toList());
 
         // Получаем ценовые категории пользователя
         List<String> priceCategories =
                 userPriceCategoryService.getAllForUser(chatId).stream()
-                        .map(p -> priceCategoryService.getById(p.getPriceCategoryId())
-                                .map(pc -> pc.getName())
-                                .orElse(""))
+                        .map(
+                                p ->
+                                        priceCategoryService
+                                                .getById(p.getPriceCategoryId())
+                                                .map(pc -> pc.getName())
+                                                .orElse(""))
                         .collect(Collectors.toList());
 
         // Получаем ключевые слова
