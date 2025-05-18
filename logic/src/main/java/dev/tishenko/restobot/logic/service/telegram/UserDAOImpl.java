@@ -86,16 +86,26 @@ public class UserDAOImpl implements UserDAO {
             return Optional.empty();
         }
 
+        // Получаем город пользователя
+        String city =
+                cityService.getCityById(record.getCityId())
+                        .map(c -> c.getName())
+                        .orElse("");
+
         // Получаем типы кухни пользователя
         List<String> kitchenTypes =
                 userKitchenTypeService.getAllForUser(chatId).stream()
-                        .map(k -> k.getKitchenTypeId().toString())
+                        .map(k -> kitchenTypeService.getById(k.getKitchenTypeId())
+                                .map(kt -> kt.getName())
+                                .orElse(""))
                         .collect(Collectors.toList());
 
         // Получаем ценовые категории пользователя
         List<String> priceCategories =
                 userPriceCategoryService.getAllForUser(chatId).stream()
-                        .map(p -> p.getPriceCategoryId().toString())
+                        .map(p -> priceCategoryService.getById(p.getPriceCategoryId())
+                                .map(pc -> pc.getName())
+                                .orElse(""))
                         .collect(Collectors.toList());
 
         // Получаем ключевые слова
@@ -110,7 +120,7 @@ public class UserDAOImpl implements UserDAO {
                 new UserDTO(
                         record.getChatId(),
                         record.getNickname(),
-                        record.getCityId() != null ? record.getCityId().toString() : "",
+                        city,
                         kitchenTypes,
                         priceCategories,
                         keywords,
