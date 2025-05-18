@@ -13,7 +13,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
@@ -28,7 +27,6 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
  * Main class for the RestoBot Telegram bot. Handles all interactions with the Telegram API and
  * routes user messages to the appropriate handlers.
  */
-@Component
 public class RestoBot implements LongPollingUpdateConsumer {
     private static final Logger logger = LoggerFactory.getLogger(RestoBot.class);
 
