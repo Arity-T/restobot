@@ -79,13 +79,13 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
             throws MalformedURLException, URISyntaxException {
         // Combine all search parameters into a single search query
         StringBuilder searchQuery = new StringBuilder();
-        if (city != null && !city.equals("Любой")) {
+        if (city != null && !city.isEmpty()) {
             searchQuery.append(city).append(" ");
         }
-        if (kitchenTypes != null && !kitchenTypes.contains("Любые")) {
+        if (kitchenTypes != null && !kitchenTypes.isEmpty()) {
             searchQuery.append(String.join(" ", kitchenTypes)).append(" ");
         }
-        if (keyWords != null && !keyWords.contains("Любые")) {
+        if (keyWords != null && !keyWords.isEmpty()) {
             searchQuery.append(String.join(" ", keyWords));
         }
 
@@ -109,7 +109,7 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
                             }
 
                             // Filter by price category if specified
-                            if (priceCategories != null && !priceCategories.contains("Любые")) {
+                            if (priceCategories != null && !priceCategories.isEmpty()) {
                                 String priceLevel = details.getPriceLevel();
                                 if (priceLevel == null || !priceCategories.contains(priceLevel)) {
                                     return null;
