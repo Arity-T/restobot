@@ -21,6 +21,7 @@ public class RestoBotUserHandler {
     private int actualIndex;
     private boolean isSettingUserParams;
     private boolean isSettingLocation;
+    private boolean isGettingRestaurantsByParams;
 
     private final FavoriteListDAO favoriteListDAO;
     private final RestaurantCardFinder restaurantCardFinder;
@@ -43,6 +44,7 @@ public class RestoBotUserHandler {
         restaurantSelection = new ArrayList<>();
         isSettingUserParams = false;
         isSettingLocation = false;
+        isGettingRestaurantsByParams = false;
         actualState = "/start";
 
         this.favoriteListDAO = favoriteListDAO;
@@ -72,6 +74,14 @@ public class RestoBotUserHandler {
 
     public boolean isSettingUserParams() {
         return isSettingUserParams;
+    }
+
+    public String getActualState() {
+        return actualState;
+    }
+
+    public void setActualState(String state) {
+        actualState = state;
     }
 
     private RestaurantCardDTO nextRestaurantFromSelection() {
@@ -444,6 +454,7 @@ public class RestoBotUserHandler {
             case "restaurantSearchButton" -> {
                 actualState = "restaurantSearchButton";
                 isSettingUserParams = false;
+                isGettingRestaurantsByParams = false;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -558,7 +569,7 @@ public class RestoBotUserHandler {
             }
             case "setDefaultButton" -> {
                 actualState = "setDefaultButton";
-                setDefaultParams(userData);
+                if (lastParams != null) setDefaultParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -587,7 +598,7 @@ public class RestoBotUserHandler {
             }
             case "setDisabledButton" -> {
                 actualState = "setDisabledButton";
-                setDisableParams(userData);
+                if (lastParams != null) setDisableParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -616,12 +627,15 @@ public class RestoBotUserHandler {
             }
             case "searchButton" -> {
                 actualState = "searchButton";
-                restaurantSelection =
-                        restaurantCardFinder.getRestaurantCardByParams(
-                                userData.getCity(),
-                                userData.getKitchenTypes(),
-                                userData.getPriceCategories(),
-                                userData.getKeyWords());
+                if (!isGettingRestaurantsByParams) {
+                    restaurantSelection =
+                            restaurantCardFinder.getRestaurantCardByParams(
+                                    userData.getCity(),
+                                    userData.getKitchenTypes(),
+                                    userData.getPriceCategories(),
+                                    userData.getKeyWords());
+                    isGettingRestaurantsByParams = true;
+                }
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
                             .chatId(chatId)
@@ -727,16 +741,16 @@ public class RestoBotUserHandler {
     private void setDisableParams(UserData userData) {
         switch (lastParams) {
             case "cityForSearch" -> {
-                userData.setCityForSearch("Отключено");
+                userData.setCityForSearch("");
             }
             case "kitchenTypesForSearch" -> {
-                userData.setKitchenTypesForSearch(List.of("Отключено"));
+                userData.setKitchenTypesForSearch(List.of());
             }
             case "priceCategoriesForSearch" -> {
-                userData.setPriceCategoriesForSearch(List.of("Отключено"));
+                userData.setPriceCategoriesForSearch(List.of());
             }
             case "keyWordsForSearch" -> {
-                userData.setKeyWordsForSearch(List.of("Отключено"));
+                userData.setDefaultKeyWordsForSearch();
             }
         }
     }
@@ -946,13 +960,12 @@ public class RestoBotUserHandler {
                 + favoriteRestaurantCardDTO.restaurantCardDTO().addressString()
                 + '\n'
                 + "Имеет рейтинг: "
-                + favoriteRestaurantCardDTO.restaurantCardDTO().rating()
+                + (favoriteRestaurantCardDTO.restaurantCardDTO().rating() == 0.0 ? "Мне не удалось найти рейтинг" : favoriteRestaurantCardDTO.restaurantCardDTO().rating())
                 + "\n"
                 + "Официальный сайт: "
-                + favoriteRestaurantCardDTO.restaurantCardDTO().website()
+                + (favoriteRestaurantCardDTO.restaurantCardDTO().website() == null ? "Мне не удалось найти сайт" :  favoriteRestaurantCardDTO.restaurantCardDTO().website())
                 + '\n'
-                + favoriteRestaurantCardDTO.restaurantCardDTO().description()
-                + '\n'
+                + (favoriteRestaurantCardDTO.restaurantCardDTO().description() == null || favoriteRestaurantCardDTO.restaurantCardDTO().description().isEmpty()  ? "" : favoriteRestaurantCardDTO.restaurantCardDTO().description() + '\n')
                 + "Посещен: "
                 + (favoriteRestaurantCardDTO.isVisited() ? "Да" : "Нет");
     }
@@ -964,11 +977,11 @@ public class RestoBotUserHandler {
                 + restaurantCardDTO.addressString()
                 + '\n'
                 + "Имеет рейтинг: "
-                + restaurantCardDTO.rating()
+                + ((restaurantCardDTO.rating() == 0.0) ? "Мне не удалось найти рейтинг" : restaurantCardDTO.rating())
                 + "\n"
                 + "Официальный сайт: "
-                + restaurantCardDTO.website()
+                + (restaurantCardDTO.website() == null ? "Мне не удалось найти сайт" :  restaurantCardDTO.website())
                 + '\n'
-                + restaurantCardDTO.description();
+                + (restaurantCardDTO.description() == null || restaurantCardDTO.description().isEmpty() ? "" : restaurantCardDTO.description());
     }
 }

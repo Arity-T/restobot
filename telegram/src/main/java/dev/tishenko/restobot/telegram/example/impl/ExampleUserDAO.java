@@ -46,4 +46,9 @@ public class ExampleUserDAO implements UserDAO {
     public void setNewUserKeyWords(long chatId, List<String> keyWords) {
         logger.info("Setting new user key words: chatId={}, keyWords={}", chatId, keyWords);
     }
+
+    @Override
+    public void setUserState(long chatId, String state) {
+        logger.info("Setting user state: chatId={}, keyWords={}", chatId, state);
+    }
 }

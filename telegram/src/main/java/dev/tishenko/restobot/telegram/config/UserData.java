@@ -14,6 +14,7 @@ public class UserData {
     private List<String> kitchenTypes;
     private List<String> priceCategories;
     private List<String> keyWords;
+    private String state;
     private int index;
 
     private String cityForSearch;
@@ -44,6 +45,7 @@ public class UserData {
         kitchenTypes = userDTO.kitchenTypes();
         priceCategories = userDTO.priceCategories();
         keyWords = userDTO.keyWords();
+        state = userDTO.state();
 
         cityForSearch = city;
         kitchenTypesForSearch = kitchenTypes;
@@ -69,11 +71,10 @@ public class UserData {
         setChatID(chatID);
         setNickName(nickName);
         favoriteList = new ArrayList<>();
-        city = "Любой";
-        kitchenTypes = List.of("Любые");
-        priceCategories = List.of("Любые");
-        keyWords = List.of("Любые");
-
+        city = null;
+        kitchenTypes = null;
+        priceCategories = null;
+        keyWords = null;
         cityForSearch = city;
         kitchenTypesForSearch = kitchenTypes;
         priceCategoriesForSearch = priceCategories;
@@ -89,39 +90,80 @@ public class UserData {
         correctPriceCategories = searchParametersService.getPriceCategoriesNames();
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+        userDAO.setUserState(chatID, state);
+    }
+
     public UserDTO toUserDTO() {
         return new UserDTO(
-                chatID, nickName, city, kitchenTypes, priceCategories, keyWords, favoriteList);
+                chatID,
+                nickName,
+                city,
+                kitchenTypes,
+                priceCategories,
+                keyWords,
+                favoriteList,
+                state);
     }
 
     public String userParamsToString() {
-        return "Город: "
-                + city
-                + ".\n"
-                + "Типы кухни: "
-                + listToStringStream(kitchenTypes)
-                + ".\n"
-                + "Ценовые категории: "
-                + listToStringStream(priceCategories)
-                + ".\n"
-                + "Ключевые слова: "
-                + listToStringStream(keyWords)
-                + ".\n";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Город: ")
+                .append(city == null || city.isEmpty() ? "Отключено" : city)
+                .append(".\n")
+                .append("Типы кухни: ")
+                .append(
+                        kitchenTypes == null || kitchenTypes.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(kitchenTypes))
+                .append(".\n")
+                .append("Ценовые категории: ")
+                .append(
+                        priceCategories == null || priceCategories.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(priceCategories))
+                .append(".\n")
+                .append("Ключевые слова: ")
+                .append(
+                        keyWords == null || keyWords.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(keyWords))
+                .append(".\n");
+        return sb.toString();
     }
 
     public String userParamsToSearchRestaurantsToString() {
-        return "Город: "
-                + cityForSearch
-                + ".\n"
-                + "Типы кухни: "
-                + listToStringStream(kitchenTypesForSearch)
-                + ".\n"
-                + "Ценовые категории: "
-                + listToStringStream(priceCategoriesForSearch)
-                + ".\n"
-                + "Ключевые слова: "
-                + listToStringStream(keyWordsForSearch)
-                + ".\n";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Город: ")
+                .append(
+                        cityForSearch == null || cityForSearch.isEmpty()
+                                ? "Отключено"
+                                : cityForSearch)
+                .append(".\n")
+                .append("Типы кухни: ")
+                .append(
+                        kitchenTypesForSearch == null || kitchenTypesForSearch.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(kitchenTypesForSearch))
+                .append(".\n")
+                .append("Ценовые категории: ")
+                .append(
+                        priceCategoriesForSearch == null || priceCategoriesForSearch.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(priceCategoriesForSearch))
+                .append(".\n")
+                .append("Ключевые слова: ")
+                .append(
+                        keyWordsForSearch == null || keyWordsForSearch.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(keyWordsForSearch))
+                .append(".\n");
+        return sb.toString();
     }
 
     public static String listToStringStream(List<String> list) {
@@ -251,6 +293,11 @@ public class UserData {
         this.keyWordsForSearch = keyWordsForSearch;
     }
 
+    public boolean setDefaultKeyWordsForSearch() {
+        this.keyWordsForSearch = List.of();
+        return true;
+    }
+
     public boolean checkAndSetCity(String city) {
         if (correctCities.contains(city)) {
             this.city = city;
@@ -278,7 +325,7 @@ public class UserData {
         List<String> priceCategories = Arrays.stream(params.split(",")).map(String::trim).toList();
         if (new HashSet<>(correctPriceCategories).containsAll(priceCategories)) {
             this.priceCategories = priceCategories;
-            userDAO.setNewUserKitchenTypes(chatID, priceCategories);
+            userDAO.setNewUserPriceCategories(chatID, priceCategories);
             return true;
         }
         return false;

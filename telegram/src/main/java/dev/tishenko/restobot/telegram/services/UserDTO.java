@@ -15,6 +15,7 @@ import java.util.List;
  * @param priceCategories list of preferred price category identifiers
  * @param keyWords list of search keywords used by the user
  * @param favoriteList list of entries mapping each {@link RestaurantCardDTO}
+ * @param state state user
  */
 public record UserDTO(
         long chatID,
@@ -23,4 +24,5 @@ public record UserDTO(
         List<String> kitchenTypes,
         List<String> priceCategories,
         List<String> keyWords,
-        List<FavoriteRestaurantCardDTO> favoriteList) {}
+        List<FavoriteRestaurantCardDTO> favoriteList,
+        String state) {}

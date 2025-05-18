@@ -54,13 +54,13 @@ public class UserDAOImpl implements UserDAO {
         userRepository.saveUser(userDTO.chatID(), userDTO.nickName());
 
         // Сохраняем город, если он указан
-        if (!userDTO.city().isEmpty()) {
+        if (userDTO.city() != null && !userDTO.city().isEmpty()) {
             logger.debug("Setting city for user {}: {}", userDTO.chatID(), userDTO.city());
             setNewUserCity(userDTO.chatID(), userDTO.city());
         }
 
         // Сохраняем типы кухни
-        if (!userDTO.kitchenTypes().isEmpty()) {
+        if (userDTO.kitchenTypes() != null && !userDTO.kitchenTypes().isEmpty()) {
             logger.debug(
                     "Setting kitchen types for user {}: {}",
                     userDTO.chatID(),
@@ -69,7 +69,7 @@ public class UserDAOImpl implements UserDAO {
         }
 
         // Сохраняем ценовые категории
-        if (!userDTO.priceCategories().isEmpty()) {
+        if (userDTO.priceCategories() != null && !userDTO.priceCategories().isEmpty()) {
             logger.debug(
                     "Setting price categories for user {}: {}",
                     userDTO.chatID(),
@@ -78,13 +78,13 @@ public class UserDAOImpl implements UserDAO {
         }
 
         // Сохраняем ключевые слова
-        if (!userDTO.keyWords().isEmpty()) {
+        if (userDTO.keyWords() != null && !userDTO.keyWords().isEmpty()) {
             logger.debug("Setting keywords for user {}: {}", userDTO.chatID(), userDTO.keyWords());
             setNewUserKeyWords(userDTO.chatID(), userDTO.keyWords());
         }
 
         // Сохраняем избранные рестораны
-        if (!userDTO.favoriteList().isEmpty()) {
+        if (userDTO.favoriteList() != null && !userDTO.favoriteList().isEmpty()) {
             logger.debug(
                     "Setting favorite restaurants for user {}: count {}",
                     userDTO.chatID(),
@@ -108,7 +108,13 @@ public class UserDAOImpl implements UserDAO {
         }
 
         // Получаем город пользователя
-        String city = cityService.getCityById(record.getCityId()).map(c -> c.getName()).orElse("");
+        String city =
+                record.getCityId() != null
+                        ? cityService
+                                .getCityById(record.getCityId())
+                                .map(c -> c.getName())
+                                .orElse("")
+                        : "";
         logger.debug("Found city for user {}: {}", chatId, city);
 
         // Получаем типы кухни пользователя
@@ -153,7 +159,8 @@ public class UserDAOImpl implements UserDAO {
                         kitchenTypes,
                         priceCategories,
                         keywords,
-                        favoriteList));
+                        favoriteList,
+                        record.getState()));
     }
 
     @Override
@@ -246,5 +253,10 @@ public class UserDAOImpl implements UserDAO {
         logger.debug("Setting new keywords for user {}: {}", chatId, keyWords);
         String keywordsString = String.join(",", keyWords);
         userRepository.updateKeywords(chatId, keywordsString);
+    }
+
+    @Override
+    public void setUserState(long chatId, String state) {
+        userRepository.updateState(chatId, state);
     }
 }
