@@ -960,12 +960,22 @@ public class RestoBotUserHandler {
                 + favoriteRestaurantCardDTO.restaurantCardDTO().addressString()
                 + '\n'
                 + "Имеет рейтинг: "
-                + (favoriteRestaurantCardDTO.restaurantCardDTO().rating() == 0.0 ? "Мне не удалось найти рейтинг" : favoriteRestaurantCardDTO.restaurantCardDTO().rating())
+                + (favoriteRestaurantCardDTO.restaurantCardDTO().rating() == 0.0
+                        ? "Мне не удалось найти рейтинг"
+                        : favoriteRestaurantCardDTO.restaurantCardDTO().rating())
                 + "\n"
                 + "Официальный сайт: "
-                + (favoriteRestaurantCardDTO.restaurantCardDTO().website() == null ? "Мне не удалось найти сайт" :  favoriteRestaurantCardDTO.restaurantCardDTO().website())
+                + (favoriteRestaurantCardDTO.restaurantCardDTO().website() == null
+                        ? "Мне не удалось найти сайт"
+                        : favoriteRestaurantCardDTO.restaurantCardDTO().website())
                 + '\n'
-                + (favoriteRestaurantCardDTO.restaurantCardDTO().description() == null || favoriteRestaurantCardDTO.restaurantCardDTO().description().isEmpty()  ? "" : favoriteRestaurantCardDTO.restaurantCardDTO().description() + '\n')
+                + (favoriteRestaurantCardDTO.restaurantCardDTO().description() == null
+                                || favoriteRestaurantCardDTO
+                                        .restaurantCardDTO()
+                                        .description()
+                                        .isEmpty()
+                        ? ""
+                        : favoriteRestaurantCardDTO.restaurantCardDTO().description() + '\n')
                 + "Посещен: "
                 + (favoriteRestaurantCardDTO.isVisited() ? "Да" : "Нет");
     }
@@ -977,11 +987,18 @@ public class RestoBotUserHandler {
                 + restaurantCardDTO.addressString()
                 + '\n'
                 + "Имеет рейтинг: "
-                + ((restaurantCardDTO.rating() == 0.0) ? "Мне не удалось найти рейтинг" : restaurantCardDTO.rating())
+                + ((restaurantCardDTO.rating() == 0.0)
+                        ? "Мне не удалось найти рейтинг"
+                        : restaurantCardDTO.rating())
                 + "\n"
                 + "Официальный сайт: "
-                + (restaurantCardDTO.website() == null ? "Мне не удалось найти сайт" :  restaurantCardDTO.website())
+                + (restaurantCardDTO.website() == null
+                        ? "Мне не удалось найти сайт"
+                        : restaurantCardDTO.website())
                 + '\n'
-                + (restaurantCardDTO.description() == null || restaurantCardDTO.description().isEmpty() ? "" : restaurantCardDTO.description());
+                + (restaurantCardDTO.description() == null
+                                || restaurantCardDTO.description().isEmpty()
+                        ? ""
+                        : restaurantCardDTO.description());
     }
 }

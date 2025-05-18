@@ -176,7 +176,7 @@ public class UserData {
         return list.getFirst();
     }
 
-    public String getCityForSearch(){
+    public String getCityForSearch() {
         return cityForSearch;
     }
 
@@ -191,7 +191,6 @@ public class UserData {
     public List<String> getKeyWordsForSearch() {
         return keyWordsForSearch;
     }
-
 
     public List<String> getKeyWords() {
         return keyWords;
@@ -233,13 +232,10 @@ public class UserData {
         return city;
     }
 
-
-
     public void setCity(String city) {
         this.city = city;
         userDAO.setNewUserCity(chatID, city);
     }
-
 
     public boolean isRestaurantInFavouriteList(RestaurantCardDTO restaurantCard) {
         return favoriteList.stream().anyMatch(x -> x.restaurantCardDTO() == restaurantCard);
