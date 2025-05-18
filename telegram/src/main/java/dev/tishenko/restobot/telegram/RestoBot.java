@@ -109,6 +109,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                                     favoriteListDAO,
                                     searchParametersService));
                     userDAO.addUserToDB(userData.get(chatId).toUserDTO());
+                    logger.debug("User {} was registered", update.getMessage().getChat().getUserName());
                 } else {
                     userData.put(
                             chatId,
@@ -119,6 +120,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                                     userDAO,
                                     favoriteListDAO,
                                     searchParametersService));
+                    logger.debug("User {} uploaded from db", update.getMessage().getChat().getUserName());
                 }
                 botConfig.put(
                         chatId,
@@ -130,9 +132,8 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
 
                 SendMessage greetingString =
                         botConfig.get(chatId).greetingMessage(userData.get(chatId));
-                logger.debug("User {} was registered", update.getMessage().getChat().getUserName());
                 try {
-                    userData.get(chatId).setState(botConfig.get(chatId).getState());
+                    userData.get(chatId).setState(botConfig.get(chatId).getActualState());
                     telegramClient.execute(greetingString);
                 } catch (TelegramApiException e) {
                     logger.error("Error sending greeting message: {}", e.getMessage());
@@ -153,7 +154,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                                 .messageId(update.getMessage().getMessageId())
                                 .build();
                 try {
-                    userData.get(chatId).setState(botConfig.get(chatId).getState());
+                    userData.get(chatId).setState(botConfig.get(chatId).getActualState());
                     telegramClient.execute(editMessageText);
                     telegramClient.execute(deleteMessage);
                 } catch (TelegramApiException e) {
@@ -186,13 +187,14 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                                     update, lastMessageId.get(chatId), false, userData.get(chatId));
             if (!editMessageText.getText().equals("Incorrect state")) {
                 try {
-                    userData.get(chatId).setState(botConfig.get(chatId).getState());
+                    userData.get(chatId).setState(botConfig.get(chatId).getActualState());
                     telegramClient.execute(editMessageText);
                 } catch (TelegramApiException e) {
                     logger.error("Error editing message: {}", e.getMessage());
                 }
             }
-        } else if (update.hasMessage() && update.getMessage().hasLocation()
+        } else if (update.hasMessage()
+                && update.getMessage().hasLocation()
                 && botConfig.get(update.getMessage().getChatId()).isSettingLocation()) {
             long chatId = update.getMessage().getChatId();
             EditMessageText editMessageText =
@@ -207,7 +209,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                             .build();
             if (!editMessageText.getText().equals("Incorrect state")) {
                 try {
-                    userData.get(chatId).setState(botConfig.get(chatId).getState());
+                    userData.get(chatId).setState(botConfig.get(chatId).getActualState());
                     telegramClient.execute(editMessageText);
                     telegramClient.execute(deleteMessage);
                 } catch (TelegramApiException e) {
@@ -215,7 +217,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                 }
             }
         } else {
-            if(update.getMessage() != null){
+            if (update.getMessage() != null) {
                 long chatId = update.getMessage().getChatId();
                 DeleteMessage deleteMessage =
                         DeleteMessage.builder()
@@ -232,7 +234,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
     }
 
     void getUserDataAfterRestart(Update update, long chatId) throws MalformedURLException {
-        if (!userData.containsKey(chatId)){
+        if (!userData.containsKey(chatId)) {
             Optional<UserDTO> userDTO = userDAO.getUserFromDB(chatId);
             userData.put(
                     chatId,
@@ -252,7 +254,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                             userDAO,
                             searchParametersService));
             botConfig.get(chatId).setActualState(userData.get(chatId).getState());
+            logger.debug("User {} uploaded from db", update.getMessage().getChat().getUserName());
         }
     }
-
 }
