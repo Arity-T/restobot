@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.logic.example;
 
 import dev.tishenko.restobot.logic.example.config.AppConfig;
-import dev.tishenko.restobot.telegram.RestoBot;
+import dev.tishenko.restobot.telegram.BotFacade;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
@@ -31,7 +31,8 @@ public class AppExample {
         apiThread.start();
 
         // Запускаем Telegram бота в основном потоке
-        var telegramApp = context.getBean(RestoBot.class);
+        BotFacade telegramApp = context.getBean(BotFacade.class);
         // Бот запускается автоматически через LongPollingUpdateConsumer
+        telegramApp.start();
     }
 }

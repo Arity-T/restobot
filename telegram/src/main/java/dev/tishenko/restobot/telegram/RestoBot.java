@@ -28,7 +28,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
  * Main class for the RestoBot Telegram bot. Handles all interactions with the Telegram API and
  * routes user messages to the appropriate handlers.
  */
-public class RestoBot implements LongPollingUpdateConsumer {
+public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
     private static final Logger logger = LoggerFactory.getLogger(RestoBot.class);
 
     private final Executor updatesProcessorExecutor = Executors.newVirtualThreadPerTaskExecutor();
