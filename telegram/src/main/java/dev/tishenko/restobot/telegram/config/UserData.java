@@ -1,10 +1,7 @@
 package dev.tishenko.restobot.telegram.config;
 
 import dev.tishenko.restobot.telegram.services.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class UserData {
     private long chatID;
@@ -40,7 +37,10 @@ public class UserData {
         setChatID(chatID);
         setNickName(nickName);
 
-        favoriteList = userDTO.favoriteList();
+        favoriteList =
+                ((userDTO.favoriteList() == null || userDTO.favoriteList().isEmpty())
+                        ? new ArrayList<>()
+                        : userDTO.favoriteList());
         city = userDTO.city();
         kitchenTypes = userDTO.kitchenTypes();
         priceCategories = userDTO.priceCategories();
@@ -176,6 +176,26 @@ public class UserData {
         return list.getFirst();
     }
 
+    public String getCityForSearch() {
+        return cityForSearch;
+    }
+
+    public List<String> getKitchenTypesForSearch() {
+        return kitchenTypesForSearch;
+    }
+
+    public List<String> getpriceCategoriesForSearch() {
+        return priceCategoriesForSearch;
+    }
+
+    public List<String> getKeyWordsForSearch() {
+        return keyWordsForSearch;
+    }
+
+    public List<String> getKeyWords() {
+        return keyWords;
+    }
+
     public boolean setKeyWords(String keyWords) {
         this.keyWords = List.of(keyWords.split(","));
         userDAO.setNewUserKeyWords(chatID, List.of(keyWords.split(",")));
@@ -217,12 +237,13 @@ public class UserData {
         userDAO.setNewUserCity(chatID, city);
     }
 
-    public List<String> getKeyWords() {
-        return keyWords;
-    }
-
     public boolean isRestaurantInFavouriteList(RestaurantCardDTO restaurantCard) {
-        return favoriteList.stream().anyMatch(x -> x.restaurantCardDTO() == restaurantCard);
+        return favoriteList.stream()
+                .anyMatch(
+                        x ->
+                                x.restaurantCardDTO()
+                                        .tripadvisorId()
+                                        .equals(restaurantCard.tripadvisorId()));
     }
 
     public void removeRestaurantFromFavouriteListByIndex() {
@@ -249,7 +270,11 @@ public class UserData {
 
     public void removeRestaurantFromFavouriteList(RestaurantCardDTO restaurantCard) {
         favoriteListDAO.removeRestaurantCardToFavoriteList(chatID, restaurantCard.tripadvisorId());
-        favoriteList.removeIf(x -> x.restaurantCardDTO() == restaurantCard);
+        favoriteList.removeIf(
+                x ->
+                        Objects.equals(
+                                x.restaurantCardDTO().tripadvisorId(),
+                                restaurantCard.tripadvisorId()));
     }
 
     public List<String> getKitchenTypes() {
