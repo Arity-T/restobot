@@ -3,15 +3,15 @@
     <!-- Консольный аппендер -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [LOGIC] [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
         </encoder>
     </appender>
 
     <!-- Файловый аппендер для всех логов -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/restobot.log</file>
+        <file>logs/logic.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/restobot.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/logic.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -22,8 +22,8 @@
     <!-- Управление логами Spring Framework -->
     <logger name="org.springframework" level="INFO" />
     
-    <!-- Логи приложения -->
-    <logger name="dev.tishenko.restobot" level="DEBUG" />
+    <!-- Логи модуля логики -->
+    <logger name="dev.tishenko.restobot.logic" level="DEBUG" />
 
     <!-- Корневой логгер -->
     <root level="INFO">
