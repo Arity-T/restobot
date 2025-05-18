@@ -3,7 +3,7 @@ package dev.tishenko.restobot.api.service;
 import java.util.Map;
 
 /** Service for providing health status information. */
-public interface HealthStatusProvider {
+public interface ApiHealthStatusProvider {
 
     /**
      * Gets the current health status of the application.

@@ -4,6 +4,7 @@ import static java.lang.Math.toIntExact;
 
 import dev.tishenko.restobot.telegram.services.*;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -112,7 +113,7 @@ public class RestoBotUserHandler {
 
     public EditMessageText nextState(
             Update message, long messageId, boolean isText, UserData userData)
-            throws MalformedURLException {
+            throws MalformedURLException, URISyntaxException {
         long chatId = userData.getChatID();
         if (isText) {
             if (message.getMessage().hasLocation()) {
@@ -151,7 +152,7 @@ public class RestoBotUserHandler {
 
     private EditMessageText actionChose(
             String message, long messageId, long chatId, UserData userData)
-            throws MalformedURLException {
+            throws MalformedURLException, URISyntaxException {
         switch (message) {
             case "goToUserParamsButton" -> {
                 actualState = "goToUserParamsButton";

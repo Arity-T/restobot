@@ -19,8 +19,8 @@ import org.springframework.web.server.WebHandler;
 @Configuration
 @Import(RestobotApiConfig.class)
 @ComponentScan("dev.tishenko.restobot.api.example.impl")
-public class AppConfigExample {
-    private static final Logger logger = LoggerFactory.getLogger(AppConfigExample.class);
+public class ApiAppConfigExample {
+    private static final Logger logger = LoggerFactory.getLogger(ApiAppConfigExample.class);
 
     @Bean
     public WebHandler webHandler(RouterFunction<ServerResponse> restobotRoutes) {

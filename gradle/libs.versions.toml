@@ -8,6 +8,7 @@ telegrambots-longpolling = "8.3.0"
 telegrambots-client = "8.3.0"
 spring-context = "6.2.6"
 spring-webflux = "6.2.6"
+spring-jdbc = "6.1.4"
 jackson-dataformat-xml = "2.19.0"
 jackson-databind = "2.19.0"
 spotless = "7.0.3"
@@ -20,6 +21,8 @@ gson = "2.13.1"
 lombok = "1.18.38"
 jooq = "10.1"
 reactor-netty = "1.2.5"
+guava = "33.0.0-jre"
+
 
 [libraries]
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
@@ -36,6 +39,8 @@ flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 reactor-netty = { module = "io.projectreactor.netty:reactor-netty", version.ref = "reactor-netty" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring-jdbc" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

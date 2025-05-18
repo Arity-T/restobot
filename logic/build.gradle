@@ -22,15 +22,28 @@ buildscript {
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'application'
     alias(libs.plugins.flyway)
     alias(libs.plugins.jooq)
 }
 
 dependencies {
     implementation project(":data")
+    implementation project(":telegram")
+    implementation project(":api")
     implementation(libs.postgresql)
+    implementation(libs.guava)
+    implementation(libs.spring.context)
+    implementation(libs.spring.jdbc)
+
+    implementation(libs.reactor.netty)
+    implementation(libs.spring.webflux)
 
     jooqGenerator libs.postgresql
+}
+
+application {
+    mainClass = 'dev.tishenko.restobot.logic.example.AppExample'
 }
 
 def env = loadEnvFile()
@@ -66,7 +79,7 @@ jooq {
                     }
 
                     target {
-                        packageName = 'org.example.jooq.generated'
+                        packageName = 'dev.tishenko.restobot.logic.jooq.generated'
                         directory = 'build/generated-sources/jooq'
                     }
                 }
