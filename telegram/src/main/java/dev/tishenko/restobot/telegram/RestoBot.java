@@ -97,7 +97,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
         if (update.hasMessage() && update.getMessage().hasText()) {
             logger.debug("Updated by user {}", update.getMessage().getChatId());
             long chatId = update.getMessage().getChatId();
-            if (update.getMessage().getText().equals("/start") && !userData.containsKey(chatId)) {
+            if (update.getMessage().getText().equals("/start")) {
                 Optional<UserDTO> userDTO = userDAO.getUserFromDB(chatId);
                 if (userDTO.isEmpty()) {
                     userData.put(
@@ -110,15 +110,26 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                                     searchParametersService));
                     userDAO.addUserToDB(userData.get(chatId).toUserDTO());
                 } else {
-                    userData.put(
-                            chatId,
-                            new UserData(
-                                    chatId,
-                                    update.getMessage().getChat().getUserName(),
-                                    userDTO.get(),
-                                    userDAO,
-                                    favoriteListDAO,
-                                    searchParametersService));
+                    if (!userData.containsKey(chatId)) {
+                        userData.put(
+                                chatId,
+                                new UserData(
+                                        chatId,
+                                        update.getMessage().getChat().getUserName(),
+                                        userDTO.get(),
+                                        userDAO,
+                                        favoriteListDAO,
+                                        searchParametersService));
+                    }
+                    else {
+                        userData.replace(chatId, new UserData(
+                                chatId,
+                                update.getMessage().getChat().getUserName(),
+                                userDTO.get(),
+                                userDAO,
+                                favoriteListDAO,
+                                searchParametersService));
+                    }
                 }
 
                 botConfig.put(
@@ -186,7 +197,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                     logger.error("Error editing message: {}", e.getMessage());
                 }
             }
-        } else if (update.getMessage().hasLocation()
+        } else if (update.hasMessage() && update.getMessage().hasLocation()
                 && botConfig.get(update.getMessage().getChatId()).isSettingLocation()) {
             long chatId = update.getMessage().getChatId();
             EditMessageText editMessageText =
@@ -208,16 +219,18 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                 }
             }
         } else {
-            long chatId = update.getMessage().getChatId();
-            DeleteMessage deleteMessage =
-                    DeleteMessage.builder()
-                            .chatId(chatId)
-                            .messageId(update.getMessage().getMessageId())
-                            .build();
-            try {
-                telegramClient.execute(deleteMessage);
-            } catch (TelegramApiException e) {
-                logger.error("Error deleting message: {}", e.getMessage());
+            if(update.getMessage() != null){
+                long chatId = update.getMessage().getChatId();
+                DeleteMessage deleteMessage =
+                        DeleteMessage.builder()
+                                .chatId(chatId)
+                                .messageId(update.getMessage().getMessageId())
+                                .build();
+                try {
+                    telegramClient.execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                    logger.error("Error deleting message: {}", e.getMessage());
+                }
             }
         }
     }
