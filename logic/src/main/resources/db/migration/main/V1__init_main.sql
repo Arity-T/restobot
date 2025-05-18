@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS price_category (
 
 CREATE TABLE IF NOT EXISTS users (
   chat_id          BIGINT PRIMARY KEY, 
+  state            VARCHAR(100),
   nickname         VARCHAR(32),
   city_id          INTEGER REFERENCES city(city_id),
   keywords         TEXT
