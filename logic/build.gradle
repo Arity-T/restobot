@@ -90,6 +90,6 @@ jooq {
 
 tasks.named('generateJooq').configure {
     launcher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(23)
     }
 }
