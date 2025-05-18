@@ -1,7 +1,6 @@
 package dev.tishenko.restobot.telegram.config;
 
 import dev.tishenko.restobot.telegram.services.*;
-
 import java.util.*;
 
 public class UserData {
@@ -38,7 +37,10 @@ public class UserData {
         setChatID(chatID);
         setNickName(nickName);
 
-        favoriteList = ((userDTO.favoriteList() == null || userDTO.favoriteList().isEmpty()) ? new ArrayList<>() : userDTO.favoriteList());
+        favoriteList =
+                ((userDTO.favoriteList() == null || userDTO.favoriteList().isEmpty())
+                        ? new ArrayList<>()
+                        : userDTO.favoriteList());
         city = userDTO.city();
         kitchenTypes = userDTO.kitchenTypes();
         priceCategories = userDTO.priceCategories();
@@ -236,7 +238,12 @@ public class UserData {
     }
 
     public boolean isRestaurantInFavouriteList(RestaurantCardDTO restaurantCard) {
-        return favoriteList.stream().anyMatch(x -> Objects.equals(x.restaurantCardDTO().tripadvisorId(), restaurantCard.tripadvisorId()));
+        return favoriteList.stream()
+                .anyMatch(
+                        x ->
+                                x.restaurantCardDTO()
+                                        .tripadvisorId()
+                                        .equals(restaurantCard.tripadvisorId()));
     }
 
     public void removeRestaurantFromFavouriteListByIndex() {
@@ -263,7 +270,11 @@ public class UserData {
 
     public void removeRestaurantFromFavouriteList(RestaurantCardDTO restaurantCard) {
         favoriteListDAO.removeRestaurantCardToFavoriteList(chatID, restaurantCard.tripadvisorId());
-        favoriteList.removeIf(x -> Objects.equals(x.restaurantCardDTO().tripadvisorId(), restaurantCard.tripadvisorId()));
+        favoriteList.removeIf(
+                x ->
+                        Objects.equals(
+                                x.restaurantCardDTO().tripadvisorId(),
+                                restaurantCard.tripadvisorId()));
     }
 
     public List<String> getKitchenTypes() {
