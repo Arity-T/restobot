@@ -566,7 +566,7 @@ public class RestoBotUserHandler {
             }
             case "setDefaultButton" -> {
                 actualState = "setDefaultButton";
-                setDefaultParams(userData);
+                if (lastParams != null) setDefaultParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -595,7 +595,7 @@ public class RestoBotUserHandler {
             }
             case "setDisabledButton" -> {
                 actualState = "setDisabledButton";
-                setDisableParams(userData);
+                if (lastParams != null) setDisableParams(userData);
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -735,13 +735,13 @@ public class RestoBotUserHandler {
     private void setDisableParams(UserData userData) {
         switch (lastParams) {
             case "cityForSearch" -> {
-                userData.setCityForSearch(null);
+                userData.setCityForSearch("");
             }
             case "kitchenTypesForSearch" -> {
-                userData.setKitchenTypesForSearch(null);
+                userData.setKitchenTypesForSearch(List.of());
             }
             case "priceCategoriesForSearch" -> {
-                userData.setPriceCategoriesForSearch(null);
+                userData.setPriceCategoriesForSearch(List.of());
             }
             case "keyWordsForSearch" -> {
                 userData.setDefaultKeyWordsForSearch();
