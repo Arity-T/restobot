@@ -153,9 +153,9 @@ dependencies {
    psql -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
    ```
 4. Запустить приложение вместе с базой данных.
-```bash
-docker compose up -d
-```
+   ```bash
+   docker compose up -d
+   ```
 
 При повторных запусках достаточно выполнить команду:
 ```bash
