@@ -127,7 +127,8 @@ public class UserDAOImpl implements UserDAO {
                         kitchenTypes,
                         priceCategories,
                         keywords,
-                        favoriteList));
+                        favoriteList,
+                        record.getState()));
     }
 
     @Override
@@ -195,5 +196,10 @@ public class UserDAOImpl implements UserDAO {
     public void setNewUserKeyWords(long chatId, List<String> keyWords) {
         String keywordsString = String.join(",", keyWords);
         userRepository.updateKeywords(chatId, keywordsString);
+    }
+
+    @Override
+    public void setUserState(long chatId, String state) {
+        userRepository.updateState(chatId, state);
     }
 }

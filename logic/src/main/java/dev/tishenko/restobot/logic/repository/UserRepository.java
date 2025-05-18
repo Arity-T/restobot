@@ -49,4 +49,11 @@ public class UserRepository {
     public List<UsersRecord> findAll() {
         return dsl.selectFrom(Users.USERS).fetch();
     }
+
+    public void updateState(long chatId, String state) {
+        dsl.update(Users.USERS)
+                .set(Users.USERS.STATE, state)
+                .where(Users.USERS.CHAT_ID.eq(chatId))
+                .execute();
+    }
 }
