@@ -1,4 +1,4 @@
-package dev.tishenko.restobot.logic.service;
+package dev.tishenko.restobot.logic.service.api;
 
 import com.google.common.hash.Hashing;
 import dev.tishenko.restobot.api.service.ApiKeyValidator;
@@ -27,7 +27,7 @@ public class AdminService implements ApiKeyValidator {
 
     @Override
     public boolean isValidApiKey(String apiKey) {
-        List<AdminDataRecord> adminKeys = getAllAdminKeys();
+        List<AdminDataRecord> adminKeys = repo.findAll();;
 
         for (AdminDataRecord adminKey : adminKeys) {
             String saltedKey = adminKey.getSalt() + apiKey;

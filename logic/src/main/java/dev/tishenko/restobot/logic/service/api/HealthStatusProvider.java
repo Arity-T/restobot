@@ -1,4 +1,4 @@
-package dev.tishenko.restobot.logic.service;
+package dev.tishenko.restobot.logic.service.api;
 
 import dev.tishenko.restobot.api.service.ApiHealthStatusProvider;
 import java.util.Map;
