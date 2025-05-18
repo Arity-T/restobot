@@ -17,6 +17,7 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+// TODO: import integration and use requests for tripadvisor. Use tripadvisor client bean
 @Repository
 public class RestaurantRepository {
     private final DSLContext dsl;
