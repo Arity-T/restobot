@@ -74,6 +74,14 @@ public class RestoBotUserHandler {
         return isSettingUserParams;
     }
 
+    public String getActualState() {
+        return actualState;
+    }
+
+    public void setActualState(String state) {
+        actualState = state;
+    }
+
     private RestaurantCardDTO nextRestaurantFromSelection() {
         actualIndex = actualIndex >= restaurantSelection.size() - 1 ? 0 : actualIndex + 1;
         return restaurantSelection.get(actualIndex);

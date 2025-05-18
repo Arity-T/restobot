@@ -14,6 +14,7 @@ public class UserData {
     private List<String> kitchenTypes;
     private List<String> priceCategories;
     private List<String> keyWords;
+    private String state;
     private int index;
 
     private String cityForSearch;
@@ -44,6 +45,7 @@ public class UserData {
         kitchenTypes = userDTO.kitchenTypes();
         priceCategories = userDTO.priceCategories();
         keyWords = userDTO.keyWords();
+        state = userDTO.state();
 
         cityForSearch = city;
         kitchenTypesForSearch = kitchenTypes;
@@ -73,7 +75,6 @@ public class UserData {
         kitchenTypes = List.of("Любые");
         priceCategories = List.of("Любые");
         keyWords = List.of("Любые");
-
         cityForSearch = city;
         kitchenTypesForSearch = kitchenTypes;
         priceCategoriesForSearch = priceCategories;
@@ -89,9 +90,18 @@ public class UserData {
         correctPriceCategories = searchParametersService.getPriceCategoriesNames();
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state){
+        this.state = state;
+        userDAO.setUserState(chatID, state);
+    }
+
     public UserDTO toUserDTO() {
         return new UserDTO(
-                chatID, nickName, city, kitchenTypes, priceCategories, keyWords, favoriteList);
+                chatID, nickName, city, kitchenTypes, priceCategories, keyWords, favoriteList, state);
     }
 
     public String userParamsToString() {
