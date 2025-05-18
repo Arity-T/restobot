@@ -74,11 +74,11 @@ public class RestoBotUserHandler {
         return isSettingUserParams;
     }
 
-    public String getState(){
+    public String getActualState() {
         return actualState;
     }
 
-    public void setActualState(String state){
+    public void setActualState(String state) {
         actualState = state;
     }
 
