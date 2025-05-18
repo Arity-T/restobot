@@ -49,27 +49,27 @@ public class UserDAOImpl implements UserDAO {
         userRepository.saveUser(userDTO.chatID(), userDTO.nickName());
 
         // Сохраняем город, если он указан
-        if (!userDTO.city().isEmpty()) {
+        if (userDTO.city() != null && !userDTO.city().isEmpty()) {
             setNewUserCity(userDTO.chatID(), userDTO.city());
         }
 
         // Сохраняем типы кухни
-        if (!userDTO.kitchenTypes().isEmpty()) {
+        if (userDTO.kitchenTypes() != null && !userDTO.kitchenTypes().isEmpty()) {
             setNewUserKitchenTypes(userDTO.chatID(), userDTO.kitchenTypes());
         }
 
         // Сохраняем ценовые категории
-        if (!userDTO.priceCategories().isEmpty()) {
+        if (userDTO.priceCategories() != null && !userDTO.priceCategories().isEmpty()) {
             setNewUserPriceCategories(userDTO.chatID(), userDTO.priceCategories());
         }
 
         // Сохраняем ключевые слова
-        if (!userDTO.keyWords().isEmpty()) {
+        if (userDTO.keyWords() != null && !userDTO.keyWords().isEmpty()) {
             setNewUserKeyWords(userDTO.chatID(), userDTO.keyWords());
         }
 
         // Сохраняем избранные рестораны
-        if (!userDTO.favoriteList().isEmpty()) {
+        if (userDTO.favoriteList() != null && !userDTO.favoriteList().isEmpty()) {
             userDTO.favoriteList()
                     .forEach(
                             restaurant ->
