@@ -1,11 +1,9 @@
 package dev.tishenko.restobot.telegram.example;
 
 import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 /**
  * Example Spring configuration for the Telegram bot. This configuration imports the
@@ -14,9 +12,4 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Configuration
 @Import(BotFactoryConfig.class)
 @ComponentScan("dev.tishenko.restobot.telegram.example.impl")
-public class AppConfigExample {
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
-}
+public class AppConfigExample {}

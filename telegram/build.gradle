@@ -8,11 +8,6 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
-    alias(libs.plugins.shadow)
-}
-
-shadowJar {
-    archiveFileName = 'telegram-app.jar'
 }
 
 dependencies {
