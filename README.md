@@ -141,8 +141,23 @@ dependencies {
 
 ### Запуск в Docker
 
+При первом запуске:
 1. Создать `.env` файл в корне проекта.
-2. Запустить приложение вместе с базой данных.
+2. Запустить PostgreSQL
+   ```bash
+   docker compose up -d postgres
+   ```
+3. Выполнить миграции
+   ```bash
+   psql -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V1__init_main.sql
+   psql -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
+   ```
+4. Запустить приложение вместе с базой данных.
+```bash
+docker compose up -d
+```
+
+При повторных запусках достаточно выполнить команду:
 ```bash
 docker compose up -d
 ```

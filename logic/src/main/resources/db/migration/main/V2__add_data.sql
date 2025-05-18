@@ -1,3 +1,5 @@
+SET client_encoding = 'UTF8';
+
 INSERT INTO kitchen_type (name) VALUES 
   ('африканская'),
   ('азиатская'),
