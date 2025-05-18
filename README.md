@@ -137,7 +137,19 @@ dependencies {
 ./gradlew spotlessApply
 ```
 
-## Сборка образа
+## Docker
+
+### Запуск в Docker
+
+1. Создать `.env` файл в корне проекта.
+2. Запустить приложение вместе с базой данных.
+```bash
+docker compose up -d
+```
+
+### Сборка образа
+
+При запуске Docker Compose подтягивается образ `restobot-app:latest` из Docker Hub. Однако, если вы хотите собрать образ самостоятельно, вы можете воспользоваться следующими командами:
 
 Требования:
 - Java 23+
@@ -158,12 +170,14 @@ dependencies {
    ```
 5. Собрать образ
    ```bash
-   docker compose build app
+   docker build -t restobot-app .
    ```
 
 Готово! Приложение собрано в образе `restobot-app:latest`.
 
-Запустить приложение вместе с базой данных:
+Загрузить образ в Docker Hub (имя пользователя `thearity` можно заменить на своё):
 ```bash
-docker compose up -d
+docker login -u thearity
+docker tag restobot-app:latest thearity/restobot-app:latest
+docker push thearity/restobot-app:latest
 ```
