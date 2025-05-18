@@ -49,6 +49,34 @@ Java libraries:
 - `logic/build/generated-sources/jooq`
 - `data/build/generated-sources/jooq`
 
+
+### Обновление мигргаций
+
+Если требуется обновить базу данных (на примере модуля `logic`):
+
+```bash
+psql -U postgres
+```
+
+```sql
+-- Завершить все активные соединения с базой данных
+SELECT pg_terminate_backend(pid)
+FROM pg_stat_activity
+WHERE datname = 'main'
+  AND pid <> pg_backend_pid();
+
+-- Удалить базу данных, если она существует
+DROP DATABASE IF EXISTS main;
+
+-- Создать новую базу данных
+CREATE DATABASE main;
+```
+
+```bash
+./gradlew :logic:flywayMigrate
+./gradlew :logic:flywayInfo
+```
+
 ## Сборка
 
 Для сборки в Fat Jar используется плагин [*shadow*](https://gradleup.com/shadow/).
