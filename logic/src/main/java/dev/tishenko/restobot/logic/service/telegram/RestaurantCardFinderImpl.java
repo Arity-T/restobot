@@ -1,6 +1,6 @@
-package dev.tishenko.restobot.data.service;
+package dev.tishenko.restobot.logic.service.telegram;
 
-import dev.tishenko.restobot.data.repository.RestaurantRepository;
+import dev.tishenko.restobot.logic.repository.RestaurantRepository;
 import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.RestaurantCardFinder;
 import java.net.MalformedURLException;

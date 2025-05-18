@@ -1,5 +1,6 @@
-package dev.tishenko.restobot.data.repository;
+package dev.tishenko.restobot.logic.repository;
 
+import dev.tishenko.restobot.data.repository.DataCityRepository;
 import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -143,7 +144,7 @@ public class RestaurantRepository {
             }
         }
 
-        // TODO: надо придумать, что с ними делать. Ключевые слова мы нигде не храним, их надо
+        // TODO: надо придумать, что с ними делать. Ключевые слова мы нигде не храним, их надо мешать в запрос
         // подмешивать в запрос к tripadvisor.
         // Добавляем фильтр по ключевым словам, если указаны
         // if (keyWords != null && !keyWords.contains("Отключено")) {
