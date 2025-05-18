@@ -278,7 +278,7 @@ public class UserData {
         List<String> priceCategories = Arrays.stream(params.split(",")).map(String::trim).toList();
         if (new HashSet<>(correctPriceCategories).containsAll(priceCategories)) {
             this.priceCategories = priceCategories;
-            userDAO.setNewUserKitchenTypes(chatID, priceCategories);
+            userDAO.setNewUserPriceCategories(chatID, priceCategories);
             return true;
         }
         return false;
