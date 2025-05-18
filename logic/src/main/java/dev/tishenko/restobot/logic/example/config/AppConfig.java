@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.logic.example.config;
 
 import dev.tishenko.restobot.api.RestobotApiConfig;
-import dev.tishenko.restobot.data.config.DataConfig;
+import dev.tishenko.restobot.integration.tripadvisor.config.IntegrationConfig;
 import dev.tishenko.restobot.logic.config.LogicConfig;
 import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
 import org.slf4j.Logger;
@@ -16,7 +16,12 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.WebHandler;
 
 @Configuration
-@Import({RestobotApiConfig.class, LogicConfig.class, DataConfig.class, BotFactoryConfig.class})
+@Import({
+    RestobotApiConfig.class,
+    LogicConfig.class,
+    IntegrationConfig.class,
+    BotFactoryConfig.class
+})
 @PropertySource("classpath:application.properties")
 public class AppConfig {
     private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
