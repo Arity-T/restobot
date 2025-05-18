@@ -17,17 +17,14 @@ public class AdminService implements ApiKeyValidator {
         this.repo = repo;
     }
 
-    public void saveAdminKey(String hash, String salt) {
-        repo.insertAdminKey(hash, salt);
-    }
-
     public List<AdminDataRecord> getAllAdminKeys() {
         return repo.findAll();
     }
 
     @Override
     public boolean isValidApiKey(String apiKey) {
-        List<AdminDataRecord> adminKeys = repo.findAll();;
+        List<AdminDataRecord> adminKeys = repo.findAll();
+        ;
 
         for (AdminDataRecord adminKey : adminKeys) {
             String saltedKey = adminKey.getSalt() + apiKey;
