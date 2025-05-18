@@ -21,6 +21,7 @@ public class RestoBotUserHandler {
     private int actualIndex;
     private boolean isSettingUserParams;
     private boolean isSettingLocation;
+    private boolean isGettingRestaurantsByParams;
 
     private final FavoriteListDAO favoriteListDAO;
     private final RestaurantCardFinder restaurantCardFinder;
@@ -43,6 +44,7 @@ public class RestoBotUserHandler {
         restaurantSelection = new ArrayList<>();
         isSettingUserParams = false;
         isSettingLocation = false;
+        isGettingRestaurantsByParams = false;
         actualState = "/start";
 
         this.favoriteListDAO = favoriteListDAO;
@@ -452,6 +454,7 @@ public class RestoBotUserHandler {
             case "restaurantSearchButton" -> {
                 actualState = "restaurantSearchButton";
                 isSettingUserParams = false;
+                isGettingRestaurantsByParams = false;
                 return EditMessageText.builder()
                         .chatId(chatId)
                         .messageId(toIntExact(messageId))
@@ -624,12 +627,15 @@ public class RestoBotUserHandler {
             }
             case "searchButton" -> {
                 actualState = "searchButton";
-                restaurantSelection =
-                        restaurantCardFinder.getRestaurantCardByParams(
-                                userData.getCity(),
-                                userData.getKitchenTypes(),
-                                userData.getPriceCategories(),
-                                userData.getKeyWords());
+                if (!isGettingRestaurantsByParams) {
+                    restaurantSelection =
+                            restaurantCardFinder.getRestaurantCardByParams(
+                                    userData.getCity(),
+                                    userData.getKitchenTypes(),
+                                    userData.getPriceCategories(),
+                                    userData.getKeyWords());
+                    isGettingRestaurantsByParams = true;
+                }
                 if (restaurantSelection.isEmpty()) {
                     return EditMessageText.builder()
                             .chatId(chatId)
