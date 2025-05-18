@@ -138,7 +138,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                 } catch (TelegramApiException e) {
                     logger.error("Error sending greeting message: {}", e.getMessage());
                 }
-            } else if (botConfig.get(chatId).isSettingUserParams()) {
+            } else if (botConfig.containsKey(chatId) && botConfig.get(chatId).isSettingUserParams()) {
                 logger.debug("Setting user params: {}", update.getMessage().getText());
                 EditMessageText editMessageText =
                         botConfig
@@ -161,7 +161,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                     logger.error("Error editing message: {}", e.getMessage());
                 }
             } else {
-                getUserDataAfterRestart(update, chatId);
+                getUserDataAfterRestart(update.getMessage().getChat().getUserName(), chatId);
                 DeleteMessage deleteMessage =
                         DeleteMessage.builder()
                                 .chatId(chatId)
@@ -175,7 +175,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
             }
         } else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
-            getUserDataAfterRestart(update, chatId);
+            getUserDataAfterRestart(update.getCallbackQuery().getMessage().getChat().getUserName(), chatId);
 
             logger.debug(
                     "Callback query: {} by user {}", update.getCallbackQuery().getData(), chatId);
@@ -233,14 +233,14 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
         }
     }
 
-    void getUserDataAfterRestart(Update update, long chatId) throws MalformedURLException {
+    void getUserDataAfterRestart(String userName, long chatId) throws MalformedURLException {
         if (!userData.containsKey(chatId)) {
             Optional<UserDTO> userDTO = userDAO.getUserFromDB(chatId);
             userData.put(
                     chatId,
                     new UserData(
                             chatId,
-                            update.getMessage().getChat().getUserName(),
+                            userName,
                             userDTO.get(),
                             userDAO,
                             favoriteListDAO,
@@ -254,7 +254,7 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                             userDAO,
                             searchParametersService));
             botConfig.get(chatId).setActualState(userData.get(chatId).getState());
-            logger.debug("User {} uploaded from db", update.getMessage().getChat().getUserName());
+            logger.debug("User {} uploaded from db", userName);
         }
     }
 }
