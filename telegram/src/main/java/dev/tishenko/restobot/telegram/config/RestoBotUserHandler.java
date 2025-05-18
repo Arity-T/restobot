@@ -735,16 +735,16 @@ public class RestoBotUserHandler {
     private void setDisableParams(UserData userData) {
         switch (lastParams) {
             case "cityForSearch" -> {
-                userData.setCityForSearch("Отключено");
+                userData.setCityForSearch(null);
             }
             case "kitchenTypesForSearch" -> {
-                userData.setKitchenTypesForSearch(List.of("Отключено"));
+                userData.setKitchenTypesForSearch(null);
             }
             case "priceCategoriesForSearch" -> {
-                userData.setPriceCategoriesForSearch(List.of("Отключено"));
+                userData.setPriceCategoriesForSearch(null);
             }
             case "keyWordsForSearch" -> {
-                userData.setKeyWordsForSearch(List.of("Отключено"));
+                userData.setDefaultKeyWordsForSearch();
             }
         }
     }

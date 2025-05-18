@@ -71,10 +71,10 @@ public class UserData {
         setChatID(chatID);
         setNickName(nickName);
         favoriteList = new ArrayList<>();
-        city = "Любой";
-        kitchenTypes = List.of("Любые");
-        priceCategories = List.of("Любые");
-        keyWords = List.of("Любые");
+        city = null;
+        kitchenTypes = null;
+        priceCategories = null;
+        keyWords = null;
         cityForSearch = city;
         kitchenTypesForSearch = kitchenTypes;
         priceCategoriesForSearch = priceCategories;
@@ -94,45 +94,50 @@ public class UserData {
         return state;
     }
 
-    public void setState(String state){
+    public void setState(String state) {
         this.state = state;
         userDAO.setUserState(chatID, state);
     }
 
     public UserDTO toUserDTO() {
         return new UserDTO(
-                chatID, nickName, city, kitchenTypes, priceCategories, keyWords, favoriteList, state);
+                chatID,
+                nickName,
+                city,
+                kitchenTypes,
+                priceCategories,
+                keyWords,
+                favoriteList,
+                state);
     }
 
     public String userParamsToString() {
-        return "Город: "
-                + city
-                + ".\n"
-                + "Типы кухни: "
-                + listToStringStream(kitchenTypes)
-                + ".\n"
-                + "Ценовые категории: "
-                + listToStringStream(priceCategories)
-                + ".\n"
-                + "Ключевые слова: "
-                + listToStringStream(keyWords)
-                + ".\n";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Город: ")
+                .append(city == null ? "Отключено" : city).append(".\n")
+                .append("Типы кухни: ")
+                .append(kitchenTypes == null ? "Отключено" :listToStringStream(kitchenTypes)).append(".\n")
+                .append("Ценовые категории: ")
+                .append(priceCategories == null ? "Отключено" : listToStringStream(priceCategories)).append(".\n")
+                .append("Ключевые слова: ")
+                .append(keyWords == null ? "Отключено" : listToStringStream(keyWords)).append(".\n");
+        return sb.toString();
     }
 
     public String userParamsToSearchRestaurantsToString() {
-        return "Город: "
-                + cityForSearch
-                + ".\n"
-                + "Типы кухни: "
-                + listToStringStream(kitchenTypesForSearch)
-                + ".\n"
-                + "Ценовые категории: "
-                + listToStringStream(priceCategoriesForSearch)
-                + ".\n"
-                + "Ключевые слова: "
-                + listToStringStream(keyWordsForSearch)
-                + ".\n";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Город: ")
+                .append(cityForSearch == null ? "Отключено" : cityForSearch).append(".\n")
+                .append("Типы кухни: ")
+                .append(kitchenTypesForSearch == null ? "Отключено" :listToStringStream(kitchenTypesForSearch)).append(".\n")
+                .append("Ценовые категории: ")
+                .append(priceCategoriesForSearch == null ? "Отключено" : listToStringStream(priceCategoriesForSearch)).append(".\n")
+                .append("Ключевые слова: ")
+                .append(keyWordsForSearch == null ? "Отключено" : listToStringStream(keyWordsForSearch)).append(".\n");
+        return sb.toString();
     }
+
+
 
     public static String listToStringStream(List<String> list) {
         if (list == null || list.isEmpty()) {
@@ -260,6 +265,12 @@ public class UserData {
     public void setKeyWordsForSearch(List<String> keyWordsForSearch) {
         this.keyWordsForSearch = keyWordsForSearch;
     }
+
+    public boolean setDefaultKeyWordsForSearch() {
+        this.keyWordsForSearch = null;
+        return true;
+    }
+
 
     public boolean checkAndSetCity(String city) {
         if (correctCities.contains(city)) {
