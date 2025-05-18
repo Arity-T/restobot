@@ -109,7 +109,8 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                                     favoriteListDAO,
                                     searchParametersService));
                     userDAO.addUserToDB(userData.get(chatId).toUserDTO());
-                    logger.debug("User {} was registered", update.getMessage().getChat().getUserName());
+                    logger.debug(
+                            "User {} was registered", update.getMessage().getChat().getUserName());
                 } else {
                     userData.put(
                             chatId,
@@ -120,7 +121,9 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                                     userDAO,
                                     favoriteListDAO,
                                     searchParametersService));
-                    logger.debug("User {} uploaded from db", update.getMessage().getChat().getUserName());
+                    logger.debug(
+                            "User {} uploaded from db",
+                            update.getMessage().getChat().getUserName());
                 }
                 botConfig.put(
                         chatId,
@@ -138,7 +141,8 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
                 } catch (TelegramApiException e) {
                     logger.error("Error sending greeting message: {}", e.getMessage());
                 }
-            } else if (botConfig.containsKey(chatId) && botConfig.get(chatId).isSettingUserParams()) {
+            } else if (botConfig.containsKey(chatId)
+                    && botConfig.get(chatId).isSettingUserParams()) {
                 logger.debug("Setting user params: {}", update.getMessage().getText());
                 EditMessageText editMessageText =
                         botConfig
@@ -175,7 +179,8 @@ public class RestoBot implements LongPollingUpdateConsumer, BotFacade {
             }
         } else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
-            getUserDataAfterRestart(update.getCallbackQuery().getMessage().getChat().getUserName(), chatId);
+            getUserDataAfterRestart(
+                    update.getCallbackQuery().getMessage().getChat().getUserName(), chatId);
 
             logger.debug(
                     "Callback query: {} by user {}", update.getCallbackQuery().getData(), chatId);

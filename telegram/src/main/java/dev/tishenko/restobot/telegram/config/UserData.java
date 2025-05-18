@@ -114,30 +114,57 @@ public class UserData {
     public String userParamsToString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Город: ")
-                .append(city == null || city.isEmpty()? "Отключено" : city).append(".\n")
+                .append(city == null || city.isEmpty() ? "Отключено" : city)
+                .append(".\n")
                 .append("Типы кухни: ")
-                .append(kitchenTypes == null || kitchenTypes.isEmpty()? "Отключено" :listToStringStream(kitchenTypes)).append(".\n")
+                .append(
+                        kitchenTypes == null || kitchenTypes.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(kitchenTypes))
+                .append(".\n")
                 .append("Ценовые категории: ")
-                .append(priceCategories == null || priceCategories.isEmpty()? "Отключено" : listToStringStream(priceCategories)).append(".\n")
+                .append(
+                        priceCategories == null || priceCategories.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(priceCategories))
+                .append(".\n")
                 .append("Ключевые слова: ")
-                .append(keyWords == null || keyWords.isEmpty()? "Отключено" : listToStringStream(keyWords)).append(".\n");
+                .append(
+                        keyWords == null || keyWords.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(keyWords))
+                .append(".\n");
         return sb.toString();
     }
 
     public String userParamsToSearchRestaurantsToString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Город: ")
-                .append(cityForSearch == null || cityForSearch.isEmpty()? "Отключено" : cityForSearch).append(".\n")
+                .append(
+                        cityForSearch == null || cityForSearch.isEmpty()
+                                ? "Отключено"
+                                : cityForSearch)
+                .append(".\n")
                 .append("Типы кухни: ")
-                .append(kitchenTypesForSearch == null || kitchenTypesForSearch.isEmpty()? "Отключено" :listToStringStream(kitchenTypesForSearch)).append(".\n")
+                .append(
+                        kitchenTypesForSearch == null || kitchenTypesForSearch.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(kitchenTypesForSearch))
+                .append(".\n")
                 .append("Ценовые категории: ")
-                .append(priceCategoriesForSearch == null || priceCategoriesForSearch.isEmpty()? "Отключено" : listToStringStream(priceCategoriesForSearch)).append(".\n")
+                .append(
+                        priceCategoriesForSearch == null || priceCategoriesForSearch.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(priceCategoriesForSearch))
+                .append(".\n")
                 .append("Ключевые слова: ")
-                .append(keyWordsForSearch == null || keyWordsForSearch.isEmpty()? "Отключено" : listToStringStream(keyWordsForSearch)).append(".\n");
+                .append(
+                        keyWordsForSearch == null || keyWordsForSearch.isEmpty()
+                                ? "Отключено"
+                                : listToStringStream(keyWordsForSearch))
+                .append(".\n");
         return sb.toString();
     }
-
-
 
     public static String listToStringStream(List<String> list) {
         if (list == null || list.isEmpty()) {
@@ -270,7 +297,6 @@ public class UserData {
         this.keyWordsForSearch = List.of();
         return true;
     }
-
 
     public boolean checkAndSetCity(String city) {
         if (correctCities.contains(city)) {
