@@ -8,10 +8,42 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    // Add Asciidoctor plugin for documentation generation
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 dependencies {
     implementation libs.spring.webflux
     implementation libs.gson
     implementation libs.reactor.netty
+    
+    // Spring REST Docs
+    testImplementation 'org.springframework.restdocs:spring-restdocs-webtestclient:3.0.2'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-core:3.0.2'
+    testImplementation 'org.mockito:mockito-core:5.9.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.9.0'
+    testImplementation 'org.springframework:spring-test:6.2.6'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+}
+
+test {
+    useJUnitPlatform()
+    outputs.dir file('build/generated-snippets')
+}
+
+// Configure Asciidoctor task
+asciidoctor {
+    // Define input and output directories
+    sourceDir file('src/docs/asciidoc')
+    outputDir file('build/docs/asciidoc')
+    // Set attributes for HTML generation
+    attributes 'source-highlighter': 'highlightjs',
+               'toc': 'left',
+               'toclevels': '3',
+               'sectlinks': true,
+               'icons': 'font',
+               'snippets': file('build/generated-snippets')
+
+    dependsOn test
 }

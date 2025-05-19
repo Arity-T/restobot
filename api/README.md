@@ -1,5 +1,14 @@
 # Библиотека Restobot API
 
+## Генерация документации
+
+```bash
+./gradlew clean test
+./gradlew asciidoctor
+```
+
+Файл `index.html` будет находиться в папке `build/docs/asciidoc`.
+
 ## Использование
 
 ### Реализация сервисов
