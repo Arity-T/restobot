@@ -1,10 +1,42 @@
 # RestoBot
 
+Этот бот поможет вам мгновенно найти случайный ресторан в радиусе одного километра от вашей текущей геолокации. При желании вы сможете уточнить город, выбрать предпочитаемые кухни, указать ценовой диапазон, а также дополнить запрос некоторыми ключевыми словами. Кроме того, бот позволяет сохранять понравившиеся заведения в список избранных ресторанов и отмечать посещённые рестораны. 
+
+Бот поддерживает: Москва, Санкт-Петербург, Новосибирск, Екатеринбург, Казань, Красноярск, Нижний Новгород, Челябинск, Уфа, Самара, Ростов-на-Дону, Краснодар, Омск, Воронеж, Пермь, Волгоград. 
+
+Поддерживаются следующие типы кухни: африканская, азиатская, американская, барбекю, ближневосточная, британская, вьетнамская, восточно-европейская, европейская, ирландская, испанская, итальянская, индийская, каджунская, карибская, китайская, мексиканская, немецкая, средиземноморская, тайская, французская, фьюжн, греческая, японская, южноамериканская.
+
+Вы можете выбрать следующие ценовые категории: Дешевое питание, Средний ценовой сегмент, Высокая кухня.
+
+Ссылка на Telegram-бота:  
+
+https://t.me/VADRestoBot
+
+Ссылка на Docker-hub:
+
+https://hub.docker.com/r/thearity/restobot-app
+
+
+## Технологический стек
+
+- **Язык**: Java 23
+- **База данных**: PostgreSQL 16
+- **Инструменты**:
+  - **Gradle 8.10**
+  - **JOOQ 10.1**
+  - **Spring 6.2.3**
+  - **WebFlux 6.2.3**
+  - **Spring Rest Docs 3.0.2**
+  - **JUnit 5.10.2**
+  - **Docker 27.0.3**
+  - **Telegram API 8.3.0**
+  - **GSON 2.13.1**
+  - **Logback 1.5.18**
+
+
 ## Структура проекта
 
 Проект представляет собой [*gradle multi-project*](https://docs.gradle.org/current/userguide/multi_project_builds.html). Каждый подпроект содержит одноименный Java пакет с префиксом `dev.tishenko.restobot`.
-
-TODO: нужно будет решить, что в итоге будет главной точкой входа.
 
 Java applications:
 - `telegram` - telegram бот (dependencies: `logic`).
@@ -149,8 +181,8 @@ dependencies {
    ```
 3. Выполнить миграции
    ```bash
-   psql -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V1__init_main.sql
-   psql -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
+   psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V1__init_main.sql
+   psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
    ```
 4. Запустить приложение вместе с базой данных.
    ```bash
@@ -196,3 +228,9 @@ docker login -u thearity
 docker tag restobot-app:latest thearity/restobot-app:latest
 docker push thearity/restobot-app:latest
 ```
+
+## Авторы
+- Артем Тищенко
+- Владислав Гаар
+- Губкоский Дмитрий
+
