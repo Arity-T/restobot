@@ -125,7 +125,7 @@ java -jar ./telegram/build/libs/telegram-app.jar
 
 Запуск из исходников:
 ```bash
-./gradlew :telegram:run
+./gradlew :app:run
 ```
 
 
