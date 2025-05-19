@@ -120,7 +120,7 @@ CREATE DATABASE main;
 
 Запуск из Fat Jar:
 ```bash
-java -jar ./telegram/build/libs/telegram-app.jar
+java -jar ./app/build/libs/app-fat.jar
 ```
 
 Запуск из исходников:
