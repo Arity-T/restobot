@@ -28,8 +28,15 @@ public class ApiUserServiceImpl implements ApiUserService {
                         .map(
                                 user ->
                                         Map.of(
-                                                "chatId", String.valueOf(user.getChatId()),
-                                                "nickname", user.getNickname()))
+                                                "chatId",
+                                                String.valueOf(
+                                                        user.getChatId() != null
+                                                                ? user.getChatId()
+                                                                : ""),
+                                                "nickname",
+                                                user.getNickname() != null
+                                                        ? user.getNickname()
+                                                        : ""))
                         .collect(Collectors.toList());
         logger.debug("Fetched {} users", users.size());
         return users;
