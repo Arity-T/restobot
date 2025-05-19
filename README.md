@@ -27,8 +27,6 @@ https://t.me/VADRestoBot
 
 Проект представляет собой [*gradle multi-project*](https://docs.gradle.org/current/userguide/multi_project_builds.html). Каждый подпроект содержит одноименный Java пакет с префиксом `dev.tishenko.restobot`.
 
-TODO: нужно будет решить, что в итоге будет главной точкой входа.
-
 Java applications:
 - `telegram` - telegram бот (dependencies: `logic`).
 
