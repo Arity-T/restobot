@@ -1,5 +1,25 @@
 # RestoBot
 
+Данный бот позволит Вам найти случайны ресторан в радиусе километра от заданной геолокации. Также есть возможность выбрать город, типы кухни, ценовые категории для поиска ресторана. Бот позволит Вам сохранять рестораны в списке избранных, а также ставить отметки о посещении. 
+
+Ссылка на Telegram-бота:  
+![Telegram Bot]([https://t.me/MovieRecSpringBot](https://t.me/VADRestoBot))
+
+
+## Технологический стек
+
+- **Язык**: Java 23
+- **База данных**: PostgreSQL 16
+- **Telegram API**
+- **Инструменты**:
+  - **JOOQ**
+  - **Spring 6.2.3**
+  - **WebFlux 6.2.3**
+  - **Spring Rest Docs**
+  - **JUnit**
+  - **Docker**
+
+
 ## Структура проекта
 
 Проект представляет собой [*gradle multi-project*](https://docs.gradle.org/current/userguide/multi_project_builds.html). Каждый подпроект содержит одноименный Java пакет с префиксом `dev.tishenko.restobot`.
@@ -196,3 +216,9 @@ docker login -u thearity
 docker tag restobot-app:latest thearity/restobot-app:latest
 docker push thearity/restobot-app:latest
 ```
+
+## Авторы
+- Артем Тищенко
+- Владислав Гаар
+- Губкоский Дмитрий
+
