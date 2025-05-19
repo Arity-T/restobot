@@ -1,7 +1,7 @@
 package dev.tishenko.restobot.app;
 
 import dev.tishenko.restobot.api.RestobotApiConfig;
-import dev.tishenko.restobot.integration.tripadvisor.config.IntegrationConfig;
+import dev.tishenko.restobot.integration.tripadvisor.TripAdvisorConfiguration;
 import dev.tishenko.restobot.logic.config.LogicConfig;
 import dev.tishenko.restobot.telegram.config.BotFactoryConfig;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import org.springframework.web.server.WebHandler;
 @Import({
     RestobotApiConfig.class,
     LogicConfig.class,
-    IntegrationConfig.class,
+    TripAdvisorConfiguration.class,
     BotFactoryConfig.class
 })
 @PropertySource("classpath:application.properties")

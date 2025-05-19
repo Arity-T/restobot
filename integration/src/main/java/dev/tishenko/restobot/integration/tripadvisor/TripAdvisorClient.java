@@ -20,11 +20,14 @@ public class TripAdvisorClient {
     private final Gson gson;
     private final String language;
     private final String category = "restaurants";
+    private final TripAdvisorTracker tracker;
 
-    public TripAdvisorClient(String apiKey, String baseUrl, String language) {
+    public TripAdvisorClient(
+            String apiKey, String baseUrl, String language, TripAdvisorTracker tracker) {
         this.apiKey = apiKey;
         this.gson = new Gson();
         this.language = language;
+        this.tracker = tracker;
 
         logger.info("Initializing TripAdvisor client with base URL: {}", baseUrl);
 
@@ -162,6 +165,7 @@ public class TripAdvisorClient {
     private <R> Mono<R> executeRequest(
             String path, Function<UriBuilder, URI> uriCustomizer, Class<R> responseType) {
 
+        tracker.updateLastCallTime();
         return webClient
                 .get()
                 .uri(
