@@ -11,6 +11,9 @@
 Ссылка на Telegram-бота:  
 https://t.me/VADRestoBot
 
+Ссылка на Docker-hub:
+https://hub.docker.com/r/thearity/restobot-app
+
 
 ## Технологический стек
 
