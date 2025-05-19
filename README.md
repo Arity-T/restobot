@@ -136,3 +136,63 @@ dependencies {
 ```bash
 ./gradlew spotlessApply
 ```
+
+## Docker
+
+### Запуск в Docker
+
+При первом запуске:
+1. Создать `.env` файл в корне проекта.
+2. Запустить PostgreSQL
+   ```bash
+   docker compose up -d postgres
+   ```
+3. Выполнить миграции
+   ```bash
+   psql -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V1__init_main.sql
+   psql -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
+   ```
+4. Запустить приложение вместе с базой данных.
+   ```bash
+   docker compose up -d
+   ```
+
+При повторных запусках достаточно выполнить команду:
+```bash
+docker compose up -d
+```
+
+### Сборка образа
+
+При запуске Docker Compose подтягивается образ `restobot-app:latest` из Docker Hub. Однако, если вы хотите собрать образ самостоятельно, вы можете воспользоваться следующими командами:
+
+Требования:
+- Java 23+
+- gradle 8.10+
+
+1. Создать `.env` файл в корне проекта.
+2. Запустить PostgreSQL
+   ```bash
+   docker compose up -d postgres
+   ```
+3. Выполнить миграции
+   ```bash
+   ./gradlew :logic:flywayMigrate
+   ```
+4. Собрать проект
+   ```bash
+   ./gradlew build
+   ```
+5. Собрать образ
+   ```bash
+   docker build -t restobot-app .
+   ```
+
+Готово! Приложение собрано в образе `restobot-app:latest`.
+
+Загрузить образ в Docker Hub (имя пользователя `thearity` можно заменить на своё):
+```bash
+docker login -u thearity
+docker tag restobot-app:latest thearity/restobot-app:latest
+docker push thearity/restobot-app:latest
+```

@@ -31,3 +31,17 @@ application {
     // Define the main class for the application.
     mainClass = 'dev.tishenko.restobot.app.App'
 }
+
+run {
+    def envFile = rootProject.file('.env')
+    if (envFile.exists()) {
+        envFile.eachLine { line ->
+            line = line.trim()
+            if (!line.startsWith('#') && line.contains('=')) {
+                def (key, val) = line.split('=', 2)
+                key = key.trim(); val = val.trim()
+                environment key, val
+            }
+        }
+    }
+}
