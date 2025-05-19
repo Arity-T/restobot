@@ -4,6 +4,8 @@ import dev.tishenko.restobot.integration.tripadvisor.RadiusUnit;
 import dev.tishenko.restobot.integration.tripadvisor.TripAdvisorClient;
 import dev.tishenko.restobot.integration.tripadvisor.model.LocationDetails;
 import dev.tishenko.restobot.integration.tripadvisor.model.LocationSearch;
+import dev.tishenko.restobot.logic.jooq.generated.tables.records.CityRecord;
+import dev.tishenko.restobot.logic.service.CityService;
 import dev.tishenko.restobot.telegram.services.RestaurantCardDTO;
 import dev.tishenko.restobot.telegram.services.RestaurantCardFinder;
 import java.net.MalformedURLException;
@@ -21,9 +23,11 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
 
     private static final Logger logger = LoggerFactory.getLogger(RestaurantCardFinderImpl.class);
     private final TripAdvisorClient tripAdvisorClient;
+    private final CityService cityService;
 
-    public RestaurantCardFinderImpl(TripAdvisorClient tripAdvisorClient) {
+    public RestaurantCardFinderImpl(TripAdvisorClient tripAdvisorClient, CityService cityService) {
         this.tripAdvisorClient = tripAdvisorClient;
+        this.cityService = cityService;
         logger.info("RestaurantCardFinderImpl initialized");
     }
 
@@ -103,9 +107,17 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
 
         // Combine all search parameters into a single search query
         StringBuilder searchQuery = new StringBuilder();
-        if (city != null && !city.isEmpty()) {
-            searchQuery.append(city).append(" ");
-        }
+
+        CityRecord cityRecord =
+                city != null && !city.isEmpty()
+                        ? cityService.getCityByName(city).orElse(null)
+                        : null;
+
+        Double latitude = cityRecord != null ? cityRecord.getLatitude() : null;
+        Double longitude = cityRecord != null ? cityRecord.getLongitude() : null;
+        Double radius = cityRecord != null ? cityRecord.getRadius() : null;
+        RadiusUnit radiusUnit = RadiusUnit.M;
+
         if (kitchenTypes != null && !kitchenTypes.isEmpty()) {
             searchQuery.append(String.join(" ", kitchenTypes)).append(" ");
         }
@@ -113,11 +125,16 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
             searchQuery.append(String.join(" ", keyWords));
         }
 
-        String finalQuery = searchQuery.toString().trim();
+        String finalQuery =
+                searchQuery.toString().trim().isEmpty()
+                        ? "ресторан"
+                        : searchQuery.toString().trim();
         logger.debug("Constructed search query: '{}'", finalQuery);
 
         LocationSearch locations =
-                tripAdvisorClient.searchLocations(finalQuery, null, null, null, null).block();
+                tripAdvisorClient
+                        .searchLocations(finalQuery, latitude, longitude, radius, radiusUnit)
+                        .block();
         if (locations == null || locations.getData() == null) {
             logger.debug("No locations found for the search query");
             return List.of();
