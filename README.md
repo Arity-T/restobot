@@ -10,14 +10,17 @@ https://t.me/VADRestoBot
 
 - **Язык**: Java 23
 - **База данных**: PostgreSQL 16
-- **Telegram API**
 - **Инструменты**:
+  - **Gradle 8.10**
   - **JOOQ**
   - **Spring 6.2.3**
   - **WebFlux 6.2.3**
   - **Spring Rest Docs**
   - **JUnit**
   - **Docker**
+  - **Telegram API**
+  - **GSON**
+  - **TripAdvisor API**
 
 
 ## Структура проекта
