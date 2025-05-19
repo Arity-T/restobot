@@ -11,12 +11,6 @@ import org.springframework.context.annotation.Configuration;
 public class TripAdvisorConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(TripAdvisorConfiguration.class);
 
-    private static final String API_KEY_PROPERTY = "tripadvisor.api.key";
-    private static final String API_HOST_PROPERTY = "tripadvisor.api.host";
-    private static final String DEFAULT_API_HOST = "https://api.content.tripadvisor.com/api/v1";
-    private static final String API_LANGUAGE_PROPERTY = "tripadvisor.api.language";
-    private static final String DEFAULT_API_LANGUAGE = "ru";
-
     /**
      * Creates a TripAdvisor client bean using the API key from Spring environment or system
      * environment variables
@@ -30,6 +24,15 @@ public class TripAdvisorConfiguration {
             @Value("${tripadvisor.api.host}") String baseUrl,
             @Value("${tripadvisor.api.language}") String language,
             TripAdvisorTracker tracker) {
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            logger.error("TripAdvisor API key not found in properties");
+            throw new IllegalStateException("TripAdvisor API key not found");
+        }
+
+        logger.info("Configuring TripAdvisor client with baseUrl: {}", baseUrl);
+        logger.info("Configuring TripAdvisor client with language: {}", language);
+
         return new TripAdvisorClient(apiKey, baseUrl, language, tracker);
     }
 }
