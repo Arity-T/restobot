@@ -12,15 +12,15 @@ https://t.me/VADRestoBot
 - **База данных**: PostgreSQL 16
 - **Инструменты**:
   - **Gradle 8.10**
-  - **JOOQ**
+  - **JOOQ 10.1**
   - **Spring 6.2.3**
   - **WebFlux 6.2.3**
-  - **Spring Rest Docs**
-  - **JUnit**
-  - **Docker**
-  - **Telegram API**
-  - **GSON**
-  - **TripAdvisor API**
+  - **Spring Rest Docs 3.0.2**
+  - **JUnit 5.10.2**
+  - **Docker 27.0.3**
+  - **Telegram API 8.3.0**
+  - **GSON 2.13.1**
+  - **Logback 1.5.18**
 
 
 ## Структура проекта
