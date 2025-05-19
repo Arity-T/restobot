@@ -125,7 +125,10 @@ public class RestaurantCardFinderImpl implements RestaurantCardFinder {
             searchQuery.append(String.join(" ", keyWords));
         }
 
-        String finalQuery = searchQuery.toString().trim();
+        String finalQuery =
+                searchQuery.toString().trim().isEmpty()
+                        ? "ресторан"
+                        : searchQuery.toString().trim();
         logger.debug("Constructed search query: '{}'", finalQuery);
 
         LocationSearch locations =
