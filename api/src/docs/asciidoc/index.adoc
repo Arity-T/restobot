@@ -1,0 +1,58 @@
+= Restobot API Documentation
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 3
+:sectlinks:
+
+== Overview
+
+This documentation provides details about the Restobot API endpoints and their usage.
+
+== Endpoints
+
+=== Health Check
+
+The health check endpoint returns the current health status of the application.
+
+.Request
+include::{snippets}/healthcheck/http-request.adoc[]
+
+.Response
+include::{snippets}/healthcheck/http-response.adoc[]
+
+.Response Fields
+include::{snippets}/healthcheck/response-fields.adoc[]
+
+=== Users
+
+The users endpoint returns a list of users.
+
+==== Successful Request
+
+.Request
+include::{snippets}/users-success/http-request.adoc[]
+
+.Request Headers
+include::{snippets}/users-success/request-headers.adoc[]
+
+.Response
+include::{snippets}/users-success/http-response.adoc[]
+
+.Response Fields
+include::{snippets}/users-success/response-fields.adoc[]
+
+==== Unauthorized Request
+
+.Request
+include::{snippets}/users-unauthorized/http-request.adoc[]
+
+.Request Headers
+include::{snippets}/users-unauthorized/request-headers.adoc[]
+
+.Response
+include::{snippets}/users-unauthorized/http-response.adoc[]
+
+.Response Fields
+include::{snippets}/users-unauthorized/response-fields.adoc[] 
