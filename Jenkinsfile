@@ -17,11 +17,11 @@ pipeline {
             name: 'PUSH_IMAGE',
             defaultValue: false,
             description: 'Push Docker image after build')
-        stringParam(
+        string(
             name: 'DOCKER_IMAGE',
             defaultValue: 'thearity/restobot-app',
             description: 'Target image repository (e.g. Docker Hub repo)')
-        stringParam(
+        string(
             name: 'DOCKER_TAG',
             defaultValue: 'latest',
             description: 'Image tag (e.g. latest, 1.0.${BUILD_NUMBER})')
@@ -30,10 +30,6 @@ pipeline {
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         DOCKER_CREDENTIALS_ID = 'dockerhub-restobot' // Jenkins credentials id (username/password)
-    }
-
-    tools {
-        jdk 'temurin-23' // Configure this JDK name in Jenkins global tools
     }
 
     stages {
