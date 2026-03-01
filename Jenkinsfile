@@ -30,6 +30,12 @@ pipeline {
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         DOCKER_CREDENTIALS_ID = 'dockerhub-restobot' // Jenkins credentials id (username/password)
+        JAVA_HOME = "/usr/lib/jvm/temurin-23-jdk-amd64" // JDK 23 defined in Manage Jenkins -> Global Tool Configuration
+        PATH = "${JAVA_HOME}/bin:${PATH}"
+    }
+
+    tools {
+        jdk 'jdk-23'
     }
 
     stages {
