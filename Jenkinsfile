@@ -53,6 +53,18 @@ pipeline {
             }
         }
 
+        stage('DB Migrate') {
+            steps {
+                sh './gradlew :logic:flywayMigrate'
+            }
+        }
+
+        stage('Generate jOOQ') {
+            steps {
+                sh './gradlew :logic:generateJooq'
+            }
+        }
+
         stage('Tests') {
             when {
                 expression { return params.RUN_TESTS }
