@@ -38,12 +38,28 @@ pipeline {
 
         stage('Create DB') {
             steps {
-                sh '''
-                DROP DATABASE IF EXISTS main;
+                sh '''set -e
+                    ENV_PATH="${WORKSPACE}/.env"
+                    if [ ! -f "$ENV_PATH" ]; then
+                    echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
+                    exit 1
+                    fi
+                    set -a
+                    . "$ENV_PATH"
+                    set +a
+                    export PGPASSWORD="$MAIN_DB_PASSWORD"
+                    psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres <<'SQL'
 
-                CREATE DATABASE main;
-                SQL
-                '''
+                    SELECT pg_terminate_backend(pid)
+                    FROM pg_stat_activity
+                    WHERE datname = 'main'
+                    AND pid <> pg_backend_pid();
+
+                    DROP DATABASE IF EXISTS main;
+                    
+                    CREATE DATABASE main;
+                    SQL
+                    '''
             }
         }
 
