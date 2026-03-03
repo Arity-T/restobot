@@ -41,73 +41,32 @@ pipeline {
             }
         }
 
-        stage('Prep') {
+        stage('Prepare .env') {
             steps {
-                sh 'chmod +x gradlew'
-            }
-        }
-
-        stage('Code Style') {
-            steps {
-                sh './gradlew spotlessCheck'
-            }
-        }
-
-        stage('DB Migrate') {
-            steps {
-                sh './gradlew :logic:flywayMigrate'
-            }
-        }
-
-        stage('Generate jOOQ') {
-            steps {
-                sh './gradlew :logic:generateJooq'
-            }
-        }
-
-        stage('Tests') {
-            when {
-                expression { return params.RUN_TESTS }
-            }
-            steps {
-                sh './gradlew test'
-            }
-            post {
-                always {
-                    junit '**/build/test-results/test/*.xml'
+                withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
+                    sh 'cp "$ENV_FILE" .env'
                 }
             }
         }
 
-        stage('Build fat jar') {
+        stage('Run PostgreSQL') {
             steps {
-                sh './gradlew :app:shadowJar'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: 'app/build/libs/app-fat.jar', fingerprint: true
-                }
+                sh 'docker compose up -d postgres'
             }
         }
 
-        stage('Docker Build') {
+        stage('Run Migrations') {
             steps {
-                sh "docker build -t ${params.DOCKER_IMAGE}:${params.DOCKER_TAG} ."
+                sh '''
+psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V1__init_main.sql
+psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
+'''
             }
         }
 
-        stage('Docker Push') {
-            when {
-                expression { return params.PUSH_IMAGE }
-            }
+        stage('Start Application') {
             steps {
-                withCredentials([usernamePassword(
-                        credentialsId: "${DOCKER_CREDENTIALS_ID}",
-                        usernameVariable: 'DOCKERHUB_USER',
-                        passwordVariable: 'DOCKERHUB_PASS')]) {
-                    sh 'echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin'
-                    sh "docker push ${params.DOCKER_IMAGE}:${params.DOCKER_TAG}"
-                }
+                sh 'docker compose up -d'
             }
         }
     }
