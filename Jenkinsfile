@@ -12,6 +12,7 @@ pipeline {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         JAVA_HOME = "/usr/lib/jvm/temurin-23-jdk-amd64" 
         PATH = "${JAVA_HOME}/bin:${PATH}"
+        ENV_PATH = "${WORKSPACE}/.env"
     }
 
     stages {
@@ -25,8 +26,7 @@ pipeline {
         stage('Prepare .env') {
             steps {
                 withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
-                    sh 'cp "$ENV_FILE" ${WORKSPACE}/.env
-                        ls ${WORKSPACE}/.env'
+                    sh "cp \"$ENV_FILE\" \"$ENV_PATH\"\nls -l \"$ENV_PATH\""
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
         stage('Create DB') {
             steps {
                 sh '''set -e
-                    ENV_PATH="${WORKSPACE}/.env"
+                    ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
                     if [ ! -f "$ENV_PATH" ]; then
                     echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
                     exit 1
@@ -50,14 +50,13 @@ pipeline {
                     set +a
                     export PGPASSWORD="$MAIN_DB_PASSWORD"
                     psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres <<'SQL'
-
                     SELECT pg_terminate_backend(pid)
                     FROM pg_stat_activity
                     WHERE datname = 'main'
                     AND pid <> pg_backend_pid();
 
                     DROP DATABASE IF EXISTS main;
-                    
+
                     CREATE DATABASE main;
                     SQL
                     '''
