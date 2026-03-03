@@ -25,7 +25,7 @@ pipeline {
         stage('Prepare .env') {
             steps {
                 withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
-                    sh 'cp "$ENV_FILE" .env'
+                    sh 'cp "$ENV_FILE" ${WORKSPACE}/.env'
                 }
             }
         }
