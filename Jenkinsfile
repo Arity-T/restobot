@@ -26,7 +26,11 @@ pipeline {
         stage('Prepare .env') {
             steps {
                 withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
-                    sh "cp \"$ENV_FILE\" \"$ENV_PATH\"\nls -l \"$ENV_PATH\""
+                    sh '''set -e
+                    # Normalize line endings to LF to avoid `/bin/sh` parse issues
+                    perl -pe 's/\r$//' "$ENV_FILE" > "$ENV_PATH"
+                    ls -l "$ENV_PATH"
+                    '''
                 }
             }
         }
