@@ -51,7 +51,7 @@ pipeline {
 
         stage('Run PostgreSQL') {
             steps {
-                sh 'docker compose up -d postgres'
+                sh 'sudo docker compose up -d postgres'
             }
         }
 
@@ -66,7 +66,7 @@ psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/mig
 
         stage('Start Application') {
             steps {
-                sh 'docker compose up -d'
+                sh 'sudo docker compose up -d'
             }
         }
     }
