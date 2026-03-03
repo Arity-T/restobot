@@ -25,8 +25,8 @@ pipeline {
         stage('Prepare .env') {
             steps {
                 withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
-                    sh 'cp "$ENV_FILE" ${WORKSPACE:-$PWD}/.env
-                        ls ${WORKSPACE:-$PWD}/.env'
+                    sh 'cp "$ENV_FILE" ${WORKSPACE}/.env
+                        ls ${WORKSPACE}/.env'
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
         stage('Create DB') {
             steps {
                 sh '''set -e
-                    ENV_PATH="${WORKSPACE:-$PWD}/.env"
+                    ENV_PATH="${WORKSPACE}/.env"
                     if [ ! -f "$ENV_PATH" ]; then
                     echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
                     exit 1
