@@ -40,7 +40,14 @@ pipeline {
             steps {
                 sh '''
                 set -e
-                . .env
+                ENV_PATH="${WORKSPACE}/.env"
+                if [ ! -f "$ENV_PATH" ]; then
+                echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
+                exit 1
+                fi
+                set -a
+                . "$ENV_PATH"
+                set +a
                 export PGPASSWORD="$MAIN_DB_PASSWORD"
                 psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres <<'SQL'
                 -- Завершить все активные соединения с базой данных
