@@ -39,10 +39,8 @@ pipeline {
         stage('Create DB') {
             steps {
                 sh '''
-                -- Удалить базу данных, если она существует
                 DROP DATABASE IF EXISTS main;
 
-                -- Создать новую базу данных
                 CREATE DATABASE main;
                 SQL
                 '''
