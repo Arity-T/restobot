@@ -39,7 +39,7 @@ pipeline {
         stage('Create DB') {
             steps {
                 sh '''set -e
-                    ENV_PATH=".env"
+                    ENV_PATH="${WORKSPACE:-$PWD}/.env"
                     if [ ! -f "$ENV_PATH" ]; then
                     echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
                     exit 1
@@ -56,7 +56,7 @@ pipeline {
                     AND pid <> pg_backend_pid();
 
                     DROP DATABASE IF EXISTS main;
-
+                    
                     CREATE DATABASE main;
                     SQL
                     '''
