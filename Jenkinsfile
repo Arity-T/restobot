@@ -40,7 +40,7 @@ pipeline {
             steps {
                 sh '''
                 set -e
-                source .env
+                . .env
                 export PGPASSWORD="$MAIN_DB_PASSWORD"
                 psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres <<'SQL'
                 -- Завершить все активные соединения с базой данных
@@ -48,7 +48,7 @@ pipeline {
                 FROM pg_stat_activity
                 WHERE datname = 'main'
                 AND pid <> pg_backend_pid();
-ы
+
                 -- Удалить базу данных, если она существует
                 DROP DATABASE IF EXISTS main;
 
