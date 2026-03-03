@@ -58,8 +58,12 @@ pipeline {
         stage('Run Migrations') {
             steps {
                 sh '''
-psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V1__init_main.sql
-psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
+set -e
+# Ждём готовности Postgres
+sudo docker compose exec -T postgres sh -c 'until pg_isready -U postgres -d main; do sleep 1; done'
+# Прогоняем миграции, передавая файлы через stdin в psql внутри контейнера
+sudo docker compose exec -T postgres psql -U postgres -d main < logic/src/main/resources/db/migration/main/V1__init_main.sql
+sudo docker compose exec -T postgres psql -U postgres -d main < logic/src/main/resources/db/migration/main/V2__add_data.sql
 '''
             }
         }
