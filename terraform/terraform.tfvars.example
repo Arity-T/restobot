@@ -1,0 +1,20 @@
+cloud_id  = "b1gxxxxxxxxxxxxxxx"
+folder_id = "b1gxxxxxxxxxxxxxxx"
+
+zone         = "ru-central1-a"
+project_name = "restobot"
+
+instance_count = 1
+subnet_cidr    = "10.10.10.0/24"
+allowed_cidrs  = ["0.0.0.0/0"]
+
+platform_id       = "standard-v3"
+vm_cores          = 2
+vm_memory_gb      = 2
+vm_core_fraction  = 100
+boot_disk_size_gb = 20
+boot_disk_type    = "network-hdd"
+preemptible       = true
+
+image_family = "ubuntu-2204-lts"
+app_port     = 8089

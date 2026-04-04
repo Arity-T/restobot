@@ -10,4 +10,10 @@ bin
 .env
 *.log
 .cursor
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/crash.log
+terraform/jenkins.auto.tfvars
+ansible/inventory/hosts.ini
 
