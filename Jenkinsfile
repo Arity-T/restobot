@@ -176,6 +176,34 @@ EOF
             }
         }
 
+        stage('Wait For SSH') {
+            when {
+                expression { params.TF_ACTION == 'apply' && params.RUN_ANSIBLE }
+            }
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'restobot_vm_ssh', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')
+                ]) {
+                    sh '''#!/usr/bin/env bash
+                    set -euo pipefail
+
+                    for i in $(seq 1 20); do
+                      if ANSIBLE_CONFIG="$ANSIBLE_DIR/ansible.cfg" ansible -i "$ANSIBLE_DIR/inventory/hosts.ini" restobot -m ping --private-key "$SSH_KEY" -u "$SSH_USER" >/dev/null 2>&1; then
+                        echo "SSH is available."
+                        exit 0
+                      fi
+                      echo "Waiting for SSH... attempt $i/20"
+                      sleep 15
+                    done
+
+                    echo "SSH is still unavailable after waiting."
+                    ANSIBLE_CONFIG="$ANSIBLE_DIR/ansible.cfg" ansible -i "$ANSIBLE_DIR/inventory/hosts.ini" restobot -m ping --private-key "$SSH_KEY" -u "$SSH_USER" || true
+                    exit 1
+                    '''
+                }
+            }
+        }
+
         stage('Ansible Deploy') {
             when {
                 expression { params.TF_ACTION == 'apply' && params.RUN_ANSIBLE }
@@ -249,7 +277,6 @@ EOF
             docker-compose down -v
             '''
             archiveArtifacts artifacts: 'app/build/libs/*.jar, terraform/tfplan, ansible/inventory/hosts.ini', allowEmptyArchive: true, fingerprint: true
-            deleteDir()
         }
     }
 }
