@@ -1,0 +1,30 @@
+cloud_id                 = "b1gxxxxxxxxxxxxxxxxx"
+folder_id                = "b1gxxxxxxxxxxxxxxxxx"
+ssh_public_key_path      = "/absolute/path/to/id_ed25519.pub"
+
+# Optional: only for Service Account mode.
+# service_account_key_file = "/absolute/path/to/yc-sa-key.json"
+
+create_network_resources  = false
+existing_subnet_id        = "replace-with-existing-subnet-id"
+existing_security_group_ids = ["replace-with-existing-sg-id"]
+
+zone           = "ru-central1-a"
+project_name   = "restobot"
+instance_count = 1
+
+# Used only when create_network_resources = true
+subnet_cidr   = "10.10.10.0/24"
+allowed_cidrs = ["0.0.0.0/0"]
+
+platform_id       = "standard-v3"
+vm_cores          = 2
+vm_memory_gb      = 2
+vm_core_fraction  = 100
+boot_disk_size_gb = 20
+boot_disk_type    = "network-hdd"
+preemptible       = true
+
+image_family = "ubuntu-2204-lts"
+ssh_user     = "restobot"
+app_port     = 8089
