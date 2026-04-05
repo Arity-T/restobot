@@ -48,22 +48,12 @@ variable "existing_subnet_id" {
   description = "Existing subnet ID to use when create_network_resources is false."
   type        = string
   default     = ""
-
-  validation {
-    condition     = var.create_network_resources || var.existing_subnet_id != ""
-    error_message = "existing_subnet_id must be set when create_network_resources is false."
-  }
 }
 
 variable "existing_security_group_ids" {
   description = "Existing security group IDs to attach to VM when create_network_resources is false."
   type        = list(string)
   default     = []
-
-  validation {
-    condition     = var.create_network_resources || length(var.existing_security_group_ids) > 0
-    error_message = "existing_security_group_ids must contain at least one ID when create_network_resources is false."
-  }
 }
 
 variable "subnet_cidr" {

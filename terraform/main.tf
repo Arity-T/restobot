@@ -4,6 +4,16 @@ locals {
   security_group_ids = var.create_network_resources ? [yandex_vpc_security_group.restobot[0].id] : var.existing_security_group_ids
 }
 
+check "existing_network_inputs" {
+  assert {
+    condition = var.create_network_resources || (
+      trimspace(var.existing_subnet_id) != "" &&
+      length(var.existing_security_group_ids) > 0
+    )
+    error_message = "When create_network_resources=false, set existing_subnet_id and at least one value in existing_security_group_ids."
+  }
+}
+
 data "yandex_compute_image" "ubuntu" {
   family = var.image_family
 }
