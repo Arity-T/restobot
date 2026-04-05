@@ -89,7 +89,11 @@ jooq {
 }
 
 tasks.named('generateJooq').configure {
+    def toolchainVersionProp = findProperty('javaToolchainVersion')
+    def toolchainVersionEnv = System.getenv('JAVA_TOOLCHAIN_VERSION')
+    def toolchainVersion = (toolchainVersionProp ?: toolchainVersionEnv ?: '23').toString().toInteger()
+
     launcher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(toolchainVersion)
     }
 }
