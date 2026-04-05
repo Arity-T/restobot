@@ -128,7 +128,9 @@ provider_installation {
     url     = "https://terraform-mirror.yandexcloud.net/"
     include = ["registry.terraform.io/*/*"]
   }
-  direct {}
+  direct {
+    exclude = ["registry.terraform.io/*/*"]
+  }
 }
 EOF
 
