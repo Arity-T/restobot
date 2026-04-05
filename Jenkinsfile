@@ -21,6 +21,7 @@ pipeline {
         TFVARS_PATH = "${WORKSPACE}/terraform/terraform.tfvars"
         TFPLAN_PATH = "${WORKSPACE}/terraform/tfplan"
         ANSIBLE_DIR = "${WORKSPACE}/ansible"
+        TF_CLI_CONFIG_FILE = "${WORKSPACE}/.terraformrc"
     }
 
     stages {
@@ -120,6 +121,16 @@ pipeline {
                     else
                       echo "ssh_public_key_path = \\"$TF_DIR/ci_id_ed25519.pub\\"" >> "$TFVARS_PATH"
                     fi
+
+                    cat > "$TF_CLI_CONFIG_FILE" <<'EOF'
+provider_installation {
+  network_mirror {
+    url     = "https://terraform-mirror.yandexcloud.net/"
+    include = ["registry.terraform.io/*/*"]
+  }
+  direct {}
+}
+EOF
 
                     export YC_TOKEN
                     terraform -chdir="$TF_DIR" init
