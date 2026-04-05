@@ -15,8 +15,6 @@ pipeline {
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/usr/lib/jvm/temurin-23-jdk-amd64"
-        PATH = "${JAVA_HOME}/bin:${PATH}"
         TF_IN_AUTOMATION = "true"
         ENV_PATH = "${WORKSPACE}/.env"
         TF_DIR = "${WORKSPACE}/terraform"
@@ -55,6 +53,9 @@ pipeline {
             steps {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
+                export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
+                export PATH="$JAVA_HOME/bin:$PATH"
+                java -version
                 chmod +x gradlew
 
                 # Build needs a local Postgres for flyway + jOOQ generation.
