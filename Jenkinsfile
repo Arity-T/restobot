@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'Gubkovskiy_agent' }
+    agent any
 
     options {
         timestamps()
@@ -15,9 +15,8 @@ pipeline {
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/usr/lib/jvm/temurin-23-jdk-amd64"
-        PATH = "${JAVA_HOME}/bin:${PATH}"
         TF_IN_AUTOMATION = 'true'
+        TF_CLI_CONFIG_FILE = "${WORKSPACE}/terraform.tfrc"
         ANSIBLE_CONFIG = "${WORKSPACE}/ansible/ansible.cfg"
         ENV_PATH = "${WORKSPACE}/.env"
         TFVARS_PATH = "${WORKSPACE}/terraform/jenkins.auto.tfvars"
