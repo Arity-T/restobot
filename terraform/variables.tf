@@ -20,6 +20,18 @@ variable "project_name" {
   default     = "restobot"
 }
 
+variable "existing_network_id" {
+  description = "Optional ID of an existing Yandex Cloud VPC network. If set, Terraform will reuse it instead of creating a new network."
+  type        = string
+  default     = null
+}
+
+variable "existing_subnet_id" {
+  description = "Optional ID of an existing Yandex Cloud subnet. If set, Terraform will reuse it instead of creating a new network and subnet."
+  type        = string
+  default     = null
+}
+
 variable "instance_count" {
   description = "Number of virtual machines to create."
   type        = number

@@ -1,6 +1,40 @@
-version: '3.8'
-
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${MAIN_DB_USER}
+      - POSTGRES_PASSWORD=${MAIN_DB_PASSWORD}
+      - POSTGRES_DB=main
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${MAIN_DB_USER} -d main"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - restobot-network
+
+  migrate:
+    image: flyway/flyway:11.8.1-alpine
+    command:
+      - -url=jdbc:postgresql://postgres:5432/main
+      - -user=${MAIN_DB_USER}
+      - -password=${MAIN_DB_PASSWORD}
+      - -locations=filesystem:/flyway/sql
+      - migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./logic/src/main/resources/db/migration/main:/flyway/sql:ro
+    restart: "no"
+    networks:
+      - restobot-network
+
   app:
     image: thearity/restobot-app:latest
     env_file:
@@ -8,7 +42,10 @@ services:
     ports:
       - "8089:8089"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       - MAIN_DB_URL=jdbc:postgresql://postgres:5432/main
       - MAIN_DB_USER=${MAIN_DB_USER}
@@ -23,22 +60,9 @@ services:
     networks:
       - restobot-network
 
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      - POSTGRES_USER=${MAIN_DB_USER}
-      - POSTGRES_PASSWORD=${MAIN_DB_PASSWORD}
-      - POSTGRES_DB=main
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5435:5432"
-    networks:
-      - restobot-network
-
 volumes:
   postgres-data:
 
 networks:
   restobot-network:
-    driver: bridge 
+    driver: bridge

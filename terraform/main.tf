@@ -1,26 +1,40 @@
 locals {
   ssh_public_key = trimspace(file(var.ssh_public_key_path))
+  network_id = var.existing_subnet_id != null ? data.yandex_vpc_subnet.existing[0].network_id : (
+    var.existing_network_id != null ? var.existing_network_id : yandex_vpc_network.restobot[0].id
+  )
+  subnet_id = var.existing_subnet_id != null ? data.yandex_vpc_subnet.existing[0].id : yandex_vpc_subnet.restobot[0].id
 }
 
 data "yandex_compute_image" "ubuntu" {
   family = var.image_family
 }
 
+data "yandex_vpc_subnet" "existing" {
+  count = var.existing_subnet_id != null ? 1 : 0
+
+  subnet_id = var.existing_subnet_id
+}
+
 resource "yandex_vpc_network" "restobot" {
+  count = var.existing_network_id == null && var.existing_subnet_id == null ? 1 : 0
+
   name = "${var.project_name}-network"
 }
 
 resource "yandex_vpc_subnet" "restobot" {
+  count = var.existing_subnet_id == null ? 1 : 0
+
   name           = "${var.project_name}-subnet"
   zone           = var.zone
-  network_id     = yandex_vpc_network.restobot.id
+  network_id     = local.network_id
   v4_cidr_blocks = [var.subnet_cidr]
 }
 
 resource "yandex_vpc_security_group" "restobot" {
   name        = "${var.project_name}-sg"
   description = "Security group for ${var.project_name}"
-  network_id  = yandex_vpc_network.restobot.id
+  network_id  = local.network_id
 
   ingress {
     protocol       = "TCP"
@@ -71,7 +85,7 @@ resource "yandex_compute_instance" "restobot" {
   }
 
   network_interface {
-    subnet_id          = yandex_vpc_subnet.restobot.id
+    subnet_id          = local.subnet_id
     nat                = true
     security_group_ids = [yandex_vpc_security_group.restobot.id]
   }

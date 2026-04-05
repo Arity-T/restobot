@@ -18,4 +18,6 @@ terraform/crash.log
 terraform/jenkins.auto.tfvars
 ansible/inventory/hosts.ini
 terraform/terraform.auto.tfvars
+terraform/.terraform.lock.hcl
 
+terraform/.terraform.tfstate.lock.info

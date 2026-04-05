@@ -28,6 +28,7 @@
 - Docker Compose plugin.
 
 Сама база поднимается как контейнер `postgres:16-alpine`, а приложение - как контейнер `thearity/restobot-app:latest`.
+SQL-миграции и начальные данные теперь накатываются автоматически через отдельный контейнер `flyway/flyway`, который запускается после готовности PostgreSQL и до старта приложения.
 
 ## Структура решения
 
@@ -41,13 +42,14 @@
 
 ## Как работает Terraform
 
-Terraform создаёт:
+Terraform по умолчанию создаёт:
 
 - отдельную VPC-сеть;
 - подсеть;
 - security group;
 - одну или несколько VM;
 - локальный inventory-файл для Ansible.
+
 
 ### Что создаётся на VM
 
@@ -84,8 +86,9 @@ Ansible запускает `ansible/playbook.yml` и выполняет:
 6. создание каталога `/opt/restobot`;
 7. копирование `docker-compose.yml`;
 8. копирование `.env`;
-9. `docker compose pull`;
-10. `docker compose up -d`.
+9. копирование SQL-миграций Flyway;
+10. `docker compose pull`;
+11. запуск PostgreSQL, автоматический запуск Flyway-миграций и только потом запуск приложения.
 
 То есть системное и прикладное ПО настраивается через Ansible, как и требуется в задании.
 
@@ -273,6 +276,14 @@ terraform apply -var-file=terraform.auto.tfvars
 ansible-playbook -i ansible/inventory/hosts.ini ansible/playbook.yml --private-key ~/.ssh/restobot_vm -u restobot
 ```
 
+В репозиторий добавлен корневой `ansible.cfg`, поэтому при запуске из корня Ansible автоматически отключает strict host key checking для лабораторного стенда.
+
+Если SSH-ключ сервера уже менялся на том же IP-адресе и локально осталась старая запись, можно очистить её командой:
+
+```bash
+ssh-keygen -R <public_ip>
+```
+
 ### 5. Проверка результата
 
 Проверить output Terraform:
@@ -294,130 +305,14 @@ http://<public_ip>:8089
 ssh -i ~/.ssh/restobot_vm restobot@<public_ip>
 cd /opt/restobot
 docker compose ps
+docker compose logs app --tail=200
 ```
 
-## Как разворачивать через Jenkins
-
-### Что должно быть установлено на Jenkins agent
-
-На Linux-агенте Jenkins должны быть:
-
-- Terraform;
-- Ansible;
-- OpenSSH client;
-- `ssh-keygen`;
-- при использовании `RUN_BUILD=true` ещё и JDK 23.
-
-### Какие Credentials нужны в Jenkins
-
-Ниже ожидаемые credentials IDs:
-
-- `restobot_env` - Secret file с содержимым `.env`.
-- `restobot_tfvars` - Secret file с содержимым `terraform.auto.tfvars`.
-- `yc_iam_token` - Secret text с IAM token пользовательской учётной записи.
-- `restobot_vm_ssh` - SSH Username with private key.
-
-`restobot_vm_ssh` должен содержать:
-
-- username, например `restobot`;
-- приватный ключ, соответствующий публичному ключу для VM.
-
-### Как запустить job
-
-Для создания инфраструктуры:
-
-1. открыть job в Jenkins;
-2. выбрать `TF_ACTION=apply`;
-3. при необходимости включить `RUN_BUILD=true`;
-4. запустить job.
-
-Что произойдёт:
-
-1. Jenkins соберёт файлы и секреты.
-2. Terraform создаст инфраструктуру в Yandex Cloud, используя `YC_TOKEN`.
-3. Terraform сгенерирует inventory для Ansible.
-4. Jenkins дождётся готовности SSH.
-5. Ansible настроит VM и поднимет контейнеры.
-
-Для удаления инфраструктуры:
-
-1. выбрать `TF_ACTION=destroy`;
-2. запустить job.
-
-В этом случае Jenkins выполнит `terraform destroy`.
-
-## Remote state для Terraform
-
-Для Jenkins лучше хранить Terraform state не локально в workspace, а в Yandex Object Storage. Для этого в репозиторий добавлен шаблон `terraform/backend.tf.example`.
-
-Порядок:
-
-1. создать bucket в Object Storage;
-2. скопировать:
-
-```bash
-cp terraform/backend.tf.example terraform/backend.tf
-```
-
-3. заполнить `bucket` и `key`;
-4. задать переменные окружения для доступа к S3-совместимому backend:
-
-```bash
-export AWS_ACCESS_KEY_ID="<static_access_key_id>"
-export AWS_SECRET_ACCESS_KEY="<static_secret_key>"
-```
-
-5. переинициализировать Terraform:
-
+### 6. Чистка cloud от Terraform
 ```bash
 cd terraform
-terraform init -reconfigure
+terraform destroy -var-file=terraform.auto.tfvars
 ```
-
-Если используется Jenkins, эти переменные лучше хранить в Jenkins Credentials или Jenkins environment.
-
-При использовании пользовательского IAM token в Jenkins есть ограничение: такой токен надо периодически обновлять вручную, потому что он истекает. Для постоянного CI-сценария service account надёжнее.
-
-## Какой сетевой доступ открывается
-
-Terraform создаёт security group, которая открывает:
-
-- `22/tcp` - для SSH и Ansible;
-- `8089/tcp` - для приложения.
-
-Порт PostgreSQL наружу security group не открывает. Это значит:
-
-- контейнер PostgreSQL внутри VM работает;
-- снаружи напрямую база недоступна;
-- это безопаснее для лабораторной схемы.
-
-## Полный сценарий лабораторной работы
-
-Итоговый порядок выполнения лабораторной можно описать так:
-
-1. Подготовить Yandex Cloud: cloud, folder, права для пользовательской учётной записи, SSH-ключи.
-2. Подготовить `terraform.auto.tfvars`.
-3. Подготовить `.env`.
-4. Выпустить `YC_TOKEN` через `yc iam create-token`.
-5. Настроить Jenkins credentials.
-6. Запустить Jenkins job с `TF_ACTION=apply`.
-7. Jenkins вызовет Terraform.
-8. Terraform создаст VM и сгенерирует inventory.
-9. Jenkins вызовет Ansible.
-10. Ansible установит Docker и поднимет проект через Compose.
-11. Проверить доступность приложения по публичному IP и порту `8089`.
-12. После демонстрации удалить ресурсы через `TF_ACTION=destroy`.
-
-## Что говорить на защите
-
-Коротко суть решения:
-
-- инфраструктура создаётся декларативно через Terraform;
-- первичная инициализация VM делается через YAML `cloud-init`;
-- системное и прикладное ПО ставится через Ansible;
-- Jenkins выступает точкой запуска всей цепочки;
-- приложение разворачивается контейнерно через уже существующий `docker-compose.yml`;
-- БД не ставится вручную как системный пакет, а запускается как контейнер вместе с приложением.
 
 ## Полезные официальные материалы Yandex Cloud
 

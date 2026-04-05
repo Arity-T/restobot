@@ -171,22 +171,30 @@ dependencies {
 
 При первом запуске:
 1. Создать `.env` файл в корне проекта.
-2. Запустить PostgreSQL
-   ```bash
-   docker compose up -d postgres
-   ```
-3. Выполнить миграции
-   ```bash
-   psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V1__init_main.sql
-   psql -h localhost -U postgres -p 5435 -d main -f logic/src/main/resources/db/migration/main/V2__add_data.sql
-   ```
-4. Запустить приложение вместе с базой данных.
+2. Запустить стек
    ```bash
    docker compose up -d
    ```
 
+`docker compose` сам поднимет PostgreSQL, дождётся его готовности, затем запустит контейнер `flyway/flyway`, который применит миграции из `logic/src/main/resources/db/migration/main`, и только после этого запустит приложение.
+
+Проверить состояние сервисов можно так:
+
+```bash
+docker compose ps
+docker compose logs migrate --tail=100
+docker compose logs app --tail=100
+```
+
 При повторных запусках достаточно выполнить команду:
 ```bash
+docker compose up -d
+```
+
+Если база была создана раньше без миграций и приложение падает с ошибкой вида `relation "public.city" does not exist`, пересоздайте volume базы данных:
+
+```bash
+docker compose down -v
 docker compose up -d
 ```
 

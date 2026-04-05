@@ -74,6 +74,14 @@
         group: "{{ restobot_owner }}"
         mode: "0755"
 
+    - name: Create migration directory
+      ansible.builtin.file:
+        path: "{{ restobot_deploy_path }}/logic/src/main/resources/db/migration/main"
+        state: directory
+        owner: "{{ restobot_owner }}"
+        group: "{{ restobot_owner }}"
+        mode: "0755"
+
     - name: Upload docker-compose file
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../docker-compose.yml"
@@ -81,6 +89,14 @@
         owner: "{{ restobot_owner }}"
         group: "{{ restobot_owner }}"
         mode: "0644"
+
+    - name: Upload database migration files
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../logic/src/main/resources/db/migration/main/"
+        dest: "{{ restobot_deploy_path }}/logic/src/main/resources/db/migration/main/"
+        owner: "{{ restobot_owner }}"
+        group: "{{ restobot_owner }}"
+        mode: preserve
 
     - name: Upload environment file
       ansible.builtin.copy:

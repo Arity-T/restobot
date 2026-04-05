@@ -4,6 +4,12 @@ folder_id = "b1gxxxxxxxxxxxxxxx"
 zone         = "ru-central1-a"
 project_name = "restobot"
 
+# Optional reuse mode:
+# - If only `existing_network_id` is set, Terraform will create a new subnet inside that existing network.
+# - If `existing_subnet_id` is set, Terraform will reuse that subnet and will not create a new network or subnet.
+# existing_network_id = "enpxxxxxxxxxxxxxxx"
+# existing_subnet_id  = "e9bxxxxxxxxxxxxxxx"
+
 instance_count = 1
 subnet_cidr    = "10.10.10.0/24"
 allowed_cidrs  = ["0.0.0.0/0"]
