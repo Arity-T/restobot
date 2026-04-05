@@ -6,6 +6,7 @@ build
 
 bin
 .vscode
+.DS_Store
 .idea
 .env
 *.log
@@ -16,4 +17,5 @@ terraform/*.tfstate.backup
 terraform/crash.log
 terraform/jenkins.auto.tfvars
 ansible/inventory/hosts.ini
+terraform/terraform.auto.tfvars
 

@@ -103,11 +103,11 @@ pipeline {
             }
             steps {
                 withCredentials([
-                    file(credentialsId: 'yc_service_account_key', variable: 'YC_KEY_FILE'),
+                    string(credentialsId: 'yc_iam_token', variable: 'YC_IAM_TOKEN'),
                     sshUserPrivateKey(credentialsId: 'restobot_vm_ssh', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')
                 ]) {
                     withEnv([
-                        "TF_VAR_service_account_key_file=${YC_KEY_FILE}",
+                        "YC_TOKEN=${YC_IAM_TOKEN}",
                         "TF_VAR_ssh_public_key_path=${env.GENERATED_SSH_PUBLIC_KEY}",
                         "TF_VAR_ssh_user=${SSH_USER}"
                     ]) {
@@ -125,11 +125,11 @@ pipeline {
             }
             steps {
                 withCredentials([
-                    file(credentialsId: 'yc_service_account_key', variable: 'YC_KEY_FILE'),
+                    string(credentialsId: 'yc_iam_token', variable: 'YC_IAM_TOKEN'),
                     sshUserPrivateKey(credentialsId: 'restobot_vm_ssh', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')
                 ]) {
                     withEnv([
-                        "TF_VAR_service_account_key_file=${YC_KEY_FILE}",
+                        "YC_TOKEN=${YC_IAM_TOKEN}",
                         "TF_VAR_ssh_public_key_path=${env.GENERATED_SSH_PUBLIC_KEY}",
                         "TF_VAR_ssh_user=${SSH_USER}"
                     ]) {
@@ -195,11 +195,11 @@ pipeline {
             }
             steps {
                 withCredentials([
-                    file(credentialsId: 'yc_service_account_key', variable: 'YC_KEY_FILE'),
+                    string(credentialsId: 'yc_iam_token', variable: 'YC_IAM_TOKEN'),
                     sshUserPrivateKey(credentialsId: 'restobot_vm_ssh', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')
                 ]) {
                     withEnv([
-                        "TF_VAR_service_account_key_file=${YC_KEY_FILE}",
+                        "YC_TOKEN=${YC_IAM_TOKEN}",
                         "TF_VAR_ssh_public_key_path=${env.GENERATED_SSH_PUBLIC_KEY}",
                         "TF_VAR_ssh_user=${SSH_USER}"
                     ]) {

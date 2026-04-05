@@ -121,11 +121,13 @@ Ansible запускает `ansible/playbook.yml` и выполняет:
 - создать cloud;
 - создать folder, в котором будет жить инфраструктура.
 
-### 2. Создать service account
+### 2. Выдать права своей пользовательской учётной записи
 
-Для лабораторной работы самый простой вариант - создать service account и выдать ему роль `editor` на каталог.
+Если не использовать service account, Terraform можно запускать от вашей пользовательской учётной записи в Yandex Cloud.
 
-Почему так:
+Для этого достаточно, чтобы у вашей учётной записи были права на каталог, где создаётся инфраструктура. Для лабораторной работы обычно хватает роли `editor` на folder.
+
+Почему этого достаточно:
 
 - Terraform будет создавать сеть;
 - Terraform будет создавать подсеть;
@@ -133,17 +135,27 @@ Ansible запускает `ansible/playbook.yml` и выполняет:
 - Terraform будет назначать публичный IP;
 - Terraform будет управлять security group.
 
-Для production лучше раздавать более узкие роли, но для лабораторной `editor` проще и достаточно.
+Для production лучше использовать service account и более узкие роли, но для лабораторной пользовательская учётная запись тоже подходит.
 
-### 3. Создать authorized key для service account
+### 3. Авторизоваться в `yc` CLI и получить IAM token
 
-Нужно создать JSON-ключ service account и сохранить его локально, например:
+Сначала нужно авторизоваться в Yandex Cloud CLI:
 
-```text
-terraform/authorized-key.json
+```bash
+yc init
 ```
 
-Этот файл использует переменная `service_account_key_file`.
+После этого можно выпустить IAM token для Terraform:
+
+```bash
+export YC_TOKEN=$(yc iam create-token)
+```
+
+Важно:
+
+- `YC_TOKEN` не хранится в Terraform-файлах;
+- токен живёт ограниченное время, обычно не более 12 часов;
+- если токен истёк, достаточно выпустить новый той же командой.
 
 ### 4. Создать SSH-ключ для входа на VM
 
@@ -193,7 +205,6 @@ app_port     = 8089
 
 Отдельно нужно передать:
 
-- `service_account_key_file`;
 - `ssh_public_key_path`;
 - `ssh_user`.
 
@@ -231,7 +242,7 @@ terraform init
 Если переменные передаются через environment:
 
 ```bash
-export TF_VAR_service_account_key_file="$PWD/authorized-key.json"
+export YC_TOKEN=$(yc iam create-token)
 export TF_VAR_ssh_public_key_path="$HOME/.ssh/restobot_vm.pub"
 export TF_VAR_ssh_user="restobot"
 ```
@@ -303,7 +314,7 @@ docker compose ps
 
 - `restobot_env` - Secret file с содержимым `.env`.
 - `restobot_tfvars` - Secret file с содержимым `terraform.auto.tfvars`.
-- `yc_service_account_key` - Secret file с JSON-ключом service account.
+- `yc_iam_token` - Secret text с IAM token пользовательской учётной записи.
 - `restobot_vm_ssh` - SSH Username with private key.
 
 `restobot_vm_ssh` должен содержать:
@@ -323,7 +334,7 @@ docker compose ps
 Что произойдёт:
 
 1. Jenkins соберёт файлы и секреты.
-2. Terraform создаст инфраструктуру в Yandex Cloud.
+2. Terraform создаст инфраструктуру в Yandex Cloud, используя `YC_TOKEN`.
 3. Terraform сгенерирует inventory для Ansible.
 4. Jenkins дождётся готовности SSH.
 5. Ansible настроит VM и поднимет контейнеры.
@@ -365,6 +376,8 @@ terraform init -reconfigure
 
 Если используется Jenkins, эти переменные лучше хранить в Jenkins Credentials или Jenkins environment.
 
+При использовании пользовательского IAM token в Jenkins есть ограничение: такой токен надо периодически обновлять вручную, потому что он истекает. Для постоянного CI-сценария service account надёжнее.
+
 ## Какой сетевой доступ открывается
 
 Terraform создаёт security group, которая открывает:
@@ -382,17 +395,18 @@ Terraform создаёт security group, которая открывает:
 
 Итоговый порядок выполнения лабораторной можно описать так:
 
-1. Подготовить Yandex Cloud: cloud, folder, service account, ключи.
+1. Подготовить Yandex Cloud: cloud, folder, права для пользовательской учётной записи, SSH-ключи.
 2. Подготовить `terraform.auto.tfvars`.
 3. Подготовить `.env`.
-4. Настроить Jenkins credentials.
-5. Запустить Jenkins job с `TF_ACTION=apply`.
-6. Jenkins вызовет Terraform.
-7. Terraform создаст VM и сгенерирует inventory.
-8. Jenkins вызовет Ansible.
-9. Ansible установит Docker и поднимет проект через Compose.
-10. Проверить доступность приложения по публичному IP и порту `8089`.
-11. После демонстрации удалить ресурсы через `TF_ACTION=destroy`.
+4. Выпустить `YC_TOKEN` через `yc iam create-token`.
+5. Настроить Jenkins credentials.
+6. Запустить Jenkins job с `TF_ACTION=apply`.
+7. Jenkins вызовет Terraform.
+8. Terraform создаст VM и сгенерирует inventory.
+9. Jenkins вызовет Ansible.
+10. Ansible установит Docker и поднимет проект через Compose.
+11. Проверить доступность приложения по публичному IP и порту `8089`.
+12. После демонстрации удалить ресурсы через `TF_ACTION=destroy`.
 
 ## Что говорить на защите
 

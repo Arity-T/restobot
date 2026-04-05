@@ -1,9 +1,3 @@
-variable "service_account_key_file" {
-  description = "Path to the authorized key JSON file for the Yandex Cloud service account."
-  type        = string
-  sensitive   = true
-}
-
 variable "cloud_id" {
   description = "Yandex Cloud cloud ID."
   type        = string
