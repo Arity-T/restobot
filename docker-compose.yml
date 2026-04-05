@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     image: thearity/restobot-app:latest
@@ -18,7 +16,7 @@ services:
       - TRIPADVISOR_API_KEY=${TRIPADVISOR_API_KEY}
       - TRIPADVISOR_API_HOST=${TRIPADVISOR_API_HOST}
       - TRIPADVISOR_API_LANGUAGE=${TRIPADVISOR_API_LANGUAGE}
-      - API_SERVER_HOST=${API_SERVER_HOST}
+      - API_SERVER_HOST=0.0.0.0
       - API_SERVER_PORT=${API_SERVER_PORT}
     networks:
       - restobot-network
