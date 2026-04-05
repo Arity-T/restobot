@@ -62,18 +62,41 @@ pipeline {
                 docker-compose down -v || true
                 docker-compose up -d postgres
 
+                READY=0
                 for i in $(seq 1 30); do
                   if docker-compose exec -T postgres sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"' >/dev/null 2>&1; then
+                    READY=1
                     break
                   fi
                   sleep 2
                 done
 
-                # Force local build DB URL to Docker-mapped port.
+                if [ "$READY" -ne 1 ]; then
+                  echo "Postgres did not become ready in time"
+                  docker-compose logs --tail=100 postgres || true
+                  exit 1
+                fi
+
+                DB_PORT="$(docker-compose port postgres 5432 | tail -n1 | sed -E 's/.*:([0-9]+)$/\\1/')"
+                if [ -z "${DB_PORT:-}" ]; then
+                  echo "Failed to determine mapped Postgres port"
+                  docker-compose ps
+                  exit 1
+                fi
+
+                DB_HOST="localhost"
+                if [ -f "/.dockerenv" ] && getent hosts host.docker.internal >/dev/null 2>&1; then
+                  DB_HOST="host.docker.internal"
+                fi
+
+                DB_URL="jdbc:postgresql://${DB_HOST}:${DB_PORT}/main"
+                echo "Using build DB URL: ${DB_URL}"
+
+                # Force local build DB URL.
                 if grep -q '^MAIN_DB_URL=' "$ENV_PATH"; then
-                  sed -i 's#^MAIN_DB_URL=.*#MAIN_DB_URL=jdbc:postgresql://localhost:5435/main#' "$ENV_PATH"
+                  sed -i "s#^MAIN_DB_URL=.*#MAIN_DB_URL=${DB_URL}#" "$ENV_PATH"
                 else
-                  echo 'MAIN_DB_URL=jdbc:postgresql://localhost:5435/main' >> "$ENV_PATH"
+                  echo "MAIN_DB_URL=${DB_URL}" >> "$ENV_PATH"
                 fi
 
                 ./gradlew --no-daemon -PjavaToolchainVersion=21 :logic:flywayMigrate :logic:generateJooq build
