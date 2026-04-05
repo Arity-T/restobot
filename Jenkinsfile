@@ -3,7 +3,6 @@ pipeline {
 
     options {
         timestamps()
-        ansiColor('xterm')
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '15'))
     }
@@ -213,7 +212,7 @@ pipeline {
             docker-compose down -v
             '''
             archiveArtifacts artifacts: 'app/build/libs/*.jar, terraform/tfplan, ansible/inventory/hosts.ini', allowEmptyArchive: true, fingerprint: true
-            cleanWs()
+            deleteDir()
         }
     }
 }
