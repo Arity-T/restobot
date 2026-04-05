@@ -76,7 +76,7 @@ pipeline {
                   echo 'MAIN_DB_URL=jdbc:postgresql://localhost:5435/main' >> "$ENV_PATH"
                 fi
 
-                ./gradlew :logic:flywayMigrate :logic:generateJooq build
+                ./gradlew --no-daemon -PjavaToolchainVersion=21 :logic:flywayMigrate :logic:generateJooq build
                 '''
             }
         }

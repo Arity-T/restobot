@@ -9,6 +9,20 @@ def loadEnvFile() {
     return props
 }
 
+def resolveToolchainVersion() {
+    def propValue = findProperty('javaToolchainVersion')
+    if (propValue != null && propValue.toString().trim()) {
+        return propValue.toString().toInteger()
+    }
+
+    def envValue = System.getenv('JAVA_TOOLCHAIN_VERSION')
+    if (envValue != null && envValue.toString().trim()) {
+        return envValue.toString().toInteger()
+    }
+
+    return 23
+}
+
 plugins {
     alias(libs.plugins.spotless)
 }
@@ -36,7 +50,7 @@ subprojects {
     // Apply a specific Java toolchain to ease working on different environments.
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(23)
+            languageVersion = JavaLanguageVersion.of(resolveToolchainVersion())
         }
     }
 
