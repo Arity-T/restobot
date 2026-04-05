@@ -86,10 +86,9 @@ Docker на Jenkins agent не нужен, потому что Docker стави
 - `Pipeline`;
 - `Git`;
 - `Credentials Binding`;
-- `SSH Credentials`;
-- `AnsiColor`.
+- `SSH Credentials`.
 
-Если Jenkins уже умеет запускать declarative pipeline с `withCredentials`, `sshUserPrivateKey` и `ansiColor`, значит набор плагинов достаточен.
+Плагин `AnsiColor` полезен, но не обязателен. В текущем `Jenkinsfile` он больше не требуется, чтобы локальный Jenkins запускался без лишней настройки.
 
 ## Запуск Jenkins локально
 
@@ -121,20 +120,6 @@ JENKINS_HOME="$HOME/.jenkins-local" java -jar jenkins.war --httpPort=9081 --enab
 http://localhost:9081
 ```
 
-## Настройка Jenkins agent
-
-В `Jenkinsfile` сейчас используется:
-
-```groovy
-agent { label 'Gubkovskiy_agent' }
-```
-
-Это значит, что job будет запускаться только на агенте с label `Gubkovskiy_agent`.
-
-Если у вас другой агент, есть два варианта:
-
-- создать агент с таким label;
-- изменить label в `Jenkinsfile`.
 
 ## Как запустить Jenkins локально
 
