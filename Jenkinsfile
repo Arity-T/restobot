@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'Gaar agent' }
+    agent { label 'gaar-agent' }
 
     options {
         timestamps()
