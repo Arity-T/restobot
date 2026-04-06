@@ -6,6 +6,8 @@ if [ -z "${KUBECONFIG_PATH:-}" ]; then
   exit 1
 fi
 
+KUBECTL_IMAGE="${KUBECTL_IMAGE:-bitnami/kubectl:latest}"
+
 MOUNT_ARGS=()
 if [ -f "/.dockerenv" ]; then
   MOUNT_ARGS+=(--volumes-from "${HOSTNAME}")
@@ -18,5 +20,4 @@ exec docker run --rm \
   -u "$(id -u):$(id -g)" \
   -w "$PWD" \
   -e KUBECONFIG="$KUBECONFIG_PATH" \
-  bitnami/kubectl:1.30 "$@"
-
+  "$KUBECTL_IMAGE" "$@"
