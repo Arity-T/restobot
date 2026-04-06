@@ -16,6 +16,7 @@ else
 fi
 
 exec docker run --rm \
+  -i \
   "${MOUNT_ARGS[@]}" \
   -u "$(id -u):$(id -g)" \
   -w "$PWD" \
