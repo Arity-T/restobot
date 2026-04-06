@@ -145,6 +145,12 @@ pipeline {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
 
+                RESOLVED_TAG="${IMAGE_TAG:-}"
+                if [ -z "${RESOLVED_TAG}" ]; then
+                  RESOLVED_TAG="build-${BUILD_NUMBER}"
+                fi
+                DOCKER_IMAGE="${DOCKER_IMAGE:-${IMAGE_REPOSITORY}:${RESOLVED_TAG}}"
+
                 if [ ! -f "app/build/libs/app-fat.jar" ]; then
                   echo "Missing app/build/libs/app-fat.jar. Enable RUN_BUILD or build artifact beforehand."
                   exit 1
@@ -167,6 +173,12 @@ pipeline {
                     sh '''#!/usr/bin/env bash
                     set -euo pipefail
 
+                    RESOLVED_TAG="${IMAGE_TAG:-}"
+                    if [ -z "${RESOLVED_TAG}" ]; then
+                      RESOLVED_TAG="build-${BUILD_NUMBER}"
+                    fi
+                    DOCKER_IMAGE="${DOCKER_IMAGE:-${IMAGE_REPOSITORY}:${RESOLVED_TAG}}"
+
                     REGISTRY="$(echo "$DOCKER_IMAGE" | awk -F/ '{if (NF>1 && $1 ~ /[.:]/) print $1; else print "docker.io"}')"
                     echo "$DOCKER_PASS" | docker login "$REGISTRY" -u "$DOCKER_USER" --password-stdin
                     docker push "$DOCKER_IMAGE"
@@ -185,6 +197,16 @@ pipeline {
                 set -euo pipefail
                 chmod +x scripts/kctl.sh
                 export KUBECONFIG_PATH
+
+                RESOLVED_TAG="${IMAGE_TAG:-}"
+                if [ -z "${RESOLVED_TAG}" ]; then
+                  RESOLVED_TAG="build-${BUILD_NUMBER}"
+                fi
+                DOCKER_IMAGE="${DOCKER_IMAGE:-${IMAGE_REPOSITORY}:${RESOLVED_TAG}}"
+                IMAGE_PULL_POLICY="${IMAGE_PULL_POLICY:-IfNotPresent}"
+                if [ "${PUSH_IMAGE:-false}" = "true" ]; then
+                  IMAGE_PULL_POLICY="Always"
+                fi
 
                 scripts/kctl.sh version --client
 
