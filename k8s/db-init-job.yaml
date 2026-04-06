@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restobot-db-init
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: restobot-db-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: db-init
+          image: postgres:16-alpine
+          env:
+            - name: DB_HOST
+              value: restobot-postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: main
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: restobot-env
+                  key: MAIN_DB_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: restobot-env
+                  key: MAIN_DB_PASSWORD
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -eu
+
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME"; do
+                echo "Waiting for postgres..."
+                sleep 2
+              done
+
+              TABLE_EXISTS="$(psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -tAc "SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='city'")"
+              TABLE_EXISTS="$(echo "$TABLE_EXISTS" | tr -d '[:space:]')"
+
+              if [ "$TABLE_EXISTS" = "1" ]; then
+                echo "Schema already initialized. Skipping migrations."
+                exit 0
+              fi
+
+              psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f /migrations/V1__init_main.sql
+              psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f /migrations/V2__add_data.sql
+              echo "Migrations completed."
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
+              readOnly: true
+      volumes:
+        - name: migrations
+          configMap:
+            name: restobot-db-migrations
+

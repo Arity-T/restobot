@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restobot-postgres
+  labels:
+    app: restobot-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restobot-postgres
+  template:
+    metadata:
+      labels:
+        app: restobot-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: main
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: restobot-env
+                  key: MAIN_DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: restobot-env
+                  key: MAIN_DB_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: postgres-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restobot-postgres
+  labels:
+    app: restobot-postgres
+spec:
+  selector:
+    app: restobot-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+

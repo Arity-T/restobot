@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restobot-app
+  labels:
+    app: restobot-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restobot-app
+  template:
+    metadata:
+      labels:
+        app: restobot-app
+    spec:
+      containers:
+        - name: app
+          image: __APP_IMAGE__
+          imagePullPolicy: __IMAGE_PULL_POLICY__
+          ports:
+            - containerPort: 8089
+          envFrom:
+            - secretRef:
+                name: restobot-env
+          env:
+            - name: MAIN_DB_URL
+              value: jdbc:postgresql://restobot-postgres:5432/main
+            - name: API_SERVER_HOST
+              value: 0.0.0.0
+            - name: API_SERVER_PORT
+              value: "8089"
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8089
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8089
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 1Gi
+

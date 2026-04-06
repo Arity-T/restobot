@@ -26,3 +26,7 @@ terraform.tfvars
 
 # Ansible generated inventory
 ansible/inventory/hosts.ini
+
+# Kubernetes generated files
+.kubeconfig
+k8s/.rendered/
