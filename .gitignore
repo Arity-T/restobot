@@ -11,3 +11,19 @@ bin
 *.log
 .cursor
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+terraform.tfvars
+terraform/authorized_key.json
+
+# Ansible generated inventory
+ansible/inventory/hosts.ini

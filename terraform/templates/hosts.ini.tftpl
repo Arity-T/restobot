@@ -1,0 +1,4 @@
+[restobot]
+%{ for host in hosts ~}
+${host.name} ansible_host=${host.public_ip} ansible_user=${ssh_user} ansible_python_interpreter=/usr/bin/python3 restobot_private_ip=${host.private_ip}
+%{ endfor ~}
