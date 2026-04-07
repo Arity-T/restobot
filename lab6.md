@@ -75,9 +75,10 @@ Pipeline поддерживает два режима:
 - `ssh-keygen`;
 - `perl`;
 - `bash`;
-- JDK 23, если используется `RUN_BUILD=true`.
+- JDK 23, если используется `RUN_BUILD=true`;
+- Docker и Docker Compose, если используется `RUN_BUILD=true`.
 
-Docker на Jenkins agent не нужен, потому что Docker ставится Ansible на целевую VM, а не на Jenkins-агент.
+Если `RUN_BUILD=false`, Docker на Jenkins agent не нужен. Если `RUN_BUILD=true`, pipeline поднимает локальный контейнер PostgreSQL на Jenkins-машине перед `./gradlew build`.
 
 ## Какие Jenkins plugins нужны
 
@@ -157,7 +158,8 @@ http://localhost:8080
 - `ssh-keygen`;
 - `perl`;
 - `bash`;
-- JDK 23, если нужен `RUN_BUILD=true`.
+- JDK 23, если нужен `RUN_BUILD=true`;
+- Docker и Docker Compose, если нужен `RUN_BUILD=true`.
 
 5. Убедиться, что команды доступны из shell того пользователя, под которым работает Jenkins:
 
@@ -461,6 +463,31 @@ Validate Tooling
 
 Эти стадии выполняются только если `RUN_BUILD=true`.
 
+### Prepare Local Database
+
+```text
+Prepare Local Database
+```
+
+Эта стадия выполняется только если `RUN_BUILD=true`.
+
+Jenkins:
+
+1. поднимает локальный `postgres` через:
+
+```bash
+docker compose up -d postgres
+```
+
+2. ждёт, пока контейнер станет `healthy`;
+3. запускает:
+
+```bash
+./gradlew :logic:flywayMigrate
+```
+
+Это нужно потому, что во время `build` задача `:logic:generateJooq` подключается к базе данных из `.env`, и без живой локальной PostgreSQL-схемы сборка падает.
+
 ### Terraform Init
 
 ```text
@@ -662,7 +689,26 @@ yc iam create-token
 - совпадает ли `ssh_user` с пользователем в Jenkins SSH credential;
 - корректно ли передаётся публичный ключ в Terraform.
 
-### 5. Приложение отдаёт `502` или не отвечает
+### 5. Локальная сборка падает на `generateJooq`
+
+Симптом:
+
+- ошибка подключения к `localhost:5435`;
+- `Task :logic:generateJooq FAILED`.
+
+Причина:
+
+- при `RUN_BUILD=true` Gradle использует `.env` из workspace;
+- `generateJooq` и `flywayMigrate` ожидают локальную БД Jenkins-машины;
+- без локального `postgres` сборка не проходит.
+
+Что проверить:
+
+- включён ли Docker на Jenkins agent;
+- существует ли сервис `postgres` в `docker-compose.yml`;
+- содержит ли `.env` значение `MAIN_DB_URL=jdbc:postgresql://localhost:5435/main`.
+
+### 6. Приложение отдаёт `502` или не отвечает
 
 Симптом:
 
@@ -685,7 +731,7 @@ sudo docker compose down -v
 sudo docker compose up -d
 ```
 
-### 6. Jenkins запускается не на том agent
+### 7. Jenkins запускается не на том agent
 
 Симптом:
 

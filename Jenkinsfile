@@ -69,6 +69,36 @@ pipeline {
             }
         }
 
+        stage('Prepare Local Database') {
+            when {
+                expression { params.RUN_BUILD }
+            }
+            steps {
+                sh '''#!/bin/bash
+                set -euo pipefail
+                docker compose up -d postgres
+
+                POSTGRES_CONTAINER_ID="$(docker compose ps -q postgres)"
+                if [ -z "$POSTGRES_CONTAINER_ID" ]; then
+                  echo "Failed to start local PostgreSQL container."
+                  exit 1
+                fi
+
+                for attempt in $(seq 1 24); do
+                  STATUS="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$POSTGRES_CONTAINER_ID")"
+                  if [ "$STATUS" = "healthy" ]; then
+                    ./gradlew :logic:flywayMigrate
+                    exit 0
+                  fi
+                  sleep 5
+                done
+
+                echo "Local PostgreSQL is still unavailable after waiting."
+                exit 1
+                '''
+            }
+        }
+
         stage('Build') {
             when {
                 expression { params.RUN_BUILD }
