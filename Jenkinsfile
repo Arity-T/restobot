@@ -9,11 +9,9 @@ pipeline {
 
     parameters {
         choice(name: 'TF_ACTION', choices: ['apply', 'destroy'], description: 'Create/update or destroy infrastructure')
-        booleanParam(name: 'RUN_BUILD', defaultValue: false, description: 'Run Gradle build before provisioning')
     }
 
     environment {
-        GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         TF_IN_AUTOMATION = 'true'
         TF_CLI_CONFIG_FILE = "${WORKSPACE}/terraform.tfrc"
         ANSIBLE_CONFIG = "${WORKSPACE}/ansible/ansible.cfg"
@@ -57,54 +55,6 @@ pipeline {
                 ansible-playbook --version
                 ssh -V || true
                 '''
-            }
-        }
-
-        stage('Gradle Prep') {
-            when {
-                expression { params.RUN_BUILD }
-            }
-            steps {
-                sh 'chmod +x gradlew'
-            }
-        }
-
-        stage('Prepare Local Database') {
-            when {
-                expression { params.RUN_BUILD }
-            }
-            steps {
-                sh '''#!/bin/bash
-                set -euo pipefail
-                docker compose up -d postgres
-
-                POSTGRES_CONTAINER_ID="$(docker compose ps -q postgres)"
-                if [ -z "$POSTGRES_CONTAINER_ID" ]; then
-                  echo "Failed to start local PostgreSQL container."
-                  exit 1
-                fi
-
-                for attempt in $(seq 1 24); do
-                  STATUS="$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$POSTGRES_CONTAINER_ID")"
-                  if [ "$STATUS" = "healthy" ]; then
-                    ./gradlew :logic:flywayMigrate
-                    exit 0
-                  fi
-                  sleep 5
-                done
-
-                echo "Local PostgreSQL is still unavailable after waiting."
-                exit 1
-                '''
-            }
-        }
-
-        stage('Build') {
-            when {
-                expression { params.RUN_BUILD }
-            }
-            steps {
-                sh './gradlew build'
             }
         }
 

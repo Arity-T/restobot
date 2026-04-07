@@ -69,16 +69,16 @@ Pipeline поддерживает два режима:
 На Linux-агенте Jenkins должны быть установлены:
 
 - Git;
-- Terraform `>= 1.6.3`;
+- Terraform `>= 1.5.7`;
 - Ansible;
 - OpenSSH client;
 - `ssh-keygen`;
 - `perl`;
 - `bash`;
-- JDK 23, если используется `RUN_BUILD=true`;
-- Docker и Docker Compose, если используется `RUN_BUILD=true`.
 
-Если `RUN_BUILD=false`, Docker на Jenkins agent не нужен. Если `RUN_BUILD=true`, pipeline поднимает локальный контейнер PostgreSQL на Jenkins-машине перед `./gradlew build`.
+Docker на Jenkins agent для этого pipeline не нужен: PostgreSQL и приложение поднимаются на удалённой VM после `terraform apply`, когда Ansible запускает `docker compose` на сервере.
+
+Если Jenkins запускается локально на той же машине, дополнительно нужна Java 21+ для самого Jenkins.
 
 ## Какие Jenkins plugins нужны
 
@@ -130,7 +130,10 @@ http://localhost:9081
 - Terraform;
 - Ansible;
 - OpenSSH client;
-- JDK 23, если нужен `RUN_BUILD=true`.
+- Java 21+;
+- `ssh-keygen`;
+- `perl`;
+- `bash`.
 
 Причина простая: текущий pipeline запускает локальные бинарники `terraform`, `ansible-playbook`, `ssh` и `ssh-keygen`. На одной машине это настраивается заметно проще, чем в контейнеризированном Jenkins.
 
@@ -140,7 +143,7 @@ http://localhost:9081
 2. Открыть Jenkins в браузере по адресу:
 
 ```text
-http://localhost:8080
+http://localhost:9081
 ```
 
 3. Пройти initial setup:
@@ -152,14 +155,13 @@ http://localhost:8080
 4. Установить на той же машине инструменты для pipeline:
 
 - Git;
-- Terraform `>= 1.6.3`;
+- Terraform `>= 1.5.7`;
 - Ansible;
 - OpenSSH client;
 - `ssh-keygen`;
 - `perl`;
 - `bash`;
-- JDK 23, если нужен `RUN_BUILD=true`;
-- Docker и Docker Compose, если нужен `RUN_BUILD=true`.
+- Java 21+.
 
 5. Убедиться, что команды доступны из shell того пользователя, под которым работает Jenkins:
 
@@ -231,8 +233,7 @@ Jenkinsfile
 
 1. открыть job;
 2. выбрать `TF_ACTION=apply`;
-3. при необходимости включить `RUN_BUILD=true`;
-4. нажать `Build`.
+3. нажать `Build`.
 
 Для удаления инфраструктуры:
 
@@ -243,7 +244,6 @@ Jenkinsfile
 ### Что важно именно для локального Jenkins
 
 - Если Jenkins запущен локально на macOS, built-in node должен иметь доступ к установленным `terraform`, `ansible-playbook` и `ssh`.
-- Если `RUN_BUILD=true`, у Jenkins должен быть доступ к Java 23 через `PATH`.
 - Если вы используете локальный Git-репозиторий как SCM-источник, лучше не полагаться на незакоммиченные изменения.
 - Если IAM token истёк, локальный Jenkins тоже не сможет выполнить Terraform.
 - Docker на локальной машине Jenkins не обязателен для самого pipeline, потому что Docker ставится Ansible на удалённую VM.
@@ -401,10 +401,9 @@ Jenkinsfile
 
 ## Параметры Jenkins job
 
-В pipeline есть два параметра:
+В pipeline есть один параметр:
 
 - `TF_ACTION`
-- `RUN_BUILD`
 
 ### `TF_ACTION`
 
@@ -412,18 +411,6 @@ Jenkinsfile
 
 - `apply` - развернуть инфраструктуру и приложение;
 - `destroy` - удалить инфраструктуру.
-
-### `RUN_BUILD`
-
-Если `true`, Jenkins перед инфраструктурой выполнит:
-
-```bash
-./gradlew build
-```
-
-Это полезно, если вы хотите дополнительно проверять сборку проекта перед деплоем.
-
-Если `false`, pipeline будет работать только как infrastructure/deploy job.
 
 ## Что делает Jenkinsfile по стадиям
 
@@ -459,34 +446,14 @@ Validate Tooling
 - Ansible;
 - SSH.
 
-### Gradle Prep / Build
+В этом pipeline нет локальной сборки и нет локального PostgreSQL на Jenkins-машине.
 
-Эти стадии выполняются только если `RUN_BUILD=true`.
+Это сделано специально:
 
-### Prepare Local Database
-
-```text
-Prepare Local Database
-```
-
-Эта стадия выполняется только если `RUN_BUILD=true`.
-
-Jenkins:
-
-1. поднимает локальный `postgres` через:
-
-```bash
-docker compose up -d postgres
-```
-
-2. ждёт, пока контейнер станет `healthy`;
-3. запускает:
-
-```bash
-./gradlew :logic:flywayMigrate
-```
-
-Это нужно потому, что во время `build` задача `:logic:generateJooq` подключается к базе данных из `.env`, и без живой локальной PostgreSQL-схемы сборка падает.
+- Jenkins создаёт инфраструктуру и выполняет деплой;
+- PostgreSQL поднимается на целевой VM в Yandex Cloud через Docker Compose;
+- приложение разворачивается на VM как готовый Docker-образ;
+- Jenkins не должен поднимать БД у себя локально.
 
 ### Terraform Init
 
@@ -601,8 +568,7 @@ terraform destroy -auto-approve -var-file=jenkins.auto.tfvars
 
 1. открыть Jenkins job;
 2. выбрать `TF_ACTION=apply`;
-3. при необходимости включить `RUN_BUILD=true`;
-4. нажать `Build`.
+3. нажать `Build`.
 
 После успешного выполнения:
 
@@ -689,26 +655,7 @@ yc iam create-token
 - совпадает ли `ssh_user` с пользователем в Jenkins SSH credential;
 - корректно ли передаётся публичный ключ в Terraform.
 
-### 5. Локальная сборка падает на `generateJooq`
-
-Симптом:
-
-- ошибка подключения к `localhost:5435`;
-- `Task :logic:generateJooq FAILED`.
-
-Причина:
-
-- при `RUN_BUILD=true` Gradle использует `.env` из workspace;
-- `generateJooq` и `flywayMigrate` ожидают локальную БД Jenkins-машины;
-- без локального `postgres` сборка не проходит.
-
-Что проверить:
-
-- включён ли Docker на Jenkins agent;
-- существует ли сервис `postgres` в `docker-compose.yml`;
-- содержит ли `.env` значение `MAIN_DB_URL=jdbc:postgresql://localhost:5435/main`.
-
-### 6. Приложение отдаёт `502` или не отвечает
+### 5. Приложение отдаёт `502` или не отвечает
 
 Симптом:
 
@@ -731,7 +678,7 @@ sudo docker compose down -v
 sudo docker compose up -d
 ```
 
-### 7. Jenkins запускается не на том agent
+### 6. Jenkins запускается не на том agent
 
 Симптом:
 
