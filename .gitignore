@@ -11,3 +11,12 @@ bin
 *.log
 .cursor
 
+# OpenStack / Heat
+openstack.rc
+heat/*.env
+heat/stack-outputs.*
+
+# Deploy artifacts
+deploy/.env.vm
+deploy/.tmp/
+

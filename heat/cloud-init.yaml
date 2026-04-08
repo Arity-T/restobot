@@ -1,0 +1,15 @@
+#cloud-config
+users:
+  - default
+  - name: __SSH_USER__
+    groups: sudo
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - __SSH_PUBLIC_KEY__
+
+package_update: true
+packages:
+  - python3
+  - sudo
+
