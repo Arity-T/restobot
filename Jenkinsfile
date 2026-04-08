@@ -3,15 +3,12 @@ pipeline {
 
     options {
         timestamps()
-        ansiColor('xterm')
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '15'))
     }
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/usr/lib/jvm/temurin-23-jdk-amd64" 
-        PATH = "${JAVA_HOME}/bin:${PATH}"
         ENV_PATH = "${WORKSPACE}/.env"
     }
 
@@ -32,6 +29,24 @@ pipeline {
                     ls -l "$ENV_PATH"
                     '''
                 }
+            }
+        }
+
+        stage('Resolve Java') {
+            steps {
+                script {
+                    env.JAVA_HOME = sh(
+                        script: '''#!/usr/bin/env bash
+                        set -euo pipefail
+                        JAVA_BIN="$(command -v javac || command -v java)"
+                        dirname "$(dirname "$(readlink -f "$JAVA_BIN")")"
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                }
+
+                sh 'java -version'
             }
         }
 
@@ -90,8 +105,7 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'app/build/libs/*.jar', allowEmptyArchive: true, fingerprint: true
-            // Always clean workspace to avoid leftover files between builds
-            cleanWs()
+            deleteDir()
         }
     }
 }
