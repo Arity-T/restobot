@@ -1,0 +1,76 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restobot-db-migrate
+  namespace: restobot
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: restobot-db-migrate
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MAIN_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: restobot-app-env
+                  key: MAIN_DB_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: restobot-app-env
+                  key: MAIN_DB_PASSWORD
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              until pg_isready -h restobot-postgres -p 5432 -U "$MAIN_DB_USER" -d main; do
+                echo "Waiting for PostgreSQL..."
+                sleep 5
+              done
+
+              psql -v ON_ERROR_STOP=1 \
+                -h restobot-postgres \
+                -p 5432 \
+                -U "$MAIN_DB_USER" \
+                -d main \
+                -c "CREATE TABLE IF NOT EXISTS restobot_schema_history (version VARCHAR(255) PRIMARY KEY, applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+
+              for file in /migrations/*.sql; do
+                version="$(basename "$file")"
+                applied="$(psql -tA -h restobot-postgres -p 5432 -U "$MAIN_DB_USER" -d main -c "SELECT 1 FROM restobot_schema_history WHERE version = '$version'")"
+
+                if [ "$applied" = "1" ]; then
+                  echo "Skipping already applied migration: $version"
+                  continue
+                fi
+
+                echo "Applying migration: $version"
+                psql -v ON_ERROR_STOP=1 \
+                  -h restobot-postgres \
+                  -p 5432 \
+                  -U "$MAIN_DB_USER" \
+                  -d main \
+                  -f "$file"
+                psql -v ON_ERROR_STOP=1 \
+                  -h restobot-postgres \
+                  -p 5432 \
+                  -U "$MAIN_DB_USER" \
+                  -d main \
+                  -c "INSERT INTO restobot_schema_history(version) VALUES ('$version')"
+              done
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
+              readOnly: true
+      volumes:
+        - name: migrations
+          configMap:
+            name: restobot-db-migrations

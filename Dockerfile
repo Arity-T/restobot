@@ -5,5 +5,7 @@ WORKDIR /app
 # Copy the fat JAR from the build stage
 COPY ./app/build/libs/app-fat.jar app-fat.jar
 
+EXPOSE 8089
+
 # Run the application
-CMD ["java", "-jar", "app-fat.jar"] 
+CMD ["java", "-jar", "app-fat.jar"]
