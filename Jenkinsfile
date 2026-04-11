@@ -22,6 +22,7 @@ pipeline {
         BUILD_DB_HOST = 'localhost'
         K8S_NAMESPACE = 'restobot'
         LOCAL_POSTGRES_CONTAINER = 'restobot-ci-postgres'
+        LOCAL_BUILD_NETWORK = 'restobot-ci-net'
         LOCAL_POSTGRES_PORT = '55432'
         IMAGE_NAME = 'restobot-app'
         MINIKUBE_PROFILE = 'minikube'
@@ -84,23 +85,25 @@ pipeline {
             steps {
                 sh '''set -eu
                 chmod +x gradlew
-                set +x
                 . "$ENV_PATH"
                 export MAIN_DB_URL="jdbc:postgresql://$BUILD_DB_HOST:$LOCAL_POSTGRES_PORT/main"
                 export MAIN_DB_USER
                 export MAIN_DB_PASSWORD
-                set -x
 
                 echo "Using CI MAIN_DB_URL=$MAIN_DB_URL"
+                echo "Using Docker network '$LOCAL_BUILD_NETWORK' for Gradle database tasks"
 
                 docker rm -f "$LOCAL_POSTGRES_CONTAINER" >/dev/null 2>&1 || true
+                docker network create "$LOCAL_BUILD_NETWORK" >/dev/null 2>&1 || true
                 docker run -d \
                   --name "$LOCAL_POSTGRES_CONTAINER" \
+                  --network "$LOCAL_BUILD_NETWORK" \
+                  --network-alias "$LOCAL_POSTGRES_CONTAINER" \
                   -e POSTGRES_USER="$MAIN_DB_USER" \
                   -e POSTGRES_PASSWORD="$MAIN_DB_PASSWORD" \
                   -e POSTGRES_DB=postgres \
                   -p "$LOCAL_POSTGRES_PORT":5432 \
-                  postgres:16-alpine
+                  postgres:16-alpine >/dev/null
 
                 until docker exec "$LOCAL_POSTGRES_CONTAINER" pg_isready -U "$MAIN_DB_USER" -d postgres >/dev/null 2>&1; do
                   echo "Waiting for local PostgreSQL..."
@@ -132,8 +135,18 @@ pipeline {
                   -d main \
                   -c 'SELECT 1'
 
-                ./gradlew --no-daemon clean
-                ./gradlew --no-daemon --stacktrace --info :logic:flywayMigrate :logic:generateJooq build :app:shadowJar
+                echo "Running Gradle build in a temporary JDK container..."
+                docker run --rm \
+                  --user "$(id -u):$(id -g)" \
+                  --network "$LOCAL_BUILD_NETWORK" \
+                  -e GRADLE_USER_HOME=/workspace/.gradle \
+                  -e MAIN_DB_URL="jdbc:postgresql://$LOCAL_POSTGRES_CONTAINER:5432/main" \
+                  -e MAIN_DB_USER="$MAIN_DB_USER" \
+                  -e MAIN_DB_PASSWORD="$MAIN_DB_PASSWORD" \
+                  -v "$WORKSPACE":/workspace \
+                  -w /workspace \
+                  eclipse-temurin:23-jdk \
+                  sh -lc './gradlew --no-daemon clean :logic:flywayMigrate :logic:generateJooq build :app:shadowJar'
                 '''
             }
         }
@@ -222,6 +235,7 @@ pipeline {
         cleanup {
             sh '''set +e
             docker rm -f "$LOCAL_POSTGRES_CONTAINER" >/dev/null 2>&1 || true
+            docker network rm "$LOCAL_BUILD_NETWORK" >/dev/null 2>&1 || true
             '''
             deleteDir()
         }

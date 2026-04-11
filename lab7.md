@@ -197,10 +197,11 @@ cp .env.example .env
 ### Этап `Build artifact`
 
 - поднимает временный контейнер `postgres:16-alpine`;
+- создает временную Docker-сеть для CI-сборки;
 - создает базу `main`;
-- запускает миграции Flyway;
-- генерирует `jOOQ`;
-- собирает проект и `app-fat.jar`.
+- проверяет доступ к базе с хоста через `psql`;
+- запускает `Gradle` во временном JDK-контейнере на общей сети с этим PostgreSQL;
+- внутри контейнера выполняет `clean`, `flywayMigrate`, `generateJooq`, `build` и `:app:shadowJar`.
 
 ### Этап `Build Docker image`
 
