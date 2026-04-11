@@ -83,7 +83,9 @@ pipeline {
             steps {
                 sh '''set -eu
                 chmod +x gradlew
+                set +x
                 . "$ENV_PATH"
+                set -x
 
                 docker rm -f "$LOCAL_POSTGRES_CONTAINER" >/dev/null 2>&1 || true
                 docker run -d \
@@ -105,7 +107,12 @@ pipeline {
                     psql -U "$MAIN_DB_USER" -d postgres -c "CREATE DATABASE main"
                 fi
 
-                ./gradlew clean :logic:flywayMigrate :logic:generateJooq build :app:shadowJar
+                docker run --rm \
+                  -e PGPASSWORD="$MAIN_DB_PASSWORD" \
+                  postgres:16-alpine \
+                  sh -c "until psql -h host.docker.internal -p $LOCAL_POSTGRES_PORT -U $MAIN_DB_USER -d main -c 'SELECT 1' >/dev/null 2>&1; do echo 'Waiting for PostgreSQL on mapped host port...'; sleep 2; done"
+
+                ./gradlew --no-daemon clean :logic:flywayMigrate :logic:generateJooq build :app:shadowJar
                 '''
             }
         }
@@ -181,8 +188,13 @@ pipeline {
     post {
         failure {
             sh '''set +e
-            kubectl -n "$K8S_NAMESPACE" get pods
-            kubectl -n "$K8S_NAMESPACE" logs job/restobot-db-migrate
+            if kubectl get namespace "$K8S_NAMESPACE" >/dev/null 2>&1; then
+              kubectl -n "$K8S_NAMESPACE" get pods || true
+              kubectl -n "$K8S_NAMESPACE" logs job/restobot-db-migrate || true
+            fi
+
+            docker logs "$LOCAL_POSTGRES_CONTAINER" || true
+            exit 0
             '''
         }
 
