@@ -13,16 +13,13 @@ pipeline {
                 name: 'DESTROY_DEPLOYMENT',
                 defaultValue: false,
                 description: 'Delete all resources deployed by this pipeline in minikube instead of building and deploying')
-        string(
-                name: 'CI_DB_HOST',
-                defaultValue: 'localhost',
-                description: 'Hostname used by Gradle/Flyway to connect to the temporary CI PostgreSQL container')
     }
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         RAW_ENV_PATH = "${WORKSPACE}/.env.k8s"
         ENV_PATH = "${WORKSPACE}/.env"
+        BUILD_DB_HOST = 'localhost'
         K8S_NAMESPACE = 'restobot'
         LOCAL_POSTGRES_CONTAINER = 'restobot-ci-postgres'
         LOCAL_POSTGRES_PORT = '55432'
@@ -46,8 +43,8 @@ pipeline {
                 withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
                     sh '''set -eu
                     perl -pe 's/\r$//' "$ENV_FILE" > "$RAW_ENV_PATH"
-                    grep -v '^MAIN_DB_URL=' "$RAW_ENV_PATH" > "$ENV_PATH" || true
-                    printf 'MAIN_DB_URL=jdbc:postgresql://%s:%s/main\n' "$CI_DB_HOST" "$LOCAL_POSTGRES_PORT" >> "$ENV_PATH"
+                    grep -Ev '^(export[[:space:]]+)?MAIN_DB_URL[[:space:]]*=' "$RAW_ENV_PATH" > "$ENV_PATH" || true
+                    printf 'MAIN_DB_URL=jdbc:postgresql://%s:%s/main\n' "$BUILD_DB_HOST" "$LOCAL_POSTGRES_PORT" >> "$ENV_PATH"
                     '''
                 }
             }
@@ -89,7 +86,12 @@ pipeline {
                 chmod +x gradlew
                 set +x
                 . "$ENV_PATH"
+                export MAIN_DB_URL="jdbc:postgresql://$BUILD_DB_HOST:$LOCAL_POSTGRES_PORT/main"
+                export MAIN_DB_USER
+                export MAIN_DB_PASSWORD
                 set -x
+
+                echo "Using CI MAIN_DB_URL=$MAIN_DB_URL"
 
                 docker rm -f "$LOCAL_POSTGRES_CONTAINER" >/dev/null 2>&1 || true
                 docker run -d \
@@ -112,19 +114,19 @@ pipeline {
                 fi
 
                 attempts=0
-                until nc -z "$CI_DB_HOST" "$LOCAL_POSTGRES_PORT"; do
+                until nc -z "$BUILD_DB_HOST" "$LOCAL_POSTGRES_PORT"; do
                   attempts=$((attempts + 1))
                   if [ "$attempts" -ge 60 ]; then
-                    echo "PostgreSQL is not reachable at $CI_DB_HOST:$LOCAL_POSTGRES_PORT"
+                    echo "PostgreSQL is not reachable at $BUILD_DB_HOST:$LOCAL_POSTGRES_PORT"
                     docker logs "$LOCAL_POSTGRES_CONTAINER" || true
                     exit 1
                   fi
-                  echo "Waiting for PostgreSQL on $CI_DB_HOST:$LOCAL_POSTGRES_PORT..."
+                  echo "Waiting for PostgreSQL on $BUILD_DB_HOST:$LOCAL_POSTGRES_PORT..."
                   sleep 2
                 done
 
                 PGPASSWORD="$MAIN_DB_PASSWORD" psql \
-                  -h "$CI_DB_HOST" \
+                  -h "$BUILD_DB_HOST" \
                   -p "$LOCAL_POSTGRES_PORT" \
                   -U "$MAIN_DB_USER" \
                   -d main \

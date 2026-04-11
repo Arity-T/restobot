@@ -6,6 +6,11 @@ def loadEnvFile() {
     if (rootProject.file(".env").exists()) {
         rootProject.file(".env").withInputStream { props.load(it) }
     }
+    System.getenv().each { key, value ->
+        if (value != null && !value.isBlank()) {
+            props.setProperty(key, value)
+        }
+    }
     return props
 }
 
