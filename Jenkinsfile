@@ -15,7 +15,7 @@ pipeline {
                 description: 'Delete all resources deployed by this pipeline in minikube instead of building and deploying')
         string(
                 name: 'CI_DB_HOST',
-                defaultValue: 'host.docker.internal',
+                defaultValue: '127.0.0.1',
                 description: 'Hostname used by Gradle/Flyway to connect to the temporary CI PostgreSQL container')
     }
 
@@ -111,17 +111,10 @@ pipeline {
                     psql -U "$MAIN_DB_USER" -d postgres -c "CREATE DATABASE main"
                 fi
 
-                attempts=0
-                until nc -z "$CI_DB_HOST" "$LOCAL_POSTGRES_PORT"; do
-                  attempts=$((attempts + 1))
-                  if [ "$attempts" -ge 60 ]; then
-                    echo "PostgreSQL is not reachable at $CI_DB_HOST:$LOCAL_POSTGRES_PORT"
-                    docker logs "$LOCAL_POSTGRES_CONTAINER" || true
-                    exit 1
-                  fi
-                  echo "Waiting for PostgreSQL on $CI_DB_HOST:$LOCAL_POSTGRES_PORT..."
-                  sleep 2
-                done
+                docker run --rm \
+                  -e PGPASSWORD="$MAIN_DB_PASSWORD" \
+                  postgres:16-alpine \
+                  sh -c "until psql -h $CI_DB_HOST -p $LOCAL_POSTGRES_PORT -U $MAIN_DB_USER -d main -c 'SELECT 1' >/dev/null 2>&1; do echo 'Waiting for PostgreSQL on mapped host port...'; sleep 2; done"
 
                 ./gradlew --no-daemon clean :logic:flywayMigrate :logic:generateJooq build :app:shadowJar
                 '''
