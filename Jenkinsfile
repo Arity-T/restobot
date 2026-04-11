@@ -123,7 +123,15 @@ pipeline {
                   sleep 2
                 done
 
-                ./gradlew --no-daemon clean :logic:flywayMigrate :logic:generateJooq build :app:shadowJar
+                PGPASSWORD="$MAIN_DB_PASSWORD" psql \
+                  -h "$CI_DB_HOST" \
+                  -p "$LOCAL_POSTGRES_PORT" \
+                  -U "$MAIN_DB_USER" \
+                  -d main \
+                  -c 'SELECT 1'
+
+                ./gradlew --no-daemon clean
+                ./gradlew --no-daemon --stacktrace --info :logic:flywayMigrate :logic:generateJooq build :app:shadowJar
                 '''
             }
         }
@@ -209,7 +217,7 @@ pipeline {
             '''
         }
 
-        always {
+        cleanup {
             sh '''set +e
             docker rm -f "$LOCAL_POSTGRES_CONTAINER" >/dev/null 2>&1 || true
             '''
