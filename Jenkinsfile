@@ -15,7 +15,7 @@ pipeline {
                 description: 'Delete all resources deployed by this pipeline in minikube instead of building and deploying')
         string(
                 name: 'CI_DB_HOST',
-                defaultValue: '127.0.0.1',
+                defaultValue: 'localhost',
                 description: 'Hostname used by Gradle/Flyway to connect to the temporary CI PostgreSQL container')
     }
 
