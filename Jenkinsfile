@@ -13,6 +13,10 @@ pipeline {
                 name: 'DESTROY_DEPLOYMENT',
                 defaultValue: false,
                 description: 'Delete all resources deployed by this pipeline in minikube instead of building and deploying')
+        string(
+                name: 'CI_DB_HOST',
+                defaultValue: 'host.docker.internal',
+                description: 'Hostname used by Gradle/Flyway to connect to the temporary CI PostgreSQL container')
     }
 
     environment {
@@ -43,7 +47,7 @@ pipeline {
                     sh '''set -eu
                     perl -pe 's/\r$//' "$ENV_FILE" > "$RAW_ENV_PATH"
                     grep -v '^MAIN_DB_URL=' "$RAW_ENV_PATH" > "$ENV_PATH" || true
-                    printf 'MAIN_DB_URL=jdbc:postgresql://127.0.0.1:%s/main\n' "$LOCAL_POSTGRES_PORT" >> "$ENV_PATH"
+                    printf 'MAIN_DB_URL=jdbc:postgresql://%s:%s/main\n' "$CI_DB_HOST" "$LOCAL_POSTGRES_PORT" >> "$ENV_PATH"
                     '''
                 }
             }
@@ -110,7 +114,7 @@ pipeline {
                 docker run --rm \
                   -e PGPASSWORD="$MAIN_DB_PASSWORD" \
                   postgres:16-alpine \
-                  sh -c "until psql -h host.docker.internal -p $LOCAL_POSTGRES_PORT -U $MAIN_DB_USER -d main -c 'SELECT 1' >/dev/null 2>&1; do echo 'Waiting for PostgreSQL on mapped host port...'; sleep 2; done"
+                  sh -c "until psql -h $CI_DB_HOST -p $LOCAL_POSTGRES_PORT -U $MAIN_DB_USER -d main -c 'SELECT 1' >/dev/null 2>&1; do echo 'Waiting for PostgreSQL on mapped host port...'; sleep 2; done"
 
                 ./gradlew --no-daemon clean :logic:flywayMigrate :logic:generateJooq build :app:shadowJar
                 '''
