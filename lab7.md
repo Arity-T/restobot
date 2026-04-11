@@ -168,6 +168,15 @@ cp .env.example .env
 - `SCM`: `Git`
 - `Script Path`: `Jenkinsfile`
 
+После первого сохранения у job появится параметр:
+
+- `DESTROY_DEPLOYMENT`
+
+Режимы работы:
+
+- `false` - обычная сборка и деплой в `minikube`;
+- `true` - удалить все ресурсы, развернутые пайплайном, без сборки и без деплоя.
+
 Если Jenkins запускается не на хосте, а в контейнере, ему нужно дополнительно дать доступ к:
 
 - Docker daemon
@@ -214,7 +223,11 @@ restobot-app:<BUILD_NUMBER>
 
 ## Первый запуск
 
-После настройки Jenkins просто запусти pipeline.
+После настройки Jenkins просто запусти pipeline с параметром:
+
+```text
+DESTROY_DEPLOYMENT=false
+```
 
 Если все прошло успешно, проверь ресурсы:
 
@@ -290,7 +303,12 @@ kubectl describe pod <pod-name> -n restobot
 
 ## Очистка стенда
 
-Удалить все ресурсы приложения:
+Через Jenkins:
+
+- запусти тот же pipeline с параметром `DESTROY_DEPLOYMENT=true`;
+- pipeline удалит namespace `restobot`, а вместе с ним и все развернутые ресурсы.
+
+Вручную удалить все ресурсы приложения:
 
 ```bash
 kubectl delete namespace restobot

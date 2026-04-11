@@ -8,6 +8,13 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '15'))
     }
 
+    parameters {
+        booleanParam(
+                name: 'DESTROY_DEPLOYMENT',
+                defaultValue: false,
+                description: 'Delete all resources deployed by this pipeline in minikube instead of building and deploying')
+    }
+
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         RAW_ENV_PATH = "${WORKSPACE}/.env.k8s"
@@ -17,6 +24,7 @@ pipeline {
         LOCAL_POSTGRES_PORT = '55432'
         IMAGE_NAME = 'restobot-app'
         MINIKUBE_PROFILE = 'minikube'
+        MINIKUBE_DRIVER = 'docker'
     }
 
     stages {
@@ -27,6 +35,9 @@ pipeline {
         }
 
         stage('Prepare environment') {
+            when {
+                expression { !params.DESTROY_DEPLOYMENT }
+            }
             steps {
                 withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
                     sh '''set -eu
@@ -44,13 +55,31 @@ pipeline {
                 java -version
                 docker version --format '{{.Server.Version}}'
                 kubectl version --client
-                minikube -p "$MINIKUBE_PROFILE" status
-                kubectl config use-context "$MINIKUBE_PROFILE"
+
+                if [ "${DESTROY_DEPLOYMENT}" = "true" ]; then
+                  if minikube -p "$MINIKUBE_PROFILE" status >/dev/null 2>&1; then
+                    minikube -p "$MINIKUBE_PROFILE" status
+                    kubectl config use-context "$MINIKUBE_PROFILE"
+                  else
+                    echo "Minikube profile '$MINIKUBE_PROFILE' not found. Cleanup stage will treat it as nothing to delete."
+                  fi
+                else
+                  if ! minikube -p "$MINIKUBE_PROFILE" status >/dev/null 2>&1; then
+                    echo "Minikube profile '$MINIKUBE_PROFILE' is missing or stopped. Starting it..."
+                    minikube start -p "$MINIKUBE_PROFILE" --driver="$MINIKUBE_DRIVER"
+                  fi
+
+                  minikube -p "$MINIKUBE_PROFILE" status
+                  kubectl config use-context "$MINIKUBE_PROFILE"
+                fi
                 '''
             }
         }
 
         stage('Build artifact') {
+            when {
+                expression { !params.DESTROY_DEPLOYMENT }
+            }
             steps {
                 sh '''set -eu
                 chmod +x gradlew
@@ -82,6 +111,9 @@ pipeline {
         }
 
         stage('Build Docker image') {
+            when {
+                expression { !params.DESTROY_DEPLOYMENT }
+            }
             steps {
                 script {
                     env.IMAGE = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
@@ -93,6 +125,9 @@ pipeline {
         }
 
         stage('Deploy to minikube') {
+            when {
+                expression { !params.DESTROY_DEPLOYMENT }
+            }
             steps {
                 sh '''set -eu
                 kubectl config use-context "$MINIKUBE_PROFILE"
@@ -120,6 +155,24 @@ pipeline {
                 kubectl -n "$K8S_NAMESPACE" set image deployment/restobot-app restobot-app="$IMAGE"
                 kubectl -n "$K8S_NAMESPACE" rollout status deployment/restobot-app --timeout=180s
                 kubectl -n "$K8S_NAMESPACE" get pods,svc
+                '''
+            }
+        }
+
+        stage('Destroy minikube deployment') {
+            when {
+                expression { params.DESTROY_DEPLOYMENT }
+            }
+            steps {
+                sh '''set -eu
+                if ! minikube -p "$MINIKUBE_PROFILE" status >/dev/null 2>&1; then
+                  echo "Minikube profile '$MINIKUBE_PROFILE' not found. Nothing to delete."
+                  exit 0
+                fi
+
+                kubectl config use-context "$MINIKUBE_PROFILE"
+                kubectl delete namespace "$K8S_NAMESPACE" --ignore-not-found=true
+                kubectl wait --for=delete namespace/"$K8S_NAMESPACE" --timeout=180s || true
                 '''
             }
         }
