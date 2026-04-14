@@ -212,6 +212,8 @@ pipeline {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
                 export KUBECONFIG="$KUBECONFIG_PATH"
+                . "${WORKSPACE}/scripts/jenkins-kubectl-env.sh"
+                jenkins_kubectl_diagnostics
 
                 RESOLVED_TAG="${IMAGE_TAG:-}"
                 if [ -z "${RESOLVED_TAG}" ]; then
@@ -270,6 +272,8 @@ pipeline {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
                 export KUBECONFIG="$KUBECONFIG_PATH"
+                . "${WORKSPACE}/scripts/jenkins-kubectl-env.sh"
+                jenkins_kubectl_diagnostics
 
                 kubectl -n "$K8S_NAMESPACE" delete pod restobot-smoke --ignore-not-found=true
 
@@ -298,6 +302,8 @@ pipeline {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
                 export KUBECONFIG="$KUBECONFIG_PATH"
+                . "${WORKSPACE}/scripts/jenkins-kubectl-env.sh"
+                jenkins_kubectl_diagnostics
 
                 kubectl -n "$K8S_NAMESPACE" delete deployment restobot-app --ignore-not-found=true
                 kubectl -n "$K8S_NAMESPACE" delete service restobot-app --ignore-not-found=true
