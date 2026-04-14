@@ -8,6 +8,10 @@ bin
 .vscode
 .idea
 .env
+
+# Local copies for Jenkins upload (see secrets/README.md)
+secrets/kubeconfig
+secrets/restobot.env
 *.log
 .cursor
 

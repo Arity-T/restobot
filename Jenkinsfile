@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'tishenko' }
+    agent { label 'laptop-agent' }
 
     options {
         timestamps()
@@ -8,20 +8,22 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'TF_ACTION', choices: ['apply', 'destroy'], description: 'Terraform action to execute')
-        booleanParam(name: 'RUN_BUILD', defaultValue: true, description: 'Run Gradle build before infra/deploy when TF_ACTION=apply')
-        booleanParam(name: 'RUN_ANSIBLE', defaultValue: true, description: 'Run ansible deploy when TF_ACTION=apply')
+        choice(name: 'K8S_ACTION', choices: ['deploy', 'delete'], description: 'Deploy app to Kubernetes or delete deployed resources')
+        booleanParam(name: 'RUN_BUILD', defaultValue: true, description: 'Run Gradle build before image build')
+        booleanParam(name: 'PUSH_IMAGE', defaultValue: false, description: 'Push image to registry (requires docker_registry credentials)')
+        string(name: 'IMAGE_REPOSITORY', defaultValue: 'restobot-app', description: 'Docker image repository, e.g. restobot-app or dockerhub_user/restobot-app')
+        string(name: 'IMAGE_TAG', defaultValue: '', description: 'Image tag. Leave empty to use build-<BUILD_NUMBER>')
+        string(name: 'K8S_NAMESPACE', defaultValue: 'restobot', description: 'Kubernetes namespace for deployment')
+        booleanParam(name: 'DELETE_NAMESPACE', defaultValue: false, description: 'Delete namespace during K8S_ACTION=delete')
     }
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        TF_IN_AUTOMATION = "true"
         ENV_PATH = "${WORKSPACE}/.env"
-        TF_DIR = "${WORKSPACE}/terraform"
-        TFVARS_PATH = "${WORKSPACE}/terraform/terraform.tfvars"
-        TFPLAN_PATH = "${WORKSPACE}/terraform/tfplan"
-        ANSIBLE_DIR = "${WORKSPACE}/ansible"
-        TF_CLI_CONFIG_FILE = "${WORKSPACE}/.terraformrc"
+        KUBECONFIG_PATH = "${WORKSPACE}/.kubeconfig"
+        K8S_DIR = "${WORKSPACE}/k8s"
+        DOCKER_IMAGE = ''
+        IMAGE_PULL_POLICY = 'IfNotPresent'
     }
 
     stages {
@@ -31,20 +33,43 @@ pipeline {
             }
         }
 
-        stage('Prepare Secrets') {
+        stage('Prepare Kubeconfig') {
             steps {
                 withCredentials([
-                    file(credentialsId: 'restobot_env', variable: 'ENV_FILE'),
-                    file(credentialsId: 'restobot_tfvars', variable: 'TFVARS_FILE'),
-                    file(credentialsId: 'restobot_yc_sa_key', variable: 'SA_KEY_FILE')
+                    file(credentialsId: 'restobot_kubeconfig', variable: 'KUBECONFIG_FILE')
+                ]) {
+                    sh '''#!/usr/bin/env bash
+                    set -euo pipefail
+                    perl -pe 's/\r$//' "$KUBECONFIG_FILE" > "$KUBECONFIG_PATH"
+                    chmod 600 "$KUBECONFIG_PATH"
+                    '''
+                }
+            }
+        }
+
+        stage('Prepare App Env') {
+            when {
+                expression { params.K8S_ACTION == 'deploy' }
+            }
+            steps {
+                withCredentials([
+                    file(credentialsId: 'restobot_env', variable: 'ENV_FILE')
                 ]) {
                     sh '''#!/usr/bin/env bash
                     set -euo pipefail
                     perl -pe 's/\r$//' "$ENV_FILE" > "$ENV_PATH"
-                    perl -pe 's/\r$//' "$TFVARS_FILE" > "$TFVARS_PATH"
-                    cp "$SA_KEY_FILE" "$TF_DIR/authorized_key.json"
-                    chmod 600 "$TF_DIR/authorized_key.json"
-                    ls -l "$ENV_PATH" "$TFVARS_PATH" "$TF_DIR/authorized_key.json"
+
+                    if grep -q '^API_SERVER_HOST=' "$ENV_PATH"; then
+                      sed -i 's#^API_SERVER_HOST=.*#API_SERVER_HOST=0.0.0.0#' "$ENV_PATH"
+                    else
+                      echo 'API_SERVER_HOST=0.0.0.0' >> "$ENV_PATH"
+                    fi
+
+                    if grep -q '^API_SERVER_PORT=' "$ENV_PATH"; then
+                      sed -i 's#^API_SERVER_PORT=.*#API_SERVER_PORT=8089#' "$ENV_PATH"
+                    else
+                      echo 'API_SERVER_PORT=8089' >> "$ENV_PATH"
+                    fi
                     '''
                 }
             }
@@ -52,7 +77,7 @@ pipeline {
 
         stage('Build') {
             when {
-                expression { params.TF_ACTION == 'apply' && params.RUN_BUILD }
+                expression { params.K8S_ACTION == 'deploy' && params.RUN_BUILD }
             }
             steps {
                 sh '''#!/usr/bin/env bash
@@ -62,7 +87,6 @@ pipeline {
                 java -version
                 chmod +x gradlew
 
-                # Build needs a local Postgres for flyway + jOOQ generation.
                 docker compose down -v || true
                 docker compose up -d postgres
 
@@ -96,7 +120,6 @@ pipeline {
                 DB_URL="jdbc:postgresql://${DB_HOST}:${DB_PORT}/main"
                 echo "Using build DB URL: ${DB_URL}"
 
-                # Force local build DB URL.
                 if grep -q '^MAIN_DB_URL=' "$ENV_PATH"; then
                   sed -i "s#^MAIN_DB_URL=.*#MAIN_DB_URL=${DB_URL}#" "$ENV_PATH"
                 else
@@ -108,152 +131,174 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Build Docker Image') {
+            when {
+                expression { params.K8S_ACTION == 'deploy' }
+            }
+            steps {
+                script {
+                    def resolvedTag = params.IMAGE_TAG?.trim() ? params.IMAGE_TAG.trim() : "build-${env.BUILD_NUMBER}"
+                    env.DOCKER_IMAGE = "${params.IMAGE_REPOSITORY}:${resolvedTag}"
+                    env.IMAGE_PULL_POLICY = params.PUSH_IMAGE ? 'Always' : 'IfNotPresent'
+                }
+
+                sh '''#!/usr/bin/env bash
+                set -euo pipefail
+
+                RESOLVED_TAG="${IMAGE_TAG:-}"
+                if [ -z "${RESOLVED_TAG}" ]; then
+                  RESOLVED_TAG="build-${BUILD_NUMBER}"
+                fi
+                DOCKER_IMAGE="${DOCKER_IMAGE:-${IMAGE_REPOSITORY}:${RESOLVED_TAG}}"
+
+                if [ ! -f "app/build/libs/app-fat.jar" ]; then
+                  echo "Missing app/build/libs/app-fat.jar. Enable RUN_BUILD or build artifact beforehand."
+                  exit 1
+                fi
+
+                echo "Building image: $DOCKER_IMAGE (Docker daemon in Minikube so the cluster can use the image)"
+                (
+                  eval "$(minikube docker-env)"
+                  docker build -t "$DOCKER_IMAGE" .
+                )
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            when {
+                expression { params.K8S_ACTION == 'deploy' && params.PUSH_IMAGE }
+            }
             steps {
                 withCredentials([
-                    file(credentialsId: 'restobot_vm_ssh_pub', variable: 'SSH_PUB_FILE')
+                    usernamePassword(credentialsId: 'docker_registry', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
                 ]) {
                     sh '''#!/usr/bin/env bash
                     set -euo pipefail
-                    perl -pe 's/\r$//' "$SSH_PUB_FILE" > "$TF_DIR/ci_id_ed25519.pub"
-                    chmod 644 "$TF_DIR/ci_id_ed25519.pub"
 
-                    if grep -q '^ssh_public_key_path' "$TFVARS_PATH"; then
-                      sed -i "s#^ssh_public_key_path.*#ssh_public_key_path = \\"$TF_DIR/ci_id_ed25519.pub\\"#" "$TFVARS_PATH"
-                    else
-                      echo "ssh_public_key_path = \\"$TF_DIR/ci_id_ed25519.pub\\"" >> "$TFVARS_PATH"
+                    RESOLVED_TAG="${IMAGE_TAG:-}"
+                    if [ -z "${RESOLVED_TAG}" ]; then
+                      RESOLVED_TAG="build-${BUILD_NUMBER}"
                     fi
+                    DOCKER_IMAGE="${DOCKER_IMAGE:-${IMAGE_REPOSITORY}:${RESOLVED_TAG}}"
 
-                    cat > "$TF_CLI_CONFIG_FILE" <<'EOF'
-provider_installation {
-  network_mirror {
-    url     = "https://terraform-mirror.yandexcloud.net/"
-    include = ["registry.terraform.io/*/*"]
-  }
-  direct {
-    exclude = ["registry.terraform.io/*/*"]
-  }
-}
-EOF
-
-                    terraform -chdir="$TF_DIR" init
-                    terraform -chdir="$TF_DIR" validate
+                    REGISTRY="$(echo "$DOCKER_IMAGE" | awk -F/ '{if (NF>1 && $1 ~ /[.:]/) print $1; else print "docker.io"}')"
+                    # Same image store as build stage (Minikube Docker)
+                    eval "$(minikube docker-env)"
+                    echo "$DOCKER_PASS" | docker login "$REGISTRY" -u "$DOCKER_USER" --password-stdin
+                    docker push "$DOCKER_IMAGE"
+                    docker logout "$REGISTRY" || true
                     '''
                 }
             }
         }
 
-        stage('Terraform Plan') {
+        stage('Deploy To Kubernetes') {
             when {
-                expression { params.TF_ACTION == 'apply' }
+                expression { params.K8S_ACTION == 'deploy' }
             }
             steps {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
-                terraform -chdir="$TF_DIR" plan -out="$TFPLAN_PATH"
+                export KUBECONFIG="$KUBECONFIG_PATH"
+
+                RESOLVED_TAG="${IMAGE_TAG:-}"
+                if [ -z "${RESOLVED_TAG}" ]; then
+                  RESOLVED_TAG="build-${BUILD_NUMBER}"
+                fi
+                DOCKER_IMAGE="${DOCKER_IMAGE:-${IMAGE_REPOSITORY}:${RESOLVED_TAG}}"
+                IMAGE_PULL_POLICY="${IMAGE_PULL_POLICY:-IfNotPresent}"
+                if [ "${PUSH_IMAGE:-false}" = "true" ]; then
+                  IMAGE_PULL_POLICY="Always"
+                fi
+
+                kubectl version --client
+
+                if ! kubectl get namespace "$K8S_NAMESPACE" >/dev/null 2>&1; then
+                  kubectl create namespace "$K8S_NAMESPACE"
+                fi
+
+                kubectl -n "$K8S_NAMESPACE" create secret generic restobot-env \
+                  --from-env-file="$ENV_PATH" \
+                  --dry-run=client -o yaml | kubectl apply -f -
+
+                kubectl -n "$K8S_NAMESPACE" create configmap restobot-db-migrations \
+                  --from-file=logic/src/main/resources/db/migration/main/V1__init_main.sql \
+                  --from-file=logic/src/main/resources/db/migration/main/V2__add_data.sql \
+                  --dry-run=client -o yaml | kubectl apply -f -
+
+                kubectl -n "$K8S_NAMESPACE" apply -f "$K8S_DIR/postgres.yaml"
+                kubectl -n "$K8S_NAMESPACE" rollout status deployment/restobot-postgres --timeout=240s
+
+                kubectl -n "$K8S_NAMESPACE" delete job restobot-db-init --ignore-not-found=true
+                kubectl -n "$K8S_NAMESPACE" apply -f "$K8S_DIR/db-init-job.yaml"
+
+                if ! kubectl -n "$K8S_NAMESPACE" wait --for=condition=complete job/restobot-db-init --timeout=300s; then
+                  kubectl -n "$K8S_NAMESPACE" logs job/restobot-db-init || true
+                  exit 1
+                fi
+
+                mkdir -p "$K8S_DIR/.rendered"
+                sed -e "s|__APP_IMAGE__|$DOCKER_IMAGE|g" \
+                    -e "s|__IMAGE_PULL_POLICY__|$IMAGE_PULL_POLICY|g" \
+                    "$K8S_DIR/app-deployment.yaml" > "$K8S_DIR/.rendered/app-deployment.yaml"
+
+                kubectl -n "$K8S_NAMESPACE" apply -f "$K8S_DIR/.rendered/app-deployment.yaml"
+                kubectl -n "$K8S_NAMESPACE" apply -f "$K8S_DIR/app-service.yaml"
+                kubectl -n "$K8S_NAMESPACE" rollout status deployment/restobot-app --timeout=300s
+                kubectl -n "$K8S_NAMESPACE" get svc restobot-app -o wide
                 '''
-            }
-        }
-
-        stage('Terraform Apply') {
-            when {
-                expression { params.TF_ACTION == 'apply' }
-            }
-            steps {
-                sh '''#!/usr/bin/env bash
-                set -euo pipefail
-                terraform -chdir="$TF_DIR" apply -auto-approve "$TFPLAN_PATH"
-                '''
-            }
-        }
-
-        stage('Wait For SSH') {
-            when {
-                expression { params.TF_ACTION == 'apply' && params.RUN_ANSIBLE }
-            }
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'restobot_vm_ssh', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_CRED_USERNAME')
-                ]) {
-                    sh '''#!/usr/bin/env bash
-                    set -euo pipefail
-                    chmod 600 "$SSH_KEY"
-                    echo "Ansible inventory (ansible_user comes from Terraform / hosts.ini, not Jenkins credential username):"
-                    cat "$ANSIBLE_DIR/inventory/hosts.ini"
-
-                    for i in $(seq 1 20); do
-                      if ANSIBLE_CONFIG="$ANSIBLE_DIR/ansible.cfg" ansible -i "$ANSIBLE_DIR/inventory/hosts.ini" restobot -m ping --private-key "$SSH_KEY" >/dev/null 2>&1; then
-                        echo "SSH is available."
-                        exit 0
-                      fi
-                      echo "Waiting for SSH... attempt $i/20"
-                      sleep 15
-                    done
-
-                    echo "SSH is still unavailable after waiting. Last ansible ping (verbose):"
-                    ANSIBLE_CONFIG="$ANSIBLE_DIR/ansible.cfg" ansible -i "$ANSIBLE_DIR/inventory/hosts.ini" restobot -m ping --private-key "$SSH_KEY" -vvv || true
-                    exit 1
-                    '''
-                }
-            }
-        }
-
-        stage('Ansible Deploy') {
-            when {
-                expression { params.TF_ACTION == 'apply' && params.RUN_ANSIBLE }
-            }
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'restobot_vm_ssh', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_CRED_USERNAME')
-                ]) {
-                    sh '''#!/usr/bin/env bash
-                    set -euo pipefail
-                    chmod 600 "$SSH_KEY"
-                    test -f "$ANSIBLE_DIR/inventory/hosts.ini"
-                    ANSIBLE_CONFIG="$ANSIBLE_DIR/ansible.cfg" ansible-playbook "$ANSIBLE_DIR/playbook.yml" \
-                      --private-key "$SSH_KEY"
-                    '''
-                }
             }
         }
 
         stage('Smoke Test') {
             when {
-                expression { params.TF_ACTION == 'apply' && params.RUN_ANSIBLE }
+                expression { params.K8S_ACTION == 'deploy' }
             }
             steps {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
+                export KUBECONFIG="$KUBECONFIG_PATH"
 
-                HOST=$(awk '/ansible_host=/{for(i=1;i<=NF;i++) if($i ~ /^ansible_host=/){split($i,a,"="); print a[2]; exit}}' "$ANSIBLE_DIR/inventory/hosts.ini")
-                if [ -z "${HOST:-}" ]; then
-                  echo "Failed to extract ansible_host from inventory."
+                kubectl -n "$K8S_NAMESPACE" delete pod restobot-smoke --ignore-not-found=true
+
+                kubectl -n "$K8S_NAMESPACE" run restobot-smoke \
+                  --image=curlimages/curl:8.8.0 \
+                  --restart=Never \
+                  --command -- sh -c 'for i in $(seq 1 24); do curl -fsS http://restobot-app:8089/healthcheck && exit 0; sleep 5; done; exit 1'
+
+                if ! kubectl -n "$K8S_NAMESPACE" wait --for=jsonpath='{.status.phase}'=Succeeded pod/restobot-smoke --timeout=180s; then
+                  kubectl -n "$K8S_NAMESPACE" logs restobot-smoke || true
+                  kubectl -n "$K8S_NAMESPACE" delete pod restobot-smoke --ignore-not-found=true || true
                   exit 1
                 fi
 
-                echo "Checking http://$HOST:8089/healthcheck"
-                for i in $(seq 1 20); do
-                  if curl -fsS "http://$HOST:8089/healthcheck"; then
-                    echo
-                    exit 0
-                  fi
-                  sleep 5
-                done
-
-                echo "Smoke test failed."
-                exit 1
+                kubectl -n "$K8S_NAMESPACE" logs restobot-smoke
+                kubectl -n "$K8S_NAMESPACE" delete pod restobot-smoke --ignore-not-found=true
                 '''
             }
         }
 
-        stage('Terraform Destroy') {
+        stage('Delete Kubernetes Resources') {
             when {
-                expression { params.TF_ACTION == 'destroy' }
+                expression { params.K8S_ACTION == 'delete' }
             }
             steps {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
-                terraform -chdir="$TF_DIR" destroy -auto-approve
+                export KUBECONFIG="$KUBECONFIG_PATH"
+
+                kubectl -n "$K8S_NAMESPACE" delete deployment restobot-app --ignore-not-found=true
+                kubectl -n "$K8S_NAMESPACE" delete service restobot-app --ignore-not-found=true
+                kubectl -n "$K8S_NAMESPACE" delete job restobot-db-init --ignore-not-found=true
+                kubectl -n "$K8S_NAMESPACE" delete deployment restobot-postgres --ignore-not-found=true
+                kubectl -n "$K8S_NAMESPACE" delete service restobot-postgres --ignore-not-found=true
+                kubectl -n "$K8S_NAMESPACE" delete configmap restobot-db-migrations --ignore-not-found=true
+                kubectl -n "$K8S_NAMESPACE" delete secret restobot-env --ignore-not-found=true
+
+                if [ "$DELETE_NAMESPACE" = "true" ]; then
+                  kubectl delete namespace "$K8S_NAMESPACE" --ignore-not-found=true
+                fi
                 '''
             }
         }
@@ -265,7 +310,7 @@ EOF
             set +e
             docker compose down -v
             '''
-            archiveArtifacts artifacts: 'app/build/libs/*.jar, terraform/tfplan, ansible/inventory/hosts.ini', allowEmptyArchive: true, fingerprint: true
+            archiveArtifacts artifacts: 'app/build/libs/*.jar, k8s/.rendered/*.yaml', allowEmptyArchive: true, fingerprint: true
         }
     }
 }
