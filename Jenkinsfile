@@ -157,10 +157,21 @@ pipeline {
                 fi
 
                 echo "Building image: $DOCKER_IMAGE (Docker daemon in Minikube so the cluster can use the image)"
+                echo "=== Build Docker Image: diagnostics ==="
+                echo "PATH=${PATH}"
+                command -v minikube || { echo "ERROR: minikube not found on agent PATH"; exit 1; }
+                minikube version
+                minikube status || { echo "ERROR: minikube not usable (start with: minikube start)"; exit 1; }
+
                 (
+                  set -euxo pipefail
                   eval "$(minikube docker-env)"
-                  docker build -t "$DOCKER_IMAGE" .
+                  echo "DOCKER_HOST=${DOCKER_HOST:-}"
+                  docker version
+                  export DOCKER_BUILDKIT=1
+                  docker build --progress=plain -t "$DOCKER_IMAGE" .
                 )
+                echo "=== docker build finished OK ==="
                 '''
             }
         }
