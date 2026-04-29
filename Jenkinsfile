@@ -10,7 +10,7 @@ pipeline {
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         ENV_PATH = "${WORKSPACE}/.env"
-        JAVA_TOOLCHAIN_VERSION = "25"
+        JAVA_TOOLCHAIN_VERSION = "21"
     }
 
     stages {
@@ -40,8 +40,12 @@ pipeline {
                     env.JAVA_HOME = sh(
                         script: '''#!/usr/bin/env bash
                         set -euo pipefail
-                        JAVA_BIN="$(command -v javac || command -v java)"
-                        dirname "$(dirname "$(readlink -f "$JAVA_BIN")")"
+                        if [ -x /usr/lib/jvm/java-21-openjdk-amd64/bin/javac ]; then
+                          echo /usr/lib/jvm/java-21-openjdk-amd64
+                        else
+                          JAVA_BIN="$(command -v javac || command -v java)"
+                          dirname "$(dirname "$(readlink -f "$JAVA_BIN")")"
+                        fi
                         ''',
                         returnStdout: true
                     ).trim()
@@ -61,27 +65,23 @@ pipeline {
         stage('Create DB') {
             steps {
                 sh '''#!/usr/bin/env bash
-                    set -euo pipefail
-                    ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
-                    if [ ! -f "$ENV_PATH" ]; then
-                    echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
-                    exit 1
-                    fi
-                    set -a
-                    . "$ENV_PATH"
-                    set +a
-                    export PGPASSWORD="$MAIN_DB_PASSWORD"
-                    psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres <<'SQL'
-                    SELECT pg_terminate_backend(pid)
-                    FROM pg_stat_activity
-                    WHERE datname = 'main'
-                    AND pid <> pg_backend_pid();
+                set -euo pipefail
+                ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
+                if [ ! -f "$ENV_PATH" ]; then
+                  echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
+                  exit 1
+                fi
 
-                    DROP DATABASE IF EXISTS main;
+                set -a
+                . "$ENV_PATH"
+                set +a
 
-                    CREATE DATABASE main;
-                    SQL
-                    '''
+                export PGPASSWORD="$MAIN_DB_PASSWORD"
+                psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres -v ON_ERROR_STOP=1 \
+                  -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'main' AND pid <> pg_backend_pid();" \
+                  -c "DROP DATABASE IF EXISTS main;" \
+                  -c "CREATE DATABASE main;"
+                '''
             }
         }
 
