@@ -1,18 +1,16 @@
 pipeline {
-    agent { label 'gaar-agent' }
+    agent { label 'labs' }
 
     options {
         timestamps()
-        ansiColor('xterm')
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '15'))
     }
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/usr/lib/jvm/temurin-23-jdk-amd64" 
-        PATH = "${JAVA_HOME}/bin:${PATH}"
         ENV_PATH = "${WORKSPACE}/.env"
+        JAVA_TOOLCHAIN_VERSION = "25"
     }
 
     stages {
@@ -26,12 +24,31 @@ pipeline {
         stage('Prepare .env') {
             steps {
                 withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
-                    sh '''set -e
+                    sh '''#!/usr/bin/env bash
+                    set -euo pipefail
                     # Normalize line endings to LF to avoid `/bin/sh` parse issues
                     perl -pe 's/\r$//' "$ENV_FILE" > "$ENV_PATH"
                     ls -l "$ENV_PATH"
                     '''
                 }
+            }
+        }
+
+        stage('Resolve Java') {
+            steps {
+                script {
+                    env.JAVA_HOME = sh(
+                        script: '''#!/usr/bin/env bash
+                        set -euo pipefail
+                        JAVA_BIN="$(command -v javac || command -v java)"
+                        dirname "$(dirname "$(readlink -f "$JAVA_BIN")")"
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                }
+
+                sh 'java -version'
             }
         }
 
@@ -43,7 +60,8 @@ pipeline {
 
         stage('Create DB') {
             steps {
-                sh '''set -e
+                sh '''#!/usr/bin/env bash
+                    set -euo pipefail
                     ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
                     if [ ! -f "$ENV_PATH" ]; then
                     echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
@@ -69,19 +87,19 @@ pipeline {
 
         stage('Run Migrations') {
             steps {
-                sh './gradlew :logic:flywayMigrate'
+                sh './gradlew -PjavaToolchainVersion="$JAVA_TOOLCHAIN_VERSION" :logic:flywayMigrate'
             }
         }
 
         stage('Generate jOOQ') {
             steps {
-                sh './gradlew :logic:generateJooq'
+                sh './gradlew -PjavaToolchainVersion="$JAVA_TOOLCHAIN_VERSION" :logic:generateJooq'
             }
         }
 
         stage('Build') {
             steps {
-                sh './gradlew build'
+                sh './gradlew -PjavaToolchainVersion="$JAVA_TOOLCHAIN_VERSION" build'
             }
         }
     }
@@ -90,8 +108,7 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'app/build/libs/*.jar', allowEmptyArchive: true, fingerprint: true
-            // Always clean workspace to avoid leftover files between builds
-            cleanWs()
+            deleteDir()
         }
     }
 }

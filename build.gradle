@@ -9,6 +9,10 @@ def loadEnvFile() {
     return props
 }
 
+ext.resolveJavaToolchainVersion = {
+    return (findProperty("javaToolchainVersion") ?: System.getenv("JAVA_TOOLCHAIN_VERSION") ?: "23") as Integer
+}
+
 plugins {
     alias(libs.plugins.spotless)
 }
@@ -36,7 +40,7 @@ subprojects {
     // Apply a specific Java toolchain to ease working on different environments.
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(23)
+            languageVersion = JavaLanguageVersion.of(rootProject.ext.resolveJavaToolchainVersion())
         }
     }
 
@@ -56,4 +60,4 @@ subprojects {
             targetExclude "**/build/generated-sources/**", "**/build/generated/**"
         }
     }
-} 
+}
