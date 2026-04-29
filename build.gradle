@@ -9,12 +9,12 @@ def loadEnvFile() {
     return props
 }
 
-ext.resolveJavaToolchainVersion = {
-    return (findProperty("javaToolchainVersion") ?: System.getenv("JAVA_TOOLCHAIN_VERSION") ?: "23") as Integer
-}
-
 plugins {
     alias(libs.plugins.spotless)
+}
+
+ext.resolveJavaToolchainVersion = {
+    return (findProperty("javaToolchainVersion") ?: System.getenv("JAVA_TOOLCHAIN_VERSION") ?: "23") as Integer
 }
 
 subprojects {
