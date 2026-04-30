@@ -55,18 +55,25 @@ pipeline {
                     perl -pe 's/\r$//' "$HEAT_ENV_FILE" > "$HEAT_ENV_PATH"
                     chmod 600 "$SSH_KEY"
                     SSH_PUBLIC_KEY="$(ssh-keygen -y -f "$SSH_KEY")"
+                    export SSH_PUBLIC_KEY SSH_USER HEAT_ENV_PATH
 
-                    if grep -q '^[[:space:]]*ssh_user:' "$HEAT_ENV_PATH"; then
-                      sed -i "s#^[[:space:]]*ssh_user:.*#  ssh_user: ${SSH_USER}#" "$HEAT_ENV_PATH"
-                    fi
-
-                    if grep -q '^[[:space:]]*ssh_public_key:' "$HEAT_ENV_PATH"; then
-                      sed -i "s#^[[:space:]]*ssh_public_key:.*#  ssh_public_key: \"$SSH_PUBLIC_KEY\"#" "$HEAT_ENV_PATH"
-                    else
-                      cat >> "$HEAT_ENV_PATH" <<EOF
-  ssh_public_key: "$SSH_PUBLIC_KEY"
-EOF
-                    fi
+                    python3 -c 'import os, pathlib; p = pathlib.Path(os.environ["HEAT_ENV_PATH"]); user = os.environ["SSH_USER"]; key = os.environ["SSH_PUBLIC_KEY"]; lines = p.read_text().splitlines(); out = []; seen_user = False; seen_key = False
+for line in lines:
+    stripped = line.lstrip()
+    indent = line[:len(line) - len(stripped)]
+    if stripped.startswith("ssh_user:"):
+        out.append(f"{indent}ssh_user: {user}")
+        seen_user = True
+    elif stripped.startswith("ssh_public_key:"):
+        out.append(f"{indent}ssh_public_key: \"{key}\"")
+        seen_key = True
+    else:
+        out.append(line)
+if not seen_user:
+    out.append(f"  ssh_user: {user}")
+if not seen_key:
+    out.append(f"  ssh_public_key: \"{key}\"")
+p.write_text("\\n".join(out) + "\\n")'
                     '''
                 }
             }
