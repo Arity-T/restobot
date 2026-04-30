@@ -90,7 +90,7 @@ pipeline {
                             sh '''#!/usr/bin/env bash
                             set -euo pipefail
                             perl -ne 's/\\r$//; next if /Please enter your OpenStack Password/; next if /read .*OS_PASSWORD/; next if /OS_PASSWORD_INPUT/; print' "$OPENSTACK_RC_FILE" > "$OPENSTACK_RC_PATH"
-                            printf 'export OS_PASSWORD=%q\\n' "$OPENSTACK_PASSWORD" >> "$OPENSTACK_RC_PATH"
+                            printf '\\nexport OS_PASSWORD=%q\\n' "$OPENSTACK_PASSWORD" >> "$OPENSTACK_RC_PATH"
                             . "$OPENSTACK_RC_PATH"
                             openstack stack output show "$STACK_NAME" floating_ip -f value -c output_value > "$ARTIFACT_DIR/target_host.txt"
                             '''
@@ -99,10 +99,7 @@ pipeline {
                     }
                 }
 
-                sh '''#!/usr/bin/env bash
-                set -euo pipefail
-                echo "Resolved target host: $TARGET_HOST_RESOLVED"
-                '''
+                echo "Resolved target host: ${env.TARGET_HOST_RESOLVED}"
             }
         }
 
@@ -134,18 +131,20 @@ pipeline {
 
         stage('External Healthcheck') {
             steps {
-                sh '''#!/usr/bin/env bash
-                set -euo pipefail
-                for _ in $(seq 1 20); do
-                  if curl -fsS "http://${TARGET_HOST_RESOLVED}:${APP_PORT}/healthcheck"; then
-                    exit 0
-                  fi
-                  sleep 3
-                done
+                withEnv(["TARGET_HOST=${env.TARGET_HOST_RESOLVED}"]) {
+                    sh '''#!/usr/bin/env bash
+                    set -euo pipefail
+                    for _ in $(seq 1 20); do
+                      if curl -fsS "http://${TARGET_HOST}:${APP_PORT}/healthcheck"; then
+                        exit 0
+                      fi
+                      sleep 3
+                    done
 
-                echo "External healthcheck failed for ${TARGET_HOST_RESOLVED}:${APP_PORT}" >&2
-                exit 1
-                '''
+                    echo "External healthcheck failed for ${TARGET_HOST}:${APP_PORT}" >&2
+                    exit 1
+                    '''
+                }
             }
         }
     }

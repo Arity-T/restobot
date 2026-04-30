@@ -37,7 +37,7 @@ pipeline {
                     set -euo pipefail
 
                     perl -ne 's/\\r$//; next if /Please enter your OpenStack Password/; next if /read .*OS_PASSWORD/; next if /OS_PASSWORD_INPUT/; print' "$OPENSTACK_RC_FILE" > "$OPENSTACK_RC_PATH"
-                    printf 'export OS_PASSWORD=%q\\n' "$OPENSTACK_PASSWORD" >> "$OPENSTACK_RC_PATH"
+                    printf '\\nexport OS_PASSWORD=%q\\n' "$OPENSTACK_PASSWORD" >> "$OPENSTACK_RC_PATH"
                     '''
                 }
             }
