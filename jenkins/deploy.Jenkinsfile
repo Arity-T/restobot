@@ -81,8 +81,15 @@ pipeline {
             steps {
                 script {
                     def targetHostParam = params.TARGET_HOST?.trim()
+                    def targetHostEnv = env.TARGET_HOST?.trim()
+                    def resolvedTargetHost = ''
+
+                    echo "TARGET_HOST parameter: '${targetHostParam}'"
+
                     if (targetHostParam && targetHostParam != 'null') {
-                        env.TARGET_HOST_RESOLVED = targetHostParam
+                        resolvedTargetHost = targetHostParam
+                    } else if (targetHostEnv && targetHostEnv != 'null') {
+                        resolvedTargetHost = targetHostEnv
                     } else {
                         withCredentials([
                             file(credentialsId: 'openstack_rc', variable: 'OPENSTACK_RC_FILE'),
@@ -96,12 +103,14 @@ pipeline {
                             openstack stack output show "$STACK_NAME" floating_ip -f value -c output_value > "$ARTIFACT_DIR/target_host.txt"
                             '''
                         }
-                        env.TARGET_HOST_RESOLVED = readFile('deploy/.tmp/target_host.txt').trim()
+                        resolvedTargetHost = readFile('deploy/.tmp/target_host.txt').trim()
                     }
 
-                    if (!env.TARGET_HOST_RESOLVED || env.TARGET_HOST_RESOLVED == 'null') {
+                    if (!resolvedTargetHost || resolvedTargetHost == 'null') {
                         error("Could not resolve target host. Set TARGET_HOST manually or check Heat output '${params.STACK_NAME}.floating_ip'.")
                     }
+
+                    env.TARGET_HOST_RESOLVED = resolvedTargetHost
                 }
 
                 echo "Resolved target host: ${env.TARGET_HOST_RESOLVED}"
