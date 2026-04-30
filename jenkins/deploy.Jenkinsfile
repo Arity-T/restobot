@@ -95,7 +95,11 @@ pipeline {
                             openstack stack output show "$STACK_NAME" floating_ip -f value -c output_value > "$ARTIFACT_DIR/target_host.txt"
                             '''
                         }
-                        env.TARGET_HOST_RESOLVED = readFile("${env.ARTIFACT_DIR}/target_host.txt").trim()
+                        env.TARGET_HOST_RESOLVED = readFile('deploy/.tmp/target_host.txt').trim()
+                    }
+
+                    if (!env.TARGET_HOST_RESOLVED || env.TARGET_HOST_RESOLVED == 'null') {
+                        error("Could not resolve target host. Set TARGET_HOST manually or check Heat output '${params.STACK_NAME}.floating_ip'.")
                     }
                 }
 
