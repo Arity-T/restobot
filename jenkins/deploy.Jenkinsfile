@@ -80,8 +80,9 @@ pipeline {
         stage('Resolve Target Host') {
             steps {
                 script {
-                    if (params.TARGET_HOST?.trim()) {
-                        env.TARGET_HOST_RESOLVED = params.TARGET_HOST.trim()
+                    def targetHostParam = params.TARGET_HOST?.trim()
+                    if (targetHostParam && targetHostParam != 'null') {
+                        env.TARGET_HOST_RESOLVED = targetHostParam
                     } else {
                         withCredentials([
                             file(credentialsId: 'openstack_rc', variable: 'OPENSTACK_RC_FILE'),
