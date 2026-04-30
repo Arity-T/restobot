@@ -83,10 +83,14 @@ pipeline {
                     if (params.TARGET_HOST?.trim()) {
                         env.TARGET_HOST_RESOLVED = params.TARGET_HOST.trim()
                     } else {
-                        withCredentials([file(credentialsId: 'openstack_rc', variable: 'OPENSTACK_RC_FILE')]) {
+                        withCredentials([
+                            file(credentialsId: 'openstack_rc', variable: 'OPENSTACK_RC_FILE'),
+                            string(credentialsId: 'openstack_password', variable: 'OPENSTACK_PASSWORD')
+                        ]) {
                             sh '''#!/usr/bin/env bash
                             set -euo pipefail
-                            perl -pe 's/\r$//' "$OPENSTACK_RC_FILE" > "$OPENSTACK_RC_PATH"
+                            perl -ne 's/\\r$//; next if /Please enter your OpenStack Password/; next if /read .*OS_PASSWORD/; next if /OS_PASSWORD_INPUT/; print' "$OPENSTACK_RC_FILE" > "$OPENSTACK_RC_PATH"
+                            printf 'export OS_PASSWORD=%q\\n' "$OPENSTACK_PASSWORD" >> "$OPENSTACK_RC_PATH"
                             . "$OPENSTACK_RC_PATH"
                             openstack stack output show "$STACK_NAME" floating_ip -f value -c output_value > "$ARTIFACT_DIR/target_host.txt"
                             '''

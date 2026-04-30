@@ -16,6 +16,7 @@ deployment jobs. The build job from lab 2 remains the root `Jenkinsfile`.
 
 - `restobot_env` - Secret file with application `.env`
 - `openstack_rc` - Secret file with OpenStack CLI environment exports
+- `openstack_password` - Secret text with OpenStack password for non-interactive Jenkins jobs
 - `restobot_heat_env` - Secret file with Heat parameters file based on `heat/restobot-stack.env.example`
 - `restobot_vm_ssh` - SSH Username with private key for VM access
 
