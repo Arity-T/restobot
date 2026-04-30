@@ -65,14 +65,14 @@ for line in lines:
         out.append(f"{indent}ssh_user: {user}")
         seen_user = True
     elif stripped.startswith("ssh_public_key:"):
-        out.append(f"{indent}ssh_public_key: \"{key}\"")
+        out.append(f"{indent}ssh_public_key: {key}")
         seen_key = True
     else:
         out.append(line)
 if not seen_user:
     out.append(f"  ssh_user: {user}")
 if not seen_key:
-    out.append(f"  ssh_public_key: \"{key}\"")
+    out.append(f"  ssh_public_key: {key}")
 p.write_text("\\n".join(out) + "\\n")'
                     '''
                 }
