@@ -9,7 +9,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'TRIGGER_BUILD_JOB', defaultValue: false, description: 'Trigger build job before downloading artifact')
-        string(name: 'BUILD_JOB_NAME', defaultValue: 'Restobot', description: 'Name of the Jenkins build job from lab 2')
+        string(name: 'BUILD_JOB_NAME', defaultValue: 'lab2', description: 'Name of the Jenkins build job from lab 2')
         string(name: 'BUILD_NUMBER', defaultValue: '', description: 'Specific build number to copy artifact from. Empty = last successful build')
         string(name: 'STACK_NAME', defaultValue: 'restobot-stack', description: 'Heat stack name used to resolve VM floating IP')
         string(name: 'TARGET_HOST', defaultValue: '', description: 'Optional explicit VM IP/hostname. Leave empty to resolve from Heat outputs')
@@ -24,7 +24,7 @@ pipeline {
         ENV_PATH = "${WORKSPACE}/deploy/.env.vm"
         ARTIFACT_DIR = "${WORKSPACE}/deploy/.tmp"
         ARTIFACT_PATH = "${WORKSPACE}/deploy/.tmp/app-fat.jar"
-        TARGET_HOST_RESOLVED = ''
+        TARGET_HOST_PATH = "${WORKSPACE}/deploy/.tmp/target_host.txt"
     }
 
     stages {
@@ -110,10 +110,9 @@ pipeline {
                         error("Could not resolve target host. Set TARGET_HOST manually or check Heat output '${params.STACK_NAME}.floating_ip'.")
                     }
 
-                    env.TARGET_HOST_RESOLVED = resolvedTargetHost
+                    writeFile file: 'deploy/.tmp/target_host.txt', text: "${resolvedTargetHost}\n"
+                    echo "Resolved target host: ${resolvedTargetHost}"
                 }
-
-                echo "Resolved target host: ${env.TARGET_HOST_RESOLVED}"
             }
         }
 
@@ -123,9 +122,6 @@ pipeline {
                     sshUserPrivateKey(credentialsId: 'restobot_vm_ssh', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')
                 ]) {
                     withEnv([
-                        "TARGET_HOST=${env.TARGET_HOST_RESOLVED}",
-                        "SSH_USER=${env.SSH_USER}",
-                        "SSH_KEY_PATH=${env.SSH_KEY}",
                         "ARTIFACT_PATH=${env.ARTIFACT_PATH}",
                         "ENV_FILE_PATH=${env.ENV_PATH}",
                         "APP_DIR=${params.APP_DIR}",
@@ -135,6 +131,10 @@ pipeline {
                     ]) {
                         sh '''#!/usr/bin/env bash
                         set -euo pipefail
+                        TARGET_HOST="$(tr -d '[:space:]' < "$TARGET_HOST_PATH")"
+                        SSH_KEY_PATH="$SSH_KEY"
+                        export SSH_KEY_PATH
+                        export TARGET_HOST
                         chmod +x deploy/deploy.sh
                         deploy/deploy.sh
                         '''
@@ -145,20 +145,19 @@ pipeline {
 
         stage('External Healthcheck') {
             steps {
-                withEnv(["TARGET_HOST=${env.TARGET_HOST_RESOLVED}"]) {
-                    sh '''#!/usr/bin/env bash
-                    set -euo pipefail
-                    for _ in $(seq 1 20); do
-                      if curl -fsS "http://${TARGET_HOST}:${APP_PORT}/healthcheck"; then
-                        exit 0
-                      fi
-                      sleep 3
-                    done
+                sh '''#!/usr/bin/env bash
+                set -euo pipefail
+                TARGET_HOST="$(tr -d '[:space:]' < "$TARGET_HOST_PATH")"
+                for _ in $(seq 1 20); do
+                  if curl -fsS "http://${TARGET_HOST}:${APP_PORT}/healthcheck"; then
+                    exit 0
+                  fi
+                  sleep 3
+                done
 
-                    echo "External healthcheck failed for ${TARGET_HOST}:${APP_PORT}" >&2
-                    exit 1
-                    '''
-                }
+                echo "External healthcheck failed for ${TARGET_HOST}:${APP_PORT}" >&2
+                exit 1
+                '''
             }
         }
     }
