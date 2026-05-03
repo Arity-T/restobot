@@ -91,7 +91,7 @@ p.write_text("\\n".join(out) + "\\n")'
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
                 . "$OPENSTACK_RC_PATH"
-                openstack stack template validate --template "$TEMPLATE_PATH"
+                openstack orchestration template validate --template "$TEMPLATE_PATH"
                 '''
             }
         }
