@@ -10,9 +10,9 @@ pipeline {
     parameters {
         booleanParam(name: 'TRIGGER_BUILD_JOB', defaultValue: false, description: 'Trigger build job before downloading artifact')
         string(name: 'BUILD_JOB_NAME', defaultValue: 'lab2', description: 'Name of the Jenkins build job from lab 2')
-        string(name: 'BUILD_NUMBER', defaultValue: '', description: 'Specific build number to copy artifact from. Empty = last successful build')
+        string(name: 'BUILD_NUMBER', defaultValue: '34', description: 'Specific build number to copy artifact from. Empty = last successful build')
         string(name: 'STACK_NAME', defaultValue: 'restobot-stack', description: 'Heat stack name used to resolve VM floating IP')
-        string(name: 'TARGET_HOST', defaultValue: '', description: 'Optional explicit VM IP/hostname. Leave empty to resolve from Heat outputs')
+        string(name: 'TARGET_HOST', defaultValue: '192.168.24.210', description: 'Optional explicit VM IP/hostname. Leave empty to resolve from Heat outputs')
         string(name: 'SERVICE_NAME', defaultValue: 'restobot', description: 'systemd service name on VM')
         string(name: 'APP_DIR', defaultValue: '/opt/restobot', description: 'Application directory on VM')
         string(name: 'APP_USER', defaultValue: 'restobot', description: 'Linux user that will own files and run the service')
