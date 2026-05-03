@@ -7,207 +7,119 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '15'))
     }
 
-    environment {
-        GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        ENV_PATH = "${WORKSPACE}/.env"
-        DB_HOST = "127.0.0.1"
-        DB_PORT = "5435"
-        DB_NAME = "main"
-    }
-
     stages {
-        stage('Checkout') {
-            steps {
-                // Get the latest code from the repository
-                checkout scm
-            }
-        }
-
-        stage('Setup Java') {
+        stage('Create Jenkins node') {
+            agent any
             steps {
                 script {
-                    env.JAVA_HOME = sh(
-                        returnStdout: true,
-                        script: '''#!/usr/bin/env bash
-                        set -e
-
-                        for candidate in \
-                            /Library/Java/JavaVirtualMachines/jdk-23.jdk/Contents/Home \
-                            /Library/Java/JavaVirtualMachines/temurin-23.jdk/Contents/Home \
-                            /usr/lib/jvm/temurin-23-jdk-amd64 \
-                            /usr/lib/jvm/java-23-openjdk-amd64
-                        do
-                            if [ -x "$candidate/bin/java" ]; then
-                                printf '%s\\n' "$candidate"
-                                exit 0
-                            fi
-                        done
-
-                        if command -v /usr/libexec/java_home >/dev/null 2>&1; then
-                            /usr/libexec/java_home -v 23
-                            exit 0
-                        fi
-
-                        echo "ERROR: Java 23 was not found on this Jenkins node." >&2
-                        exit 1
-                        '''
-                    ).trim()
-                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-                }
-                sh 'java -version'
-            }
-        }
-
-        stage('Prepare .env') {
-            steps {
-                withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
-                    sh '''set -e
-                    # Normalize line endings to LF to avoid `/bin/sh` parse issues
-                    perl -pe 's/\r$//' "$ENV_FILE" > "$ENV_PATH"
-                    if grep -q '^MAIN_DB_URL=' "$ENV_PATH"; then
-                        sed "s#^MAIN_DB_URL=.*#MAIN_DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}#" "$ENV_PATH" > "${ENV_PATH}.tmp"
-                        mv "${ENV_PATH}.tmp" "$ENV_PATH"
-                    else
-                        printf '\nMAIN_DB_URL=jdbc:postgresql://%s:%s/%s\n' "$DB_HOST" "$DB_PORT" "$DB_NAME" >> "$ENV_PATH"
-                    fi
-                    ls -l "$ENV_PATH"
-                    '''
+                    echo ensureLabsJenkinsNode()
                 }
             }
         }
 
-        stage('Gradle Prep') {
-            steps {
-                sh 'chmod +x gradlew'
+        stage('Build and archive on labs') {
+            agent any
+
+            environment {
+                GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
+                ENV_PATH = "${WORKSPACE}/.env"
             }
-        }
 
-        stage('Start DB') {
-            steps {
-                sh '''set -e
-                    ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
-                    if [ ! -f "$ENV_PATH" ]; then
-                        echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
-                        exit 1
-                    fi
-
-                    compose() {
-                        if docker compose version >/dev/null 2>&1; then
-                            docker compose "$@"
-                        elif command -v docker-compose >/dev/null 2>&1; then
-                            docker-compose "$@"
-                        else
-                            echo "ERROR: Docker Compose is required to start PostgreSQL for this build."
-                            return 127
-                        fi
+            stages {
+                stage('Checkout') {
+                    steps {
+                        checkout scm
                     }
+                }
 
-                    compose --env-file "$ENV_PATH" down -v --remove-orphans
-                    compose --env-file "$ENV_PATH" up -d postgres
+                stage('Prepare .env') {
+                    steps {
+                        withCredentials([file(credentialsId: 'restobot_env', variable: 'ENV_FILE')]) {
+                            sh '''#!/usr/bin/env bash
+                            set -euo pipefail
+                            perl -pe 's/\\r$//' "$ENV_FILE" > "$ENV_PATH"
+                            ls -l "$ENV_PATH"
+                            '''
+                        }
+                    }
+                }
 
-                    set -a
-                    . "$ENV_PATH"
-                    set +a
-                    export PGPASSWORD="$MAIN_DB_PASSWORD"
+                stage('Resolve Java') {
+                    steps {
+                        script {
+                            env.JAVA_HOME = sh(
+                                script: '''#!/usr/bin/env bash
+                                set -euo pipefail
+                                JAVA_BIN="$(command -v javac || command -v java)"
+                                dirname "$(dirname "$(readlink -f "$JAVA_BIN")")"
+                                ''',
+                                returnStdout: true
+                            ).trim()
+                            env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                        }
 
-                    echo "Waiting for PostgreSQL on ${DB_HOST}:${DB_PORT}..."
-                    for i in $(seq 1 30); do
-                        if psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres -tAc 'SELECT 1' >/dev/null 2>&1; then
-                            exit 0
+                        sh 'java -version'
+                    }
+                }
+
+                stage('Gradle Prep') {
+                    steps {
+                        sh 'chmod +x gradlew'
+                    }
+                }
+
+                stage('Create DB') {
+                    steps {
+                        sh '''#!/usr/bin/env bash
+                        set -euo pipefail
+                        ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
+                        if [ ! -f "$ENV_PATH" ]; then
+                          echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
+                          exit 1
                         fi
-                        sleep 2
-                    done
+                        set -a
+                        . "$ENV_PATH"
+                        set +a
+                        export PGPASSWORD="$MAIN_DB_PASSWORD"
+                        psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres <<'SQL'
+SELECT pg_terminate_backend(pid)
+FROM pg_stat_activity
+WHERE datname = 'main'
+  AND pid <> pg_backend_pid();
 
-                    echo "ERROR: PostgreSQL did not become ready in time."
-                    compose logs postgres
-                    exit 1
-                    '''
+DROP DATABASE IF EXISTS main;
+
+CREATE DATABASE main;
+SQL
+                        '''
+                    }
+                }
+
+                stage('Run Migrations') {
+                    steps {
+                        sh './gradlew :logic:flywayMigrate'
+                    }
+                }
+
+                stage('Generate jOOQ') {
+                    steps {
+                        sh './gradlew :logic:generateJooq'
+                    }
+                }
+
+                stage('Build') {
+                    steps {
+                        sh './gradlew build'
+                    }
+                }
             }
-        }
 
-        stage('Create DB') {
-            steps {
-                sh '''set -e
-                    ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
-                    if [ ! -f "$ENV_PATH" ]; then
-                        echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
-                        exit 1
-                    fi
-                    set -a
-                    . "$ENV_PATH"
-                    set +a
-                    export PGPASSWORD="$MAIN_DB_PASSWORD"
-                    DB_NAME_LITERAL="$(printf "%s" "$DB_NAME" | sed "s/'/''/g")"
-                    DB_NAME_IDENTIFIER="$(printf "%s" "$DB_NAME" | sed 's/"/""/g')"
-                    psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres \
-                        -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${DB_NAME_LITERAL}' AND pid <> pg_backend_pid();" \
-                        -c "DROP DATABASE IF EXISTS \"${DB_NAME_IDENTIFIER}\";" \
-                        -c "CREATE DATABASE \"${DB_NAME_IDENTIFIER}\";"
-                    '''
+            post {
+                always {
+                    archiveArtifacts artifacts: 'app/build/libs/*.jar', allowEmptyArchive: true, fingerprint: true
+                    deleteDir()
+                }
             }
-        }
-
-        stage('Verify DB Connection') {
-            steps {
-                sh '''set -e
-                    set -a
-                    . "$ENV_PATH"
-                    set +a
-                    export PGPASSWORD="$MAIN_DB_PASSWORD"
-
-                    echo "MAIN_DB_URL=$(printf "%s" "$MAIN_DB_URL" | sed 's#//[^:]*:[^@]*@#//****:****@#')"
-                    psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d "$DB_NAME" -tAc 'SELECT 1'
-                    '''
-            }
-        }
-
-        stage('Run Migrations') {
-            steps {
-                sh './gradlew --no-daemon :logic:flywayMigrate'
-            }
-        }
-
-        stage('Generate jOOQ') {
-            steps {
-                sh './gradlew --no-daemon :logic:generateJooq'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh './gradlew --no-daemon build'
-            }
-        }
-
-        stage('Archive Artifact') {
-            steps {
-                archiveArtifacts artifacts: 'app/build/libs/app-fat.jar', fingerprint: true
-            }
-        }
-    }
-
-
-    post {
-        always {
-            sh '''set +e
-                if [ -f docker-compose.yml ]; then
-                    if docker compose version >/dev/null 2>&1; then
-                        if [ -f "$ENV_PATH" ]; then
-                            docker compose --env-file "$ENV_PATH" down -v --remove-orphans
-                        else
-                            docker compose down -v --remove-orphans
-                        fi
-                    elif command -v docker-compose >/dev/null 2>&1; then
-                        if [ -f "$ENV_PATH" ]; then
-                            docker-compose --env-file "$ENV_PATH" down -v --remove-orphans
-                        else
-                            docker-compose down -v --remove-orphans
-                        fi
-                    fi
-                fi
-                '''
-            // Always clean workspace to avoid leftover files between builds
-            cleanWs()
         }
     }
 }
