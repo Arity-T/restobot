@@ -10,7 +10,7 @@ pipeline {
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home"
+        JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-22.jdk/Contents/Home"
         PATH = "${JAVA_HOME}/bin:${PATH}"
         ENV_PATH = "${WORKSPACE}/.env"
     }
