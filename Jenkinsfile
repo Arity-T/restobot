@@ -10,7 +10,7 @@ pipeline {
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         ENV_PATH = "${WORKSPACE}/.env"
-        DB_HOST = "localhost"
+        DB_HOST = "127.0.0.1"
         DB_PORT = "5435"
         DB_NAME = "main"
     }
@@ -147,21 +147,35 @@ pipeline {
             }
         }
 
+        stage('Verify DB Connection') {
+            steps {
+                sh '''set -e
+                    set -a
+                    . "$ENV_PATH"
+                    set +a
+                    export PGPASSWORD="$MAIN_DB_PASSWORD"
+
+                    echo "MAIN_DB_URL=$(printf "%s" "$MAIN_DB_URL" | sed 's#//[^:]*:[^@]*@#//****:****@#')"
+                    psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d "$DB_NAME" -tAc 'SELECT 1'
+                    '''
+            }
+        }
+
         stage('Run Migrations') {
             steps {
-                sh './gradlew :logic:flywayMigrate'
+                sh './gradlew --no-daemon :logic:flywayMigrate'
             }
         }
 
         stage('Generate jOOQ') {
             steps {
-                sh './gradlew :logic:generateJooq'
+                sh './gradlew --no-daemon :logic:generateJooq'
             }
         }
 
         stage('Build') {
             steps {
-                sh './gradlew build'
+                sh './gradlew --no-daemon build'
             }
         }
 
