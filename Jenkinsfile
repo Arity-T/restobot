@@ -70,14 +70,6 @@ pipeline {
     }
 
     stages {
-        stage('Create Jenkins node') {
-            agent any
-            steps {
-                script {
-                    echo ensureLabsJenkinsNode()
-                }
-            }
-        }
 
         stage('Build and archive on labs') {
             agent { label 'labs' }
