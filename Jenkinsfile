@@ -14,6 +14,9 @@ pipeline {
             environment {
                 GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
                 ENV_PATH = "${WORKSPACE}/.env"
+                DB_HOST = "127.0.0.1"
+                DB_PORT = "5435"
+                DB_NAME = "main"
             }
 
             stages {
@@ -29,6 +32,12 @@ pipeline {
                             sh '''#!/usr/bin/env bash
                             set -euo pipefail
                             perl -pe 's/\\r$//' "$ENV_FILE" > "$ENV_PATH"
+                            if grep -q '^MAIN_DB_URL=' "$ENV_PATH"; then
+                                sed "s#^MAIN_DB_URL=.*#MAIN_DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}#" "$ENV_PATH" > "${ENV_PATH}.tmp"
+                                mv "${ENV_PATH}.tmp" "$ENV_PATH"
+                            else
+                                printf '\\nMAIN_DB_URL=jdbc:postgresql://%s:%s/%s\\n' "$DB_HOST" "$DB_PORT" "$DB_NAME" >> "$ENV_PATH"
+                            fi
                             ls -l "$ENV_PATH"
                             '''
                         }
@@ -117,7 +126,7 @@ pipeline {
                         . "$ENV_PATH"
                         set +a
                         export PGPASSWORD="$MAIN_DB_PASSWORD"
-                        psql -h localhost -U "$MAIN_DB_USER" -p 5435 -d postgres <<'SQL'
+                        psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres <<'SQL'
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
 WHERE datname = 'main'
@@ -131,21 +140,35 @@ SQL
                     }
                 }
 
+                stage('Verify DB Connection') {
+                    steps {
+                        sh '''#!/usr/bin/env bash
+                        set -euo pipefail
+                        set -a
+                        . "$ENV_PATH"
+                        set +a
+                        export PGPASSWORD="$MAIN_DB_PASSWORD"
+                        echo "MAIN_DB_URL=$MAIN_DB_URL"
+                        psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d "$DB_NAME" -tAc 'SELECT 1'
+                        '''
+                    }
+                }
+
                 stage('Run Migrations') {
                     steps {
-                        sh './gradlew :logic:flywayMigrate'
+                        sh './gradlew --no-daemon :logic:flywayMigrate'
                     }
                 }
 
                 stage('Generate jOOQ') {
                     steps {
-                        sh './gradlew :logic:generateJooq'
+                        sh './gradlew --no-daemon :logic:generateJooq'
                     }
                 }
 
                 stage('Build') {
                     steps {
-                        sh './gradlew build'
+                        sh './gradlew --no-daemon build'
                     }
                 }
             }
