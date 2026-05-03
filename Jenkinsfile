@@ -11,8 +11,8 @@ pipeline {
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
         ENV_PATH = "${WORKSPACE}/.env"
-        DB_HOST = "127.0.0.1"
-        DB_PORT = "5435"
+        DB_HOST = "localhost"
+        DB_PORT = "5432"
         DB_NAME = "main"
     }
 
@@ -44,40 +44,26 @@ pipeline {
             }
         }
 
-        stage('Start DB') {
+        stage('Check Local DB') {
             steps {
                 sh '''#!/usr/bin/env bash
                 set -euo pipefail
-
-                compose() {
-                    if docker compose version >/dev/null 2>&1; then
-                        docker compose "$@"
-                    elif command -v docker-compose >/dev/null 2>&1; then
-                        docker-compose "$@"
-                    else
-                        echo "ERROR: Docker Compose is required to start PostgreSQL for this build." >&2
-                        return 127
-                    fi
-                }
-
-                compose --env-file "$ENV_PATH" down -v --remove-orphans
-                compose --env-file "$ENV_PATH" up -d postgres
 
                 set -a
                 . "$ENV_PATH"
                 set +a
                 export PGPASSWORD="$MAIN_DB_PASSWORD"
 
-                echo "Waiting for PostgreSQL on ${DB_HOST}:${DB_PORT}..."
-                for _ in $(seq 1 30); do
+                echo "Checking local PostgreSQL on ${DB_HOST}:${DB_PORT}..."
+                for _ in $(seq 1 15); do
                     if psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres -tAc 'SELECT 1' >/dev/null 2>&1; then
                         exit 0
                     fi
                     sleep 2
                 done
 
-                echo "ERROR: PostgreSQL did not become ready in time." >&2
-                compose logs postgres
+                echo "ERROR: Local PostgreSQL is not available on ${DB_HOST}:${DB_PORT}." >&2
+                echo "Start local PostgreSQL and make sure MAIN_DB_USER can connect to the postgres database." >&2
                 exit 1
                 '''
             }
@@ -93,10 +79,12 @@ pipeline {
                 set +a
                 export PGPASSWORD="$MAIN_DB_PASSWORD"
 
-                psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres \
-                    -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${DB_NAME}' AND pid <> pg_backend_pid();" \
-                    -c "DROP DATABASE IF EXISTS ${DB_NAME};" \
-                    -c "CREATE DATABASE ${DB_NAME};"
+                if psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -qx '1'; then
+                    echo "Database ${DB_NAME} already exists."
+                else
+                    psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres \
+                        -c "CREATE DATABASE ${DB_NAME};"
+                fi
                 '''
             }
         }
@@ -209,17 +197,6 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'app/build/libs/*.jar', allowEmptyArchive: true, fingerprint: true
-            sh '''#!/usr/bin/env bash
-            set +e
-
-            if [ -f docker-compose.yml ] && [ -f "$ENV_PATH" ]; then
-                if docker compose version >/dev/null 2>&1; then
-                    docker compose --env-file "$ENV_PATH" down -v --remove-orphans
-                elif command -v docker-compose >/dev/null 2>&1; then
-                    docker-compose --env-file "$ENV_PATH" down -v --remove-orphans
-                fi
-            fi
-            '''
             deleteDir()
         }
     }
