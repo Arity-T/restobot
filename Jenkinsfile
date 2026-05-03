@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'Gubkovskiy_agent' }
+    agent any
 
     options {
         timestamps()
