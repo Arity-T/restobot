@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/usr/lib/jvm/temurin-23-jdk-amd64" 
+        JAVA_HOME = "/usr/bin/java" 
         PATH = "${JAVA_HOME}/bin:${PATH}"
         ENV_PATH = "${WORKSPACE}/.env"
         DB_HOST = "localhost"
