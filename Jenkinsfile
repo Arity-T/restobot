@@ -10,7 +10,7 @@ pipeline {
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-23.jdk/Contents/Home"
+        JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home"
         PATH = "${JAVA_HOME}/bin:${PATH}"
         ENV_PATH = "${WORKSPACE}/.env"
     }
@@ -44,7 +44,6 @@ pipeline {
         stage('Create DB') {
             steps {
                 sh '''set -e
-                    set +x
                     ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
                     if [ ! -f "$ENV_PATH" ]; then
                     echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
@@ -54,85 +53,35 @@ pipeline {
                     . "$ENV_PATH"
                     set +a
                     export PGPASSWORD="$MAIN_DB_PASSWORD"
-                    psql -v ON_ERROR_STOP=1 -h localhost -U postgres -p 5432 -d postgres \
-                        -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'main' AND pid <> pg_backend_pid();" \
-                        -c "DROP DATABASE IF EXISTS main;" \
-                        -c "CREATE DATABASE main;"
-                    '''
-            }
-        }
+                    psql -h localhost -U postgres -p 5432 -d postgres <<'SQL'
+                    SELECT pg_terminate_backend(pid)
+                    FROM pg_stat_activity
+                    WHERE datname = 'main'
+                    AND pid <> pg_backend_pid();
 
-        stage('Verify Java DB Connection') {
-            steps {
-                sh '''set -e
-                    set +x
-                    ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
-                    set -a
-                    . "$ENV_PATH"
-                    set +a
+                    DROP DATABASE IF EXISTS main;
 
-                    unset http_proxy HTTP_PROXY https_proxy HTTPS_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
-                    unset JAVA_TOOL_OPTIONS _JAVA_OPTIONS GRADLE_OPTS JAVA_OPTS
-
-                    tmp_dir="$(mktemp -d)"
-                    trap 'rm -rf "$tmp_dir"' EXIT
-
-                    cat > "$tmp_dir/JenkinsDbCheck.java" <<'JAVA'
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.Socket;
-
-public class JenkinsDbCheck {
-    public static void main(String[] args) throws Exception {
-        String url = System.getenv("MAIN_DB_URL");
-        if (url == null || !url.startsWith("jdbc:")) {
-            throw new IllegalArgumentException("Cannot parse MAIN_DB_URL=" + url);
-        }
-
-        URI uri = URI.create(url.substring("jdbc:".length()));
-        String host = uri.getHost();
-        int port = uri.getPort();
-
-        System.out.println("Java resolves DB host as " + InetAddress.getByName(host));
-        try (Socket ignored = new Socket(host, port)) {
-            System.out.println("Java can open DB socket " + host + ":" + port);
-        }
-    }
-}
-JAVA
-                    javac "$tmp_dir/JenkinsDbCheck.java"
-                    java -Djava.net.useSystemProxies=false -Djava.net.preferIPv4Stack=true -cp "$tmp_dir" JenkinsDbCheck
+                    CREATE DATABASE main;
+                    SQL
                     '''
             }
         }
 
         stage('Run Migrations') {
             steps {
-                sh '''set -e
-                    unset http_proxy HTTP_PROXY https_proxy HTTPS_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
-                    unset JAVA_TOOL_OPTIONS _JAVA_OPTIONS GRADLE_OPTS JAVA_OPTS
-                    ./gradlew --no-daemon -Djava.net.useSystemProxies=false -Djava.net.preferIPv4Stack=true :logic:flywayMigrate
-                    '''
+                sh './gradlew :logic:flywayMigrate'
             }
         }
 
         stage('Generate jOOQ') {
             steps {
-                sh '''set -e
-                    unset http_proxy HTTP_PROXY https_proxy HTTPS_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
-                    unset JAVA_TOOL_OPTIONS _JAVA_OPTIONS GRADLE_OPTS JAVA_OPTS
-                    ./gradlew --no-daemon -Djava.net.useSystemProxies=false -Djava.net.preferIPv4Stack=true :logic:generateJooq
-                    '''
+                sh './gradlew :logic:generateJooq'
             }
         }
 
         stage('Build') {
             steps {
-                sh '''set -e
-                    unset http_proxy HTTP_PROXY https_proxy HTTPS_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY
-                    unset JAVA_TOOL_OPTIONS _JAVA_OPTIONS GRADLE_OPTS JAVA_OPTS
-                    ./gradlew --no-daemon -Djava.net.useSystemProxies=false -Djava.net.preferIPv4Stack=true build
-                    '''
+                sh './gradlew build'
             }
         }
     }
