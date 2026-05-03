@@ -53,7 +53,7 @@ pipeline {
                     . "$ENV_PATH"
                     set +a
                     export PGPASSWORD="$MAIN_DB_PASSWORD"
-                    psql -h localhost -U "$MAIN_DB_USER" -p 5432 -d postgres <<'SQL'
+                    psql -h localhost -U postgres -p 5432 -d postgres <<'SQL'
                     SELECT pg_terminate_backend(pid)
                     FROM pg_stat_activity
                     WHERE datname = 'main'
