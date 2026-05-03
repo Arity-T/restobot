@@ -1,0 +1,130 @@
+heat_template_version: 2018-08-31
+
+description: >
+  RestoBot application VM for labs 3 and 4. The stack creates a single server,
+  a dedicated security group, a Neutron port and a floating IP.
+
+parameters:
+  instance_name:
+    type: string
+    default: restobot-app-vm
+    description: Server name in OpenStack.
+
+  image:
+    type: string
+    description: OpenStack image name or ID.
+
+  flavor:
+    type: string
+    description: OpenStack flavor name or ID.
+
+  network:
+    type: string
+    description: Existing private network name or ID.
+
+  subnet:
+    type: string
+    description: Existing subnet name or ID for the server port.
+
+  external_network:
+    type: string
+    description: External network used for floating IP allocation.
+
+  key_name:
+    type: string
+    description: Existing OpenStack keypair name.
+
+  ssh_user:
+    type: string
+    default: restobot
+    description: Linux user created by cloud-init and used for SSH/deploy.
+
+  ssh_public_key:
+    type: string
+    description: Public SSH key for the deploy user.
+
+  app_port:
+    type: number
+    default: 8089
+    description: Application port exposed by security group.
+
+resources:
+  restobot_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name:
+        str_replace:
+          template: __INSTANCE_NAME__-sg
+          params:
+            __INSTANCE_NAME__: { get_param: instance_name }
+      description: Security group for RestoBot VM.
+      rules:
+        - direction: ingress
+          ethertype: IPv4
+          protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+          remote_ip_prefix: 0.0.0.0/0
+        - direction: ingress
+          ethertype: IPv4
+          protocol: tcp
+          port_range_min: { get_param: app_port }
+          port_range_max: { get_param: app_port }
+          remote_ip_prefix: 0.0.0.0/0
+        - direction: egress
+          ethertype: IPv4
+          remote_ip_prefix: 0.0.0.0/0
+
+  restobot_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: network }
+      fixed_ips:
+        - subnet: { get_param: subnet }
+      security_groups:
+        - { get_resource: restobot_security_group }
+
+  restobot_server:
+    type: OS::Nova::Server
+    properties:
+      name: { get_param: instance_name }
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key_name }
+      networks:
+        - port: { get_resource: restobot_port }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: { get_file: cloud-init.yaml }
+          params:
+            __SSH_USER__: { get_param: ssh_user }
+            __SSH_PUBLIC_KEY__: { get_param: ssh_public_key }
+
+  restobot_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: external_network }
+      port_id: { get_resource: restobot_port }
+
+outputs:
+  server_name:
+    description: Created VM name.
+    value: { get_attr: [restobot_server, name] }
+
+  server_id:
+    description: Created VM ID.
+    value: { get_resource: restobot_server }
+
+  fixed_ip:
+    description: Internal IPv4 address.
+    value: { get_attr: [restobot_port, fixed_ips, 0, ip_address] }
+
+  floating_ip:
+    description: Public floating IP.
+    value: { get_attr: [restobot_floating_ip, floating_ip_address] }
+
+  ssh_user:
+    description: SSH user created by cloud-init.
+    value: { get_param: ssh_user }
+

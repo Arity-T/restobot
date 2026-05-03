@@ -3,6 +3,11 @@
 #
 # Linux start script should use lf
 /gradlew        text eol=lf
+*.sh            text eol=lf
+*.yaml          text eol=lf
+*.yml           text eol=lf
+*.service       text eol=lf
+Jenkinsfile     text eol=lf
 
 # These are Windows script files and should use crlf
 *.bat           text eol=crlf
