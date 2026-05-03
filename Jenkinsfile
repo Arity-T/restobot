@@ -37,19 +37,64 @@ pipeline {
 
                 stage('Resolve Java') {
                     steps {
-                        script {
-                            env.JAVA_HOME = sh(
-                                script: '''#!/usr/bin/env bash
-                                set -euo pipefail
-                                JAVA_BIN="$(command -v javac || command -v java)"
-                                dirname "$(dirname "$(readlink -f "$JAVA_BIN")")"
-                                ''',
-                                returnStdout: true
-                            ).trim()
-                            env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-                        }
+                        timeout(time: 15, unit: 'SECONDS') {
+                            script {
+                                env.JAVA_HOME = sh(
+                                    script: '''#!/usr/bin/env bash
+                                    set -euo pipefail
 
-                        sh 'java -version'
+                                    is_jdk_home() {
+                                        [ -n "$1" ] && [ -x "$1/bin/java" ] && [ -x "$1/bin/javac" ]
+                                    }
+
+                                    if is_jdk_home "${JAVA_HOME:-}"; then
+                                        printf '%s\\n' "$JAVA_HOME"
+                                        exit 0
+                                    fi
+
+                                    for candidate in \
+                                        /Library/Java/JavaVirtualMachines/jdk-23.jdk/Contents/Home \
+                                        /Library/Java/JavaVirtualMachines/temurin-23.jdk/Contents/Home \
+                                        /usr/lib/jvm/temurin-23-jdk-amd64 \
+                                        /usr/lib/jvm/java-23-openjdk-amd64
+                                    do
+                                        if is_jdk_home "$candidate"; then
+                                            printf '%s\\n' "$candidate"
+                                            exit 0
+                                        fi
+                                    done
+
+                                    if command -v /usr/libexec/java_home >/dev/null 2>&1; then
+                                        candidate="$(/usr/libexec/java_home -v 23 2>/dev/null || true)"
+                                        if is_jdk_home "$candidate"; then
+                                            printf '%s\\n' "$candidate"
+                                            exit 0
+                                        fi
+                                    fi
+
+                                    if command -v java >/dev/null 2>&1; then
+                                        candidate="$(java -XshowSettings:properties -version 2>&1 | awk -F= '/^[[:space:]]*java.home =/ { gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2; exit }')"
+                                        if is_jdk_home "$candidate"; then
+                                            printf '%s\\n' "$candidate"
+                                            exit 0
+                                        fi
+                                    fi
+
+                                    echo 'ERROR: Java 23 JDK was not found on this Jenkins node.' >&2
+                                    exit 1
+                                    ''',
+                                    returnStdout: true
+                                ).trim()
+                                env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                            }
+
+                            sh '''#!/usr/bin/env bash
+                            set -euo pipefail
+                            echo "JAVA_HOME=$JAVA_HOME"
+                            java -version
+                            javac -version
+                            '''
+                        }
                     }
                 }
 
