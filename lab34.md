@@ -157,7 +157,7 @@ sudo journalctl -u restobot -n 100 --no-pager
 Проверить healthcheck:
 
 ```bash
-curl http://185.216.204.165:8089/healthcheck
+http://192.168.24.210:8089/healthcheck
 ```
 
 Удалить stack после демонстрации, если инфраструктура больше не нужна:
