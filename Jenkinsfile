@@ -9,8 +9,6 @@ pipeline {
 
     environment {
         GRADLE_USER_HOME = "${WORKSPACE}/.gradle"
-        JAVA_HOME = "/Library/Java/JavaVirtualMachines/jdk-23.jdk" 
-        PATH = "${JAVA_HOME}/bin:${PATH}"
         ENV_PATH = "${WORKSPACE}/.env"
         DB_HOST = "localhost"
         DB_PORT = "5435"
@@ -22,6 +20,41 @@ pipeline {
             steps {
                 // Get the latest code from the repository
                 checkout scm
+            }
+        }
+
+        stage('Setup Java') {
+            steps {
+                script {
+                    env.JAVA_HOME = sh(
+                        returnStdout: true,
+                        script: '''#!/usr/bin/env bash
+                        set -e
+
+                        for candidate in \
+                            /Library/Java/JavaVirtualMachines/jdk-23.jdk/Contents/Home \
+                            /Library/Java/JavaVirtualMachines/temurin-23.jdk/Contents/Home \
+                            /usr/lib/jvm/temurin-23-jdk-amd64 \
+                            /usr/lib/jvm/java-23-openjdk-amd64
+                        do
+                            if [ -x "$candidate/bin/java" ]; then
+                                printf '%s\\n' "$candidate"
+                                exit 0
+                            fi
+                        done
+
+                        if command -v /usr/libexec/java_home >/dev/null 2>&1; then
+                            /usr/libexec/java_home -v 23
+                            exit 0
+                        fi
+
+                        echo "ERROR: Java 23 was not found on this Jenkins node." >&2
+                        exit 1
+                        '''
+                    ).trim()
+                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                }
+                sh 'java -version'
             }
         }
 
