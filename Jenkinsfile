@@ -17,6 +17,8 @@ pipeline {
                 DB_HOST = "127.0.0.1"
                 DB_PORT = "5435"
                 DB_NAME = "main"
+                JAVA_TOOL_OPTIONS = "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true"
+                GRADLE_OPTS = "-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true"
             }
 
             stages {
@@ -36,7 +38,7 @@ pipeline {
                                 sed "s#^MAIN_DB_URL=.*#MAIN_DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}#" "$ENV_PATH" > "${ENV_PATH}.tmp"
                                 mv "${ENV_PATH}.tmp" "$ENV_PATH"
                             else
-                                printf '\\nMAIN_DB_URL=jdbc:postgresql://%s:%s/%s\\n' "$DB_HOST" "$DB_PORT" "$DB_NAME" >> "$ENV_PATH"
+                                printf '\nMAIN_DB_URL=jdbc:postgresql://%s:%s/%s\n' "$DB_HOST" "$DB_PORT" "$DB_NAME" >> "$ENV_PATH"
                             fi
                             ls -l "$ENV_PATH"
                             '''
@@ -113,6 +115,45 @@ pipeline {
                     }
                 }
 
+                stage('Start DB') {
+                    steps {
+                        sh '''#!/usr/bin/env bash
+                        set -euo pipefail
+
+                        compose() {
+                            if docker compose version >/dev/null 2>&1; then
+                                docker compose "$@"
+                            elif command -v docker-compose >/dev/null 2>&1; then
+                                docker-compose "$@"
+                            else
+                                echo "ERROR: Docker Compose is required to start PostgreSQL for this build." >&2
+                                return 127
+                            fi
+                        }
+
+                        compose --env-file "$ENV_PATH" down -v --remove-orphans
+                        compose --env-file "$ENV_PATH" up -d postgres
+
+                        set -a
+                        . "$ENV_PATH"
+                        set +a
+                        export PGPASSWORD="$MAIN_DB_PASSWORD"
+
+                        echo "Waiting for PostgreSQL on ${DB_HOST}:${DB_PORT}..."
+                        for _ in $(seq 1 30); do
+                            if psql -h "$DB_HOST" -U "$MAIN_DB_USER" -p "$DB_PORT" -d postgres -tAc 'SELECT 1' >/dev/null 2>&1; then
+                                exit 0
+                            fi
+                            sleep 2
+                        done
+
+                        echo "ERROR: PostgreSQL did not become ready in time." >&2
+                        compose logs postgres
+                        exit 1
+                        '''
+                    }
+                }
+
                 stage('Create DB') {
                     steps {
                         sh '''#!/usr/bin/env bash
@@ -154,9 +195,34 @@ SQL
                     }
                 }
 
+                stage('Verify JVM DB Socket') {
+                    steps {
+                        sh '''#!/usr/bin/env bash
+                        set -euo pipefail
+                        cat > /tmp/JenkinsDbSocketCheck.java <<'JAVA'
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+public class JenkinsDbSocketCheck {
+    public static void main(String[] args) throws Exception {
+        String host = System.getenv("DB_HOST");
+        int port = Integer.parseInt(System.getenv("DB_PORT"));
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 5000);
+            System.out.println("JVM can connect to " + host + ":" + port);
+        }
+    }
+}
+JAVA
+                        javac /tmp/JenkinsDbSocketCheck.java
+                        java -cp /tmp JenkinsDbSocketCheck
+                        '''
+                    }
+                }
+
                 stage('Run Migrations') {
                     steps {
-                        sh './gradlew --no-daemon :logic:flywayMigrate'
+                        sh './gradlew --no-daemon --stacktrace --info :logic:flywayMigrate'
                     }
                 }
 
@@ -176,6 +242,16 @@ SQL
             post {
                 always {
                     archiveArtifacts artifacts: 'app/build/libs/*.jar', allowEmptyArchive: true, fingerprint: true
+                    sh '''#!/usr/bin/env bash
+                    set +e
+                    if [ -f docker-compose.yml ] && [ -f "$ENV_PATH" ]; then
+                        if docker compose version >/dev/null 2>&1; then
+                            docker compose --env-file "$ENV_PATH" down -v --remove-orphans
+                        elif command -v docker-compose >/dev/null 2>&1; then
+                            docker-compose --env-file "$ENV_PATH" down -v --remove-orphans
+                        fi
+                    fi
+                    '''
                     deleteDir()
                 }
             }
