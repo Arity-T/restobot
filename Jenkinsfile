@@ -44,6 +44,7 @@ pipeline {
         stage('Create DB') {
             steps {
                 sh '''set -e
+                    set +x
                     ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
                     if [ ! -f "$ENV_PATH" ]; then
                     echo "ERROR: $ENV_PATH not found. Make sure the credential 'restobot_env' is configured."
@@ -53,16 +54,10 @@ pipeline {
                     . "$ENV_PATH"
                     set +a
                     export PGPASSWORD="$MAIN_DB_PASSWORD"
-                    psql -h localhost -U postgres -p 5432 -d postgres <<'SQL'
-                    SELECT pg_terminate_backend(pid)
-                    FROM pg_stat_activity
-                    WHERE datname = 'main'
-                    AND pid <> pg_backend_pid();
-
-                    DROP DATABASE IF EXISTS main;
-
-                    CREATE DATABASE main;
-                    SQL
+                    psql -v ON_ERROR_STOP=1 -h localhost -U postgres -p 5432 -d postgres \
+                        -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'main' AND pid <> pg_backend_pid();" \
+                        -c "DROP DATABASE IF EXISTS main;" \
+                        -c "CREATE DATABASE main;"
                     '''
             }
         }
@@ -70,6 +65,7 @@ pipeline {
         stage('Verify Java DB Connection') {
             steps {
                 sh '''set -e
+                    set +x
                     ENV_PATH="${ENV_PATH:-${WORKSPACE:-$PWD}/.env}"
                     set -a
                     . "$ENV_PATH"
@@ -83,20 +79,19 @@ pipeline {
 
                     cat > "$tmp_dir/JenkinsDbCheck.java" <<'JAVA'
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.Socket;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class JenkinsDbCheck {
     public static void main(String[] args) throws Exception {
         String url = System.getenv("MAIN_DB_URL");
-        Matcher matcher = Pattern.compile("^jdbc:postgresql://([^:/?]+):(\\d+)/.*").matcher(url);
-        if (!matcher.matches()) {
+        if (url == null || !url.startsWith("jdbc:")) {
             throw new IllegalArgumentException("Cannot parse MAIN_DB_URL=" + url);
         }
 
-        String host = matcher.group(1);
-        int port = Integer.parseInt(matcher.group(2));
+        URI uri = URI.create(url.substring("jdbc:".length()));
+        String host = uri.getHost();
+        int port = uri.getPort();
 
         System.out.println("Java resolves DB host as " + InetAddress.getByName(host));
         try (Socket ignored = new Socket(host, port)) {
