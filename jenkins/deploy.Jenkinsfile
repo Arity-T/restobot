@@ -11,8 +11,8 @@ pipeline {
         booleanParam(name: 'TRIGGER_BUILD_JOB', defaultValue: false, description: 'Trigger build job before downloading artifact')
         string(name: 'BUILD_JOB_NAME', defaultValue: 'lab2', description: 'Name of the Jenkins build job from lab 2')
         string(name: 'BUILD_NUMBER', defaultValue: '', description: 'Specific build number to copy artifact from. Empty = last successful build')
-        string(name: 'STACK_NAME', defaultValue: 'gaar-restobot-stack', description: 'Heat stack name used to resolve VM floating IP')
-        string(name: 'TARGET_HOST', defaultValue: '185.216.204.165', description: 'Optional explicit VM IP/hostname. Leave empty to resolve from Heat outputs')
+        string(name: 'STACK_NAME', defaultValue: 'gaar-restobot-stack', description: 'Heat stack name used to resolve VM fixed IP')
+        string(name: 'TARGET_HOST', defaultValue: '', description: 'Optional explicit VM IP/hostname. Leave empty to resolve fixed IP from Heat outputs')
         string(name: 'SERVICE_NAME', defaultValue: 'restobot', description: 'systemd service name on VM')
         string(name: 'APP_DIR', defaultValue: '/opt/restobot', description: 'Application directory on VM')
         string(name: 'APP_USER', defaultValue: 'restobot', description: 'Linux user that will own files and run the service')
@@ -100,14 +100,14 @@ pipeline {
                             perl -ne 's/\\r$//; next if /Please enter your OpenStack Password/; next if /read .*OS_PASSWORD/; next if /OS_PASSWORD_INPUT/; print' "$OPENSTACK_RC_FILE" > "$OPENSTACK_RC_PATH"
                             printf '\\nexport OS_PASSWORD=%q\\n' "$OPENSTACK_PASSWORD" >> "$OPENSTACK_RC_PATH"
                             . "$OPENSTACK_RC_PATH"
-                            openstack stack output show "$STACK_NAME" floating_ip -f value -c output_value > "$ARTIFACT_DIR/target_host.txt"
+                            openstack stack output show "$STACK_NAME" target_host -f value -c output_value > "$ARTIFACT_DIR/target_host.txt"
                             '''
                         }
                         resolvedTargetHost = readFile('deploy/.tmp/target_host.txt').trim()
                     }
 
                     if (!resolvedTargetHost || resolvedTargetHost == 'null') {
-                        error("Could not resolve target host. Set TARGET_HOST manually or check Heat output '${params.STACK_NAME}.floating_ip'.")
+                        error("Could not resolve target host. Set TARGET_HOST manually or check Heat output '${params.STACK_NAME}.target_host'.")
                     }
 
                     writeFile file: 'deploy/.tmp/target_host.txt', text: "${resolvedTargetHost}\n"

@@ -12,15 +12,13 @@ deployment jobs. The build job from lab 2 remains the root `Jenkinsfile`.
 - Lab 4 deploy job:
   - script path: `jenkins/deploy.Jenkinsfile`
 
-For moving Jenkins to another PC, see `jenkins/portable-jenkins.md`.
-
 ## Current demo defaults
 
 - Jenkins node name/label: `labs`
 - Jenkins node host: `192.168.24.19`
 - Heat stack name: `gaar-restobot-stack`
 - Heat VM name: `gaar-restobot-vm`
-- Current deployment target IP: `185.216.204.165`
+- Deployment target: internal Heat output `target_host`
 
 ## Required Jenkins credentials
 
@@ -49,10 +47,11 @@ For moving Jenkins to another PC, see `jenkins/portable-jenkins.md`.
    - `STACK_ACTION=apply`
    - `STACK_NAME=gaar-restobot-stack`
    - creates or updates Heat stack
-   - archives stack outputs with floating IP
+   - archives stack outputs with internal fixed IP
 3. Prepare VM manually following `deploy/manual-vm-setup.md`.
 4. Run deploy job:
    - copies archived fat JAR from build job
+   - resolves target VM from Heat output `target_host` when `TARGET_HOST` is empty
    - uploads `.env` and systemd unit
    - restarts service with `systemctl`
    - checks `/healthcheck`

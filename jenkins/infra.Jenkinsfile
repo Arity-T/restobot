@@ -121,8 +121,8 @@ p.write_text("\\n".join(out) + "\\n")'
 
                 {
                   echo "stack_name=$STACK_NAME"
-                  echo "floating_ip=$(openstack stack output show "$STACK_NAME" floating_ip -f value -c output_value)"
                   echo "fixed_ip=$(openstack stack output show "$STACK_NAME" fixed_ip -f value -c output_value)"
+                  echo "target_host=$(openstack stack output show "$STACK_NAME" target_host -f value -c output_value)"
                   echo "ssh_user=$(openstack stack output show "$STACK_NAME" ssh_user -f value -c output_value)"
                   echo "server_name=$(openstack stack output show "$STACK_NAME" server_name -f value -c output_value)"
                 } > "$STACK_OUTPUTS_PATH"

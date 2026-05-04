@@ -6,7 +6,7 @@
 
 ## Кратко про Heat
 
-Heat - это сервис оркестрации OpenStack. Он позволяет описывать инфраструктуру декларативно в YAML-шаблоне: виртуальные машины, порты, security group, floating IP и другие ресурсы. Вместо ручного создания ресурсов через Horizon или отдельные CLI-команды создается один stack, а Heat сам приводит облачную инфраструктуру к описанному состоянию.
+Heat - это сервис оркестрации OpenStack. Он позволяет описывать инфраструктуру декларативно в YAML-шаблоне: виртуальные машины, порты, security group и другие ресурсы. Вместо ручного создания ресурсов через Horizon или отдельные CLI-команды создается один stack, а Heat сам приводит облачную инфраструктуру к описанному состоянию.
 
 В этой работе Heat используется как аналог "инфраструктуры как кода": шаблон хранится в Git, а Jenkins запускает создание или обновление stack.
 
@@ -23,7 +23,6 @@ Heat - это сервис оркестрации OpenStack. Он позволя
 - правила доступа по SSH на порт `22`;
 - правило доступа к API приложения на порт `8089`;
 - Neutron port во внутренней сети OpenStack;
-- floating IP из внешней сети;
 - пользователя для деплоя через `cloud-init`.
 
 Для запуска Heat из Jenkins была создана отдельная pipeline job с файлом `jenkins/infra.Jenkinsfile`.
@@ -58,7 +57,7 @@ Pipeline выполняет:
 - checkout репозитория;
 - загрузку `.env` приложения из Jenkins credentials;
 - получение `app-fat.jar` из successful build job лабораторной 2;
-- определение IP целевой VM через параметр `TARGET_HOST` или Heat output `floating_ip`;
+- определение IP целевой VM через параметр `TARGET_HOST` или Heat output `target_host`;
 - копирование артефакта, `.env`, SQL-миграций и systemd unit на VM;
 - создание/обновление базы `main`;
 - применение SQL-миграций, если таблицы еще не созданы;
@@ -98,16 +97,16 @@ Outputs stack:
 +-------------+---------------------------------+
 | fixed_ip    | Internal IPv4 address.          |
 | ssh_user    | SSH user created by cloud-init. |
-| floating_ip | Public floating IP.             |
+| target_host | Internal IPv4 address for deploy. |
 | server_id   | Created VM ID.                  |
 | server_name | Created VM name.                |
 +-------------+---------------------------------+
 ```
 
-Floating IP созданной VM:
+Internal IP созданной VM:
 
 ```text
-output_value | 185.216.204.165
+target_host | <TARGET_HOST>
 ```
 
 ## Результат лабораторной 4
@@ -115,7 +114,7 @@ output_value | 185.216.204.165
 Jenkins job `lab4-deploy` успешно:
 
 - получила артефакт `app-fat.jar` из job `lab2`;
-- подключилась к VM `185.216.204.165`;
+- подключилась к VM по внутреннему IP из `target_host`;
 - скопировала приложение и конфигурацию;
 - настроила systemd service;
 - перезапустила приложение;
@@ -124,7 +123,7 @@ Jenkins job `lab4-deploy` успешно:
 Проверка приложения:
 
 ```bash
-curl http://185.216.204.165:8089/healthcheck
+curl http://<TARGET_HOST>:8089/healthcheck
 ```
 
 Ожидаемый ответ:
@@ -143,13 +142,13 @@ curl http://185.216.204.165:8089/healthcheck
 ```bash
 openstack stack list
 openstack stack output list gaar-restobot-stack
-openstack stack output show gaar-restobot-stack floating_ip
+openstack stack output show gaar-restobot-stack target_host
 ```
 
 Подключиться к VM:
 
 ```bash
-ssh -i ~/.ssh/id_ed25519_labs restobot@185.216.204.165
+ssh -i ~/.ssh/id_ed25519_labs restobot@<TARGET_HOST>
 ```
 
 Проверить systemd service:
@@ -162,7 +161,7 @@ sudo journalctl -u restobot -n 100 --no-pager
 Проверить healthcheck:
 
 ```bash
-curl http://185.216.204.165:8089/healthcheck
+curl http://<TARGET_HOST>:8089/healthcheck
 ```
 
 Удалить stack после демонстрации, если инфраструктура больше не нужна:
