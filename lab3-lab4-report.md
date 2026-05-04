@@ -37,6 +37,11 @@ Pipeline выполняет:
 - создание или обновление stack через `openstack stack create/update`;
 - сохранение outputs stack в артефакты Jenkins.
 
+Для избежания конфликтов в общем OpenStack используются уникальные имена:
+
+- Heat stack: `gaar-restobot-stack`;
+- VM для развёртывания: `gaar-restobot-vm`.
+
 Используемые credentials:
 
 - `openstack_rc` - файл с переменными окружения OpenStack;
@@ -78,11 +83,11 @@ Pipeline выполняет:
 Stack был создан успешно:
 
 ```text
------------------+-----------------+-----------------+-------------------+--------------+
++-----------------+----------------------+-----------------+----------------------+--------------+
 | ID              | Stack Name      | Stack Status    | Creation Time     | Updated Time |
-+-----------------+-----------------+-----------------+-------------------+--------------+
-| d4d855d6-9ff5-  | restobot-stack  | CREATE_COMPLETE | 2026-04-30T13:12:39Z | None       |
-+-----------------+-----------------+-----------------+-------------------+--------------+
++-----------------+----------------------+-----------------+----------------------+--------------+
+| d4d855d6-9ff5-  | gaar-restobot-stack | CREATE_COMPLETE | 2026-04-30T13:12:39Z | None       |
++-----------------+----------------------+-----------------+----------------------+--------------+
 ```
 
 Outputs stack:
@@ -137,8 +142,8 @@ curl http://185.216.204.165:8089/healthcheck
 
 ```bash
 openstack stack list
-openstack stack output list restobot-stack
-openstack stack output show restobot-stack floating_ip
+openstack stack output list gaar-restobot-stack
+openstack stack output show gaar-restobot-stack floating_ip
 ```
 
 Подключиться к VM:
@@ -163,14 +168,14 @@ curl http://185.216.204.165:8089/healthcheck
 Удалить stack после демонстрации, если инфраструктура больше не нужна:
 
 ```bash
-openstack stack delete --yes --wait restobot-stack
+openstack stack delete --yes --wait gaar-restobot-stack
 ```
 
 Либо через Jenkins job `lab3-infra`:
 
 ```text
 STACK_ACTION = delete
-STACK_NAME = restobot-stack
+STACK_NAME = gaar-restobot-stack
 ```
 
 ## Выводы

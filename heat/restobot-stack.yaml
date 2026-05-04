@@ -7,7 +7,7 @@ description: >
 parameters:
   instance_name:
     type: string
-    default: restobot-app-vm
+    default: gaar-restobot-vm
     description: Server name in OpenStack.
 
   image:
@@ -127,4 +127,3 @@ outputs:
   ssh_user:
     description: SSH user created by cloud-init.
     value: { get_param: ssh_user }
-

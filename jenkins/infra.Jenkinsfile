@@ -9,7 +9,7 @@ pipeline {
 
     parameters {
         choice(name: 'STACK_ACTION', choices: ['apply', 'delete'], description: 'Create/update or delete OpenStack Heat stack')
-        string(name: 'STACK_NAME', defaultValue: 'restobot-stack', description: 'Heat stack name')
+        string(name: 'STACK_NAME', defaultValue: 'gaar-restobot-stack', description: 'Heat stack name')
         string(name: 'TEMPLATE_PATH', defaultValue: 'heat/restobot-stack.yaml', description: 'Path to Heat template in repository')
         string(name: 'ENV_PATH', defaultValue: 'heat/restobot-stack.env', description: 'Path where Heat env file will be written')
     }

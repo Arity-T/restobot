@@ -27,8 +27,8 @@ openstack stack create \
   --wait \
   --template heat/restobot-stack.yaml \
   --environment heat/restobot-stack.env \
-  restobot-stack
+  gaar-restobot-stack
 
-openstack stack output show restobot-stack floating_ip -f value -c output_value
+openstack stack output show gaar-restobot-stack floating_ip -f value -c output_value
 ```
 
