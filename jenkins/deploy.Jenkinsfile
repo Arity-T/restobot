@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'labs' }
+    agent { label 'openstack-worker' }
 
     options {
         timestamps()
