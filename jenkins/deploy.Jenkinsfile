@@ -11,7 +11,7 @@ pipeline {
         booleanParam(name: 'TRIGGER_BUILD_JOB', defaultValue: false, description: 'Trigger build job before downloading artifact')
         string(name: 'BUILD_JOB_NAME', defaultValue: 'lab2', description: 'Name of the Jenkins build job from lab 2')
         string(name: 'BUILD_NUMBER', defaultValue: '', description: 'Specific build number to copy artifact from. Empty = last successful build')
-        string(name: 'STACK_NAME', defaultValue: 'restobot-stack', description: 'Heat stack name used to resolve VM floating IP')
+        string(name: 'STACK_NAME', defaultValue: 'tishenko-restobot-stack', description: 'Heat stack name used to resolve VM fixed_ip (private address)')
         string(name: 'TARGET_HOST', defaultValue: '', description: 'Optional explicit VM IP/hostname. Leave empty to resolve from Heat outputs')
         string(name: 'SERVICE_NAME', defaultValue: 'restobot', description: 'systemd service name on VM')
         string(name: 'APP_DIR', defaultValue: '/opt/restobot', description: 'Application directory on VM')
@@ -107,7 +107,7 @@ pipeline {
                     }
 
                     if (!resolvedTargetHost || resolvedTargetHost == 'null') {
-                        error("Could not resolve target host. Set TARGET_HOST manually or check Heat output '${params.STACK_NAME}.floating_ip'.")
+                        error("Could not resolve target host. Set TARGET_HOST manually or check Heat output '${params.STACK_NAME}.fixed_ip'.")
                     }
 
                     writeFile file: 'deploy/.tmp/target_host.txt', text: "${resolvedTargetHost}\n"

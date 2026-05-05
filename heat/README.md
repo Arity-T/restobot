@@ -5,15 +5,14 @@ VM used for application deployment.
 
 ## Files
 
-- `restobot-stack.yaml` - HOT template for server, port, security group and floating IP.
+- `restobot-stack.yaml` - HOT template for server, port, security group (private `fixed_ip` only, no floating IP).
 - `restobot-stack.env.example` - example parameter file.
 - `cloud-init.yaml` - cloud-init used by Heat to create the SSH/deploy user.
 
 ## Required OpenStack inputs
 
-- existing private `network`
+- existing private `network` (e.g. `student-net`)
 - existing `subnet`
-- external network for floating IP
 - existing OpenStack keypair (`key_name`)
 - public SSH key for the deploy user (`ssh_public_key`)
 
@@ -29,6 +28,6 @@ openstack stack create \
   --environment heat/restobot-stack.env \
   restobot-stack
 
-openstack stack output show restobot-stack floating_ip -f value -c output_value
+openstack stack output show restobot-stack fixed_ip -f value -c output_value
 ```
 

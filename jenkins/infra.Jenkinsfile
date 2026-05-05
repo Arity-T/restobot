@@ -9,7 +9,7 @@ pipeline {
 
     parameters {
         choice(name: 'STACK_ACTION', choices: ['apply', 'delete'], description: 'Create/update or delete OpenStack Heat stack')
-        string(name: 'STACK_NAME', defaultValue: 'restobot-stack', description: 'Heat stack name')
+        string(name: 'STACK_NAME', defaultValue: 'tishenko-restobot-stack', description: 'Heat stack name')
         string(name: 'TEMPLATE_PATH', defaultValue: 'heat/restobot-stack.yaml', description: 'Path to Heat template in repository')
         string(name: 'ENV_PATH', defaultValue: 'heat/restobot-stack.env', description: 'Path where Heat env file will be written')
     }
@@ -121,7 +121,6 @@ p.write_text("\\n".join(out) + "\\n")'
 
                 {
                   echo "stack_name=$STACK_NAME"
-                  echo "floating_ip=$(openstack stack output show "$STACK_NAME" floating_ip -f value -c output_value)"
                   echo "fixed_ip=$(openstack stack output show "$STACK_NAME" fixed_ip -f value -c output_value)"
                   echo "ssh_user=$(openstack stack output show "$STACK_NAME" ssh_user -f value -c output_value)"
                   echo "server_name=$(openstack stack output show "$STACK_NAME" server_name -f value -c output_value)"

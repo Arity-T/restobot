@@ -2,7 +2,8 @@ heat_template_version: 2018-08-31
 
 description: >
   RestoBot application VM for labs 3 and 4. The stack creates a single server,
-  a dedicated security group, a Neutron port and a floating IP.
+  a dedicated security group and a Neutron port with a fixed IP on your private network
+  (no floating IP — deploy over VPN / from an agent inside the tenant network).
 
 parameters:
   instance_name:
@@ -25,10 +26,6 @@ parameters:
   subnet:
     type: string
     description: Existing subnet name or ID for the server port.
-
-  external_network:
-    type: string
-    description: External network used for floating IP allocation.
 
   key_name:
     type: string
@@ -101,12 +98,6 @@ resources:
             __SSH_USER__: { get_param: ssh_user }
             __SSH_PUBLIC_KEY__: { get_param: ssh_public_key }
 
-  restobot_floating_ip:
-    type: OS::Neutron::FloatingIP
-    properties:
-      floating_network: { get_param: external_network }
-      port_id: { get_resource: restobot_port }
-
 outputs:
   server_name:
     description: Created VM name.
@@ -117,12 +108,8 @@ outputs:
     value: { get_resource: restobot_server }
 
   fixed_ip:
-    description: Internal IPv4 address.
+    description: Private IPv4 on the tenant network (use for SSH and app when reachable from Jenkins).
     value: { get_attr: [restobot_port, fixed_ips, 0, ip_address] }
-
-  floating_ip:
-    description: Public floating IP.
-    value: { get_attr: [restobot_floating_ip, floating_ip_address] }
 
   ssh_user:
     description: SSH user created by cloud-init.

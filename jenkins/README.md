@@ -38,7 +38,7 @@ deployment jobs. The build job from lab 2 remains the root `Jenkinsfile`.
 2. Run infra job:
    - `STACK_ACTION=apply`
    - creates or updates Heat stack
-   - archives stack outputs with floating IP
+   - archives stack outputs with `fixed_ip` (private tenant address)
 3. Prepare VM manually following `deploy/manual-vm-setup.md`.
 4. Run deploy job:
    - copies archived fat JAR from build job
